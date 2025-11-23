@@ -1,0 +1,2 @@
+﻿resume_id,user_id,title,last_name_kanji,first_name_kanji,last_name_kana,first_name_kana,dob_year,dob_month,dob_day,gender,status,created_at,updated_at
+res_sample001,usr_sample001,2024年春の転職活動,山田,太郎,ヤマダ,タロウ,1990,1,1,男性,Draft,2023-01-01,2023-01-01

@@ -1,0 +1,2 @@
+﻿education_id,resume_id,school_name,department,degree,start_year,start_month,end_year,end_month,is_current
+edu_sample001,res_sample001,〇〇大学,経済学部,大卒,2010,4,2014,3,false

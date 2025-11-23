@@ -1,0 +1,2 @@
+﻿work_id,resume_id,company_name,department,position,start_year,start_month,end_year,end_month,is_current,description
+wrk_sample001,res_sample001,株式会社サンプル,営業部,リーダー,2014,4,2018,3,false,法人営業を担当。売上目標を120%達成。

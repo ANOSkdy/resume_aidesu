@@ -1,0 +1,8 @@
+﻿:root {
+  /* Colors */
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --primary-color: #0070f3;
+  --secondary-color: #666;
+}
