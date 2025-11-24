@@ -18,18 +18,7 @@ export default function ResumeLayout({ children }: { children: React.ReactNode }
   ];
 
   return (
-    <AppShell
-      title="履歴書作成"
-      footer={(
-        <WizardNav
-          currentStep={currentStep}
-          totalSteps={5}
-          basePath="/resume"
-          labels={steps}
-          variant="compact"
-        />
-      )}
-    >
+    <AppShell title="履歴書作成">
       <div className="space-y-4">
         <WizardNav
           currentStep={currentStep}

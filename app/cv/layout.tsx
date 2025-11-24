@@ -16,18 +16,7 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <AppShell
-      title="職務経歴書作成"
-      footer={(
-        <WizardNav
-          currentStep={currentStep}
-          totalSteps={3}
-          basePath="/cv"
-          labels={steps}
-          variant="compact"
-        />
-      )}
-    >
+    <AppShell title="職務経歴書作成">
       <div className="space-y-4">
         <WizardNav
           currentStep={currentStep}
