@@ -1,8 +1,9 @@
-﻿import { NextResponse } from 'next/server';
-import { db } from '@/lib/db/airtable';
+import { NextResponse } from 'next/server';
+import { getDb } from '@/lib/db/airtable';
 
 export async function GET() {
   try {
+    const db = getDb();
     // Lookupsテーブルから全件取得して、カテゴリごとに整理
     const records = await db.lookups.select({
       sort: [{ field: 'display_order', direction: 'asc' }]

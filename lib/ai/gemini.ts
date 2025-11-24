@@ -1,17 +1,27 @@
-﻿import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, type GenerativeModel } from '@google/generative-ai';
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error('GEMINI_API_KEY is missing in environment variables');
+let geminiModel: GenerativeModel | null = null;
+
+function getGeminiModel() {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is missing in environment variables');
+  }
+
+  if (!geminiModel) {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    // 指定されたモデル 'gemini-2.5-flash' を使用
+    geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  }
+
+  return geminiModel;
 }
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// 指定されたモデル 'gemini-2.5-flash' を使用
-export const geminiModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 export async function generateContent(prompt: string) {
   try {
-    const result = await geminiModel.generateContent(prompt);
+    const model = getGeminiModel();
+    const result = await model.generateContent(prompt);
     const response = await result.response;
     return response.text();
   } catch (error) {

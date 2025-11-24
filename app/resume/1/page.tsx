@@ -2,20 +2,16 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ResumeSchema } from '@/lib/validation/schemas';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/form/Input';
 
-type FormData = {
-  last_name_kanji: string;
-  first_name_kanji: string;
-  dob_year: number;
-  dob_month: number;
-  dob_day: number;
-  gender: string;
-};
+const formSchema = ResumeSchema.omit({ user_id: true });
+
+type FormData = z.infer<typeof formSchema>;
 
 export default function ResumeStep1() {
   const router = useRouter();
@@ -32,9 +28,12 @@ export default function ResumeStep1() {
     return 'usr_guest';
   };
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
-    // @ts-ignore
-    resolver: zodResolver(ResumeSchema.omit({ user_id: true })), 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       dob_year: 1990,
       dob_month: 1,
@@ -43,13 +42,12 @@ export default function ResumeStep1() {
     }
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      // 修正箇所: テンプレートリテラルをやめて、文字列連結に変更
       const payload = {
         ...data,
         user_id: getUserId(),
-        title: data.last_name_kanji + 'さんの履歴書' 
+        title: `${data.last_name_kanji}さんの履歴書`,
       };
 
       const res = await fetch('/api/data/resume', {
