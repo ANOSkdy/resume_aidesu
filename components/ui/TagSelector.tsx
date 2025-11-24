@@ -53,10 +53,10 @@ export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }
             key={opt.id}
             type="button"
             onClick={() => toggle(opt.name)}
-            className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+            className={`min-h-[44px] rounded-full border px-4 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${
               isActive
                 ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50 active:bg-gray-100'
             }`}
           >
             {opt.name}

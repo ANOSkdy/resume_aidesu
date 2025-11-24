@@ -5,39 +5,37 @@ type Props = {
   totalSteps: number;
   basePath: string;
   labels?: string[];
+  className?: string;
+  variant?: 'default' | 'compact';
 };
 
-export const WizardNav = ({ currentStep, totalSteps, labels }: Props) => {
+export const WizardNav = ({ currentStep, totalSteps, labels, className = '', variant = 'default' }: Props) => {
+  const padding = variant === 'compact' ? 'py-3' : 'py-4';
+
   return (
-    <div className="w-full py-6">
-      <div className="flex items-center justify-between relative mb-8 px-2">
-        <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -z-10 transform -translate-y-1/2"></div>
-        
+    <div className={`w-full ${padding} ${className}`}>
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="absolute left-0 right-0 top-4 h-1 -z-10 bg-gray-200"></div>
+
         {Array.from({ length: totalSteps }).map((_, i) => {
           const stepNum = i + 1;
           const isActive = stepNum <= currentStep;
           const isCurrent = stepNum === currentStep;
 
-          // クラス名を動的に組み立て
-          let circleClass = "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors ";
-          if (isActive) {
-            circleClass += "bg-blue-600 border-blue-600 text-white";
-          } else {
-            circleClass += "bg-white border-gray-300 text-gray-400";
-          }
+          let circleClass = "flex h-10 min-h-[44px] w-10 items-center justify-center rounded-full border-2 text-sm font-bold transition-colors";
+          circleClass += isActive
+            ? " bg-blue-600 border-blue-600 text-white"
+            : " bg-white border-gray-300 text-gray-500";
 
-          let labelClass = "absolute top-10 text-xs font-medium whitespace-nowrap ";
-          labelClass += isCurrent ? "text-blue-600" : "text-gray-400";
+          const labelClass = `mt-2 text-center text-[0.75rem] leading-4 font-medium break-words ${
+            isCurrent ? 'text-blue-700' : 'text-gray-500'
+          }`;
 
           return (
-            <div key={stepNum} className="flex flex-col items-center bg-white px-2">
-              <div className={circleClass}>
-                {stepNum}
-              </div>
+            <div key={stepNum} className="flex min-w-0 flex-1 flex-col items-center bg-white">
+              <div className={circleClass}>{stepNum}</div>
               {labels && labels[i] && (
-                <span className={labelClass}>
-                  {labels[i]}
-                </span>
+                <span className={labelClass}>{labels[i]}</span>
               )}
             </div>
           );

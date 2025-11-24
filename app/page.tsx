@@ -4,47 +4,38 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
+import { AppShell } from '@/components/layout/AppShell';
 
 export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4 font-sans">
-      <main className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100 text-center">
-        {/* ロゴエリア */}
-        <div className="mb-10">
-          <h1 className="text-5xl font-extrabold text-blue-600 tracking-tighter mb-2">
-            Carrimy
-          </h1>
-          <p className="text-gray-500 font-medium">
-            AIでつくる、あなたのキャリア。
+    <AppShell title="ホーム">
+      <section className="space-y-6">
+        <div className="space-y-3">
+          <h1 className="text-3xl font-extrabold leading-tight text-blue-700">Carrimy</h1>
+          <p className="text-sm text-gray-700">
+            AIでつくる、あなたのキャリア。スマホ専用レイアウトで、いつでもどこでも履歴書・職務経歴書を作成できます。
           </p>
         </div>
 
-        {/* 同意エリア */}
-        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
-          <p className="text-sm text-gray-700 font-bold mb-3">
-            ご利用開始の前に
-          </p>
-          <p className="text-xs text-gray-600 mb-4 leading-relaxed text-left">
-            当サービスでは、履歴書作成のために氏名や経歴などの個人情報を入力していただきます。<br />
-            入力された情報は、<span className="font-bold text-gray-800">個人情報保護法</span>に基づき厳重に管理されます。
-          </p>
-
-          <div className="mb-6">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="space-y-3">
+            <p className="text-sm font-semibold text-gray-800">ご利用開始の前に</p>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              当サービスでは、履歴書作成のために氏名や経歴などの個人情報を入力していただきます。入力された情報は、
+              <span className="font-semibold text-gray-800">個人情報保護法</span>に基づき厳重に管理されます。
+            </p>
             <Link
               href="/privacy"
-              className="text-xs text-blue-600 underline hover:text-blue-800 flex items-center justify-center gap-1"
+              className="flex min-h-[44px] items-center justify-start gap-2 text-sm font-medium text-blue-600 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
-              <span>📄</span>
+              <span role="img" aria-label="document">📄</span>
               個人情報保護方針の詳細を確認する
             </Link>
-          </div>
-
-          <div className="space-y-3">
             <Button
               size="lg"
-              className="w-full font-bold shadow-md h-12 text-base"
+              className="font-bold shadow-sm"
               onClick={() => router.push('/resume/1')}
             >
               同意して作成を開始する
@@ -52,9 +43,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* フッター */}
-        <p className="text-xs text-gray-400">© Carrimy Development Team</p>
-      </main>
-    </div>
+        <p className="text-center text-xs text-gray-400">© Carrimy Development Team</p>
+      </section>
+    </AppShell>
   );
 }
