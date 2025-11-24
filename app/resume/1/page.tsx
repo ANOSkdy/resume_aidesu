@@ -3,19 +3,15 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ResumeSchema } from '@/lib/validation/schemas';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/form/Input';
 
-type FormData = {
-  last_name_kanji: string;
-  first_name_kanji: string;
-  dob_year: number;
-  dob_month: number;
-  dob_day: number;
-  gender: string;
-};
+const formSchema = ResumeSchema.omit({ user_id: true });
+
+type FormData = z.infer<typeof formSchema>;
 
 export default function ResumeStep1() {
   const router = useRouter();
@@ -33,8 +29,7 @@ export default function ResumeStep1() {
   };
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
-    // @ts-ignore
-    resolver: zodResolver(ResumeSchema.omit({ user_id: true })), 
+    resolver: zodResolver(formSchema),
     defaultValues: {
       dob_year: 1990,
       dob_month: 1,
