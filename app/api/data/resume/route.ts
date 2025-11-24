@@ -76,7 +76,9 @@ export async function POST(request: Request) {
         console.log(`Updating existing record: ${existingRecordId}`);
         
         const updateData = { ...fields, user_id: user_id };
-        Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+        Object.keys(updateData).forEach((key) => {
+  if ((updateData as any)[key] === undefined) delete (updateData as any)[key];
+});
 
         record = await db.resumes.update([
           {
