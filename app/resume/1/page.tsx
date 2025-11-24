@@ -77,11 +77,11 @@ export default function ResumeStep1() {
       <h2 className="text-xl font-bold mb-6">基本情報の入力</h2>
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        
-        <div className="grid grid-cols-2 gap-4">
-          <Input 
-            label="姓 (漢字)" 
-            {...register('last_name_kanji')} 
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input
+            label="姓 (漢字)"
+            {...register('last_name_kanji')}
             error={errors.last_name_kanji?.message}
             placeholder="山田"
           />
@@ -94,22 +94,22 @@ export default function ResumeStep1() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">生年月日</label>
-          <div className="flex gap-4">
-            <div className="w-24">
-              <input type="number" {...register('dob_year', { valueAsNumber: true })} className="w-full px-3 py-2 border rounded" />
+          <label className="mb-1 block text-sm font-medium text-gray-700">生年月日</label>
+          <div className="flex flex-wrap gap-3">
+            <div className="w-28 flex-1 min-w-[5rem] max-w-[7rem]">
+              <input type="number" {...register('dob_year', { valueAsNumber: true })} className="w-full rounded border px-3 py-2" />
               <span className="text-xs text-gray-500">年</span>
             </div>
-            <div className="w-20">
-              <input type="number" {...register('dob_month', { valueAsNumber: true })} className="w-full px-3 py-2 border rounded" />
+            <div className="w-24 flex-1 min-w-[4.5rem] max-w-[6rem]">
+              <input type="number" {...register('dob_month', { valueAsNumber: true })} className="w-full rounded border px-3 py-2" />
               <span className="text-xs text-gray-500">月</span>
             </div>
-            <div className="w-20">
-              <input type="number" {...register('dob_day', { valueAsNumber: true })} className="w-full px-3 py-2 border rounded" />
+            <div className="w-24 flex-1 min-w-[4.5rem] max-w-[6rem]">
+              <input type="number" {...register('dob_day', { valueAsNumber: true })} className="w-full rounded border px-3 py-2" />
               <span className="text-xs text-gray-500">日</span>
             </div>
           </div>
-          {errors.dob_year && <p className="text-sm text-red-500 mt-1">正しい日付を入力してください</p>}
+          {errors.dob_year && <p className="mt-1 text-sm text-red-500">正しい日付を入力してください</p>}
         </div>
 
         <div>
@@ -121,7 +121,7 @@ export default function ResumeStep1() {
            </select>
         </div>
 
-        <div className="pt-4 flex justify-end">
+        <div className="pt-4">
           <Button type="submit" isLoading={isSubmitting}>
             保存して次へ進む
           </Button>

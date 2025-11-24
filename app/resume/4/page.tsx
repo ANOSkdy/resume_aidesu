@@ -95,27 +95,30 @@ export default function ResumeStep4() {
         {works.length === 0 && <p className="text-gray-500">職歴はまだ登録されていません。</p>}
         
         {works.map((work) => (
-          <div key={work.id} className="p-4 border rounded bg-gray-50 relative">
-             <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => work.id && onDelete(work.id)} 
-                className="absolute top-4 right-4 text-red-600 border-red-200"
-              >
-              削除
-            </Button>
-            <div className="font-bold text-lg mb-1">{work.company_name}</div>
-            <div className="text-sm text-gray-600 mb-2">
-              {work.department} / {work.position}
-            </div>
-            <div className="text-xs text-gray-500 mb-2">
-              {work.start_year}年{work.start_month}月 〜 {work.is_current ? '現在' : `${work.end_year}年${work.end_month}月`}
+          <div key={work.id} className="p-4 border rounded bg-gray-50 space-y-3">
+            <div className="min-w-0 space-y-1">
+              <div className="font-bold text-lg break-words">{work.company_name}</div>
+              <div className="text-sm text-gray-600 leading-tight break-words">
+                {work.department} / {work.position}
+              </div>
+              <div className="text-xs text-gray-500">
+                {work.start_year}年{work.start_month}月 〜 {work.is_current ? '現在' : `${work.end_year}年${work.end_month}月`}
+              </div>
             </div>
             {work.description && (
               <p className="text-sm text-gray-700 bg-white p-2 rounded border border-gray-100 whitespace-pre-wrap">
                 {work.description}
               </p>
             )}
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => work.id && onDelete(work.id)}
+                className="w-auto min-h-[32px] h-auto px-2 py-1 text-xs text-red-600 border-red-200"
+              >
+                削除
+              </Button>
+            </div>
           </div>
         ))}
       </div>
