@@ -1,5 +1,5 @@
 ﻿import { NextResponse } from 'next/server';
-import { db } from '@/lib/db/airtable';
+import { getDb } from '@/lib/db/airtable';
 import { ResumeSchema } from '@/lib/validation/schemas';
 
 // GET処理
@@ -10,6 +10,7 @@ export async function GET(request: Request) {
   if (!resumeId) return NextResponse.json({ error: 'Missing resumeId' }, { status: 400 });
 
   try {
+    const db = getDb();
     const resumes = await db.resumes.select({
       filterByFormula: "{resume_id} = '" + resumeId + "'",
       maxRecords: 1
@@ -35,6 +36,7 @@ export async function GET(request: Request) {
 // POST処理 (新規作成と更新の分岐ロジック修正)
 export async function POST(request: Request) {
   try {
+    const db = getDb();
     const body = await request.json();
     
     // バリデーション

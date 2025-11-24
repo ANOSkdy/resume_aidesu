@@ -1,9 +1,10 @@
 ﻿import { NextResponse } from 'next/server';
-import { db } from '@/lib/db/airtable';
+import { getDb } from '@/lib/db/airtable';
 import { EducationSchema } from '@/lib/validation/schemas';
 
 export async function POST(request: Request) {
   try {
+    const db = getDb();
     const body = await request.json();
     const validated = EducationSchema.parse(body);
 
@@ -21,7 +22,8 @@ export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   if(!id) return NextResponse.json({error:'Missing ID'},{status:400});
-  
+
+  const db = getDb();
   await db.educations.destroy([id]);
   return NextResponse.json({ success: true });
 }
