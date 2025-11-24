@@ -108,9 +108,8 @@ export default function ResumeStep4() {
               </div>
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => work.id && onDelete(work.id)}
-                className="shrink-0 text-red-600 border-red-200"
+                className="shrink-0 w-auto min-h-[32px] h-auto px-2 py-1 text-xs text-red-600 border-red-200"
               >
                 削除
               </Button>
