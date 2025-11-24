@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ResumeSchema } from '@/lib/validation/schemas';
@@ -28,7 +28,11 @@ export default function ResumeStep1() {
     return 'usr_guest';
   };
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       dob_year: 1990,
@@ -38,13 +42,12 @@ export default function ResumeStep1() {
     }
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      // 修正箇所: テンプレートリテラルをやめて、文字列連結に変更
       const payload = {
         ...data,
         user_id: getUserId(),
-        title: data.last_name_kanji + 'さんの履歴書' 
+        title: `${data.last_name_kanji}さんの履歴書`,
       };
 
       const res = await fetch('/api/data/resume', {
