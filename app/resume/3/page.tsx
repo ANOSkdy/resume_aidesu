@@ -133,8 +133,8 @@ export default function ResumeStep3() {
             </div>
           </div>
           
-          <div className="flex gap-2 items-end">
-            <div className="flex-1">
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex-1 min-w-[180px]">
               <label className="block text-xs font-bold text-gray-600 mb-1">入学</label>
               <div className="flex gap-1">
                 <input type="number" {...register('start_year', { valueAsNumber: true })} className="w-16 p-2 border rounded text-sm" />
@@ -144,7 +144,7 @@ export default function ResumeStep3() {
               </div>
             </div>
             <span className="mb-3">〜</span>
-            <div className="flex-1">
+            <div className="flex-1 min-w-[180px]">
               <label className="block text-xs font-bold text-gray-600 mb-1">卒業</label>
               <div className="flex gap-1">
                 <input type="number" {...register('end_year', { valueAsNumber: true })} className="w-16 p-2 border rounded text-sm" />
@@ -153,7 +153,9 @@ export default function ResumeStep3() {
                 <span className="self-center text-xs">月</span>
               </div>
             </div>
-            <Button type="submit" size="sm" variant="primary">追加</Button>
+          </div>
+          <div className="flex justify-end">
+            <Button type="submit" size="sm" variant="primary">学歴を追加</Button>
           </div>
         </form>
       </div>
