@@ -98,19 +98,25 @@ export default function ResumeStep3() {
         {educations.length === 0 && <p className="text-gray-500">学歴はまだ登録されていません。</p>}
         
         {educations.map((edu) => (
-          <div key={edu.id} className="p-4 border rounded bg-gray-50 flex justify-between items-center">
-            <div>
-              <div className="font-bold text-lg">{edu.school_name}</div>
-              <div className="text-sm text-gray-600">
+          <div key={edu.id} className="p-4 border rounded bg-gray-50 space-y-3">
+            <div className="min-w-0 space-y-1">
+              <div className="font-bold text-lg break-words">{edu.school_name}</div>
+              <div className="text-sm text-gray-600 leading-tight break-words">
                 {edu.department} {edu.degree ? `(${edu.degree})` : ''}
               </div>
               <div className="text-xs text-gray-500">
                 {edu.start_year}年{edu.start_month}月 〜 {edu.end_year ? `${edu.end_year}年${edu.end_month}月` : '現在'}
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={() => edu.id && onDelete(edu.id)} className="text-red-600 hover:bg-red-50 border-red-200">
-              削除
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => edu.id && onDelete(edu.id)}
+                className="w-auto min-h-[32px] h-auto px-2 py-1 text-xs text-red-600 border-red-200"
+              >
+                削除
+              </Button>
+            </div>
           </div>
         ))}
       </div>
