@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   
   // セクション共通
   section: {
-    marginBottom: 15,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 12,
@@ -55,12 +55,12 @@ const styles = StyleSheet.create({
     width: '100%',
     borderTop: '1px solid #ccc',
     borderLeft: '1px solid #ccc',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottom: '1px solid #ccc',
-    minHeight: 30,
+    minHeight: 24,
   },
   tableHeader: {
     backgroundColor: '#f5f5f5',
@@ -89,17 +89,42 @@ type ResumeData = {
   works: any[];
 };
 
+const sanitizeLines = (input: unknown): string[] => {
+  if (!input) return [];
+
+  if (typeof input === 'string') {
+    return input
+      .split(/\r?\n/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
+
+  if (Array.isArray(input)) {
+    return input
+      .map((item) => (typeof item === 'string' ? item.trim() : ''))
+      .filter((item) => item.length > 0);
+  }
+
+  return [];
+};
+
+const removeExperienceHeading = (items: string[]): string[] => {
+  return items.filter((item, index) => {
+    const normalized = item.replace(/[【】]/g, '');
+    if (index === 0 && /活かせる経験・?知識|応募先で活かせる/.test(normalized)) {
+      return false;
+    }
+    return true;
+  });
+};
+
 export const JobHistoryDocument = ({ data }: { data: ResumeData }) => {
   const { resume, works } = data;
   const safeResume = resume || {};
   const safeWorks = works || [];
   const today = new Date();
-  const experienceList = typeof safeResume.experience_knowledge === 'string'
-    ? safeResume.experience_knowledge.split(/\r?\n/).map((item: string) => item.trim()).filter((item: string) => item.length > 0)
-    : [];
-  const licenseList = Array.isArray(safeResume.licenses_qualifications)
-    ? safeResume.licenses_qualifications
-    : [];
+  const experienceList = removeExperienceHeading(sanitizeLines(safeResume.experience_knowledge));
+  const licenseList = sanitizeLines(safeResume.licenses_qualifications);
 
   // 職歴を時系列順 (古い順) にソート
   const sortedWorks = [...safeWorks].sort((a, b) => {
