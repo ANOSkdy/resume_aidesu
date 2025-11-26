@@ -9,8 +9,10 @@ import { JobHistoryTrigger } from '@/components/pdf/JobHistoryTrigger';
 export default function CVStep3() {
   const router = useRouter();
   const [summary, setSummary] = useState('');
+  const [experienceKnowledge, setExperienceKnowledge] = useState('');
   const [fullData, setFullData] = useState<any>(null);
   const [loadingAI, setLoadingAI] = useState(false);
+  const [loadingExperienceAI, setLoadingExperienceAI] = useState(false);
 
   useEffect(() => {
     const resumeId = localStorage.getItem('carrimy_resume_id');
@@ -24,8 +26,24 @@ export default function CVStep3() {
         if (data.resume && data.resume.summary) {
           setSummary(data.resume.summary);
         }
+        if (data.resume && data.resume.experience_knowledge) {
+          setExperienceKnowledge(data.resume.experience_knowledge);
+        }
       });
   }, []);
+
+  const buildCareerText = () => {
+    if (!fullData || !fullData.works || fullData.works.length === 0) return '';
+
+    return fullData.works.map((w: any, index: number) => {
+      const year = w.start_year || w.Year || '';
+      const month = w.start_month || w.Month || '';
+      const company = w.company_name || w.Name || w.Company || w.Title || '会社名不明';
+      const desc = w.description || w.Description || w.Notes || '';
+
+      return `【${index + 1}社目】${year}年${month}月入社 ${company} ${desc}`;
+    }).join('\n');
+  };
 
   const generateSummary = async () => {
     if (!fullData || !fullData.works || fullData.works.length === 0) {
@@ -33,19 +51,9 @@ export default function CVStep3() {
       return;
     }
     setLoadingAI(true);
-    
+
     try {
-      // ★修正: 列名が company_name でなくても、Name や Company などよくある名前も探す
-      // また、undefined が混入しないようにチェックする
-      const careerText = fullData.works.map((w: any, index: number) => {
-        const year = w.start_year || w.Year || '';
-        const month = w.start_month || w.Month || '';
-        // 列名の揺らぎを吸収
-        const company = w.company_name || w.Name || w.Company || w.Title || '会社名不明';
-        const desc = w.description || w.Description || w.Notes || '';
-        
-        return `【${index+1}社目】${year}年${month}月入社 ${company} ${desc}`;
-      }).join('\n');
+      const careerText = buildCareerText();
 
       console.log("Sending Career Text to AI:", careerText); // 送信内容を確認
 
@@ -74,16 +82,50 @@ export default function CVStep3() {
     }
   };
 
+  const generateExperienceKnowledge = async () => {
+    if (!fullData || !fullData.works || fullData.works.length === 0) {
+      alert("職歴データが0件です。Step 4に戻ってデータを追加してください。");
+      return;
+    }
+
+    const careerText = buildCareerText();
+    if (careerText.replace(/\s/g, '').length < 10) {
+      alert("職務内容が空のため生成できません。職歴を確認してください。");
+      return;
+    }
+
+    setLoadingExperienceAI(true);
+    try {
+      const res = await fetch('/api/ai/experience', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ experience_text: careerText }),
+      });
+
+      const json = await res.json();
+      if (json.result) {
+        setExperienceKnowledge(json.result);
+      } else {
+        alert('AI生成エラー: ' + (json.error || '不明なエラー'));
+      }
+    } catch (error) {
+      alert('通信エラーが発生しました');
+    } finally {
+      setLoadingExperienceAI(false);
+    }
+  };
+
   const onSaveSummary = async () => {
     if (!fullData) return;
     try {
       const resumeId = localStorage.getItem('carrimy_resume_id');
       const userId = localStorage.getItem('carrimy_uid') || 'guest';
-      
+
       const payload = {
         ...fullData.resume,
         user_id: userId,
-        summary: summary
+        summary: summary,
+        experience_knowledge: experienceKnowledge,
       };
       
       delete payload.createdTime;
@@ -95,7 +137,7 @@ export default function CVStep3() {
         body: JSON.stringify(payload),
       });
 
-      setFullData({ ...fullData, resume: { ...fullData.resume, summary } });
+      setFullData({ ...fullData, resume: { ...fullData.resume, summary, experience_knowledge: experienceKnowledge } });
       alert('保存しました！下のボタンからPDFをダウンロードできます。');
 
     } catch (error) {
@@ -119,17 +161,35 @@ export default function CVStep3() {
         </Button>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8 space-y-6">
         <label className="block text-sm font-bold text-gray-700 mb-2">職務要約 (編集可能)</label>
-        <textarea 
+        <textarea
           className="w-full p-3 border rounded-md h-32"
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
         />
+        <div className="bg-blue-50 p-4 rounded">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-blue-800 mb-1">活かせる経験・知識</p>
+              <p className="text-xs text-blue-700 mb-2">cv/4の職歴入力を元にAIが箇条書き化します。PDFの新セクションに反映されます。</p>
+            </div>
+            <Button onClick={generateExperienceKnowledge} isLoading={loadingExperienceAI} size="sm" className="bg-blue-600 hover:bg-blue-700">
+              💡 AIで生成する
+            </Button>
+          </div>
+          <textarea
+            className="w-full p-3 border rounded-md h-32 mt-3"
+            value={experienceKnowledge}
+            onChange={(e) => setExperienceKnowledge(e.target.value)}
+            placeholder={`- プロジェクトリード経験により...
+- 新規開拓営業の知見を活用し...`}
+          />
+        </div>
         <div className="text-right mt-2">
-           <Button size="sm" variant="outline" onClick={onSaveSummary} disabled={!summary}>
-             要約を保存してPDFに反映
-           </Button>
+          <Button size="sm" variant="outline" onClick={onSaveSummary} disabled={!summary && !experienceKnowledge}>
+            要約・活かせる経験を保存してPDFに反映
+          </Button>
         </div>
       </div>
 
