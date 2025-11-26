@@ -1,172 +1,338 @@
-﻿// components/pdf/ResumeDocument.tsx
-import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+﻿import React from 'react';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
-// フォント登録 (publicフォルダのローカルフォントを参照)
+// フォント登録
 Font.register({
   family: 'NotoSansJP',
-  src: '/fonts/NotoSansJP-Regular.ttf',
+  src: '/fonts/NotoSansJP-Regular.ttf'
 });
 
+// --- スタイル定義 ---
 const styles = StyleSheet.create({
   page: {
-    padding: '10mm',
+    padding: '12mm',
     fontFamily: 'NotoSansJP',
-    fontSize: 10,
-    lineHeight: 1.3,
+    fontSize: 10.5,
+    lineHeight: 1.4,
+    color: '#000',
   },
-  // テーブル罫線用
-  tableBorder: {
+  
+  // --- ヘッダー ---
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    height: 30,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    letterSpacing: 8,
+  },
+  date: {
+    fontSize: 10,
+    marginBottom: 2,
+  },
+  // ★修正: ヘッダー下の2行スペーサー
+  headerSpacer: {
+    height: 24,
+  },
+
+  // --- グリッドシステム (罫線統一) ---
+  gridContainer: {
     borderTop: '1px solid #000',
     borderLeft: '1px solid #000',
-    width: '100%',
-    marginBottom: 0,
+    marginBottom: 5,
   },
-  row: {
+  gridRow: {
     flexDirection: 'row',
     borderBottom: '1px solid #000',
-    minHeight: 24,
     alignItems: 'stretch',
+    minHeight: 26,
   },
-  cell: {
+  gridCell: {
     borderRight: '1px solid #000',
-    padding: 4,
+    padding: '3 5',
     justifyContent: 'center',
   },
-  // 幅調整
-  w10: { width: '10%' },
-  w5:  { width: '5%' },
-  w15: { width: '15%' },
-  w70: { width: '70%' },
-  w85: { width: '85%' },
   
-  header: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
-  label: { fontSize: 8, marginBottom: 2, color: '#555' },
+  // --- 基本情報 ---
+  labelCell: { width: '15%', backgroundColor: '#fff' },
+  valueCell: { flex: 1 },
+  label: { fontSize: 9, marginBottom: 1 },
+  value: { fontSize: 11 },
+  nameValue: { fontSize: 18, fontWeight: 'bold', marginLeft: 5 },
+
+  // --- 写真欄 ---
+  photoContainer: {
+    width: '20%',
+    marginLeft: 10,
+    height: 125,
+    border: '1px solid #000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photoText: { fontSize: 9, color: '#ccc', marginBottom: 2 },
+  photoDim: { fontSize: 8, color: '#ccc' },
+
+  // --- 学歴・職歴・資格 ---
+  tableHeader: { textAlign: 'center', fontSize: 10 },
   center: { textAlign: 'center' },
-  bold: { fontWeight: 'bold' },
+  colYear: { width: '12%' },
+  colMonth: { width: '8%' },
+  colContent: { width: '80%' },
+
+  // --- 2ページ目 ---
+  page2Container: {
+    borderLeft: '1px solid #000',
+    borderTop: '1px solid #000',
+    borderRight: '1px solid #000',
+    borderBottom: '1px solid #000',
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  // セクション
+  sectionBox: {
+    borderBottom: '1px solid #000',
+    padding: 8,
+  },
+  sectionTitle: { fontSize: 10, fontWeight: 'bold', marginBottom: 6, borderBottom: '1px dashed #ccc', paddingBottom: 2 },
+  sectionText: { fontSize: 10, lineHeight: 1.5 },
+  
+  // ★修正: セクション間の2行スペーサー (枠線内用)
+  innerSpacer: {
+    height: 24, // 2行分
+    borderBottom: '1px solid #000', // 区切り線
+    backgroundColor: '#fff', // 空白
+  },
+
+  // --- 個人情報 (通勤・扶養) ---
+  piLabel: { width: '22%', backgroundColor: '#fff' },
+  piValue: { width: '28%' },
+  piInput: { borderBottom: '1px solid #000', width: 25, textAlign: 'center', marginHorizontal: 2 },
+  piRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
 });
 
-// 行コンポーネント
-const HistoryRow = ({ year, month, content }: { year: string, month: string, content: string }) => (
-  <View style={styles.row}>
-    <View style={[styles.cell, styles.w10]}><Text style={styles.center}>{year}</Text></View>
-    <View style={[styles.cell, styles.w5]}><Text style={styles.center}>{month}</Text></View>
-    <View style={[styles.cell, styles.w85]}><Text>{content}</Text></View>
+// 履歴行コンポーネント
+const HistoryRow = ({ year, month, content, align = 'left' }: any) => (
+  <View style={styles.gridRow}>
+    <View style={[styles.gridCell, styles.colYear]}><Text style={styles.center}>{year}</Text></View>
+    <View style={[styles.gridCell, styles.colMonth]}><Text style={styles.center}>{month}</Text></View>
+    <View style={[styles.gridCell, styles.colContent]}>
+      <Text style={{ textAlign: align, fontSize: 10 }}>{content}</Text>
+    </View>
   </View>
 );
 
-// データ型定義 (Airtableの生データを受け取る想定)
-type ResumeData = {
-  resume: any;
-  educations: any[];
-  works: any[];
-};
-
-export const ResumeDocument = ({ data }: { data: ResumeData }) => {
-  const { resume, educations, works } = data;
+export const ResumeDocument = ({ data }: { data: any }) => {
+  const { resume, educations, works, licenses } = data;
   const safeResume = resume || {};
-
-  // 日付フォーマット等のヘルパー
   const today = new Date();
+  const dateString = `${today.getFullYear()}年 ${today.getMonth() + 1}月 ${today.getDate()}日 現在`;
 
-  // 学歴・職歴を結合して時系列順に並べる処理
-  const histories = [
+  // --- データ整形 ---
+  const rawHistory = [
+    { type: 'header', content: '学歴', sort: 0 },
     ...(educations || []).map((e: any) => ({
-      year: e.start_year, month: e.start_month, content: `${e.school_name} 入学`, type: 'edu'
+      year: e.start_year, month: e.start_month, content: `${e.school_name} 入学`, 
+      sort: 1, val: e.start_year * 100 + e.start_month
     })),
     ...(educations || []).map((e: any) => ({
-      year: e.end_year, month: e.end_month, content: `${e.school_name} ${e.degree || ''} 卒業`, type: 'edu'
+      year: e.end_year, month: e.end_month, content: `${e.school_name} ${e.degree || ''} 卒業`, 
+      sort: 1, val: e.end_year * 100 + e.end_month
+    })),
+    { type: 'header', content: ' ', sort: 1.5 },
+    { type: 'header', content: '職歴', sort: 2 },
+    ...(works || []).map((w: any) => ({
+      year: w.start_year, month: w.start_month, content: `${w.company_name} 入社`, 
+      sort: 3, val: w.start_year * 100 + w.start_month
     })),
     ...(works || []).map((w: any) => ({
-      year: w.start_year, month: w.start_month, content: `${w.company_name} 入社`, type: 'work'
+      year: w.end_year, month: w.end_month, 
+      content: w.is_current ? '現在に至る' : `${w.company_name} 退社`, 
+      sort: 3, val: (w.end_year || 9999) * 100 + (w.end_month || 12)
     })),
-    ...(works || []).map((w: any) => ({
-      year: w.end_year || 9999, month: w.end_month || 12, 
-      content: w.is_current ? '現在に至る' : `${w.company_name} 退社`, type: 'work'
-    })),
-  ].sort((a, b) => (a.year - b.year) || (a.month - b.month));
+  ];
 
-  // 空行埋め (レイアウト崩れ防止)
-  const MAX_LINES = 18;
-  const emptyLines = Array.from({ length: Math.max(0, MAX_LINES - histories.length) });
+  let displayHistory: any[] = [];
+  displayHistory.push({ content: '学歴', align: 'center' });
+  displayHistory.push(...rawHistory.filter(h => h.sort === 1).sort((a, b) => a.val - b.val));
+  displayHistory.push({ content: ' ', align: 'center' });
+  displayHistory.push({ content: '職歴', align: 'center' });
+  const worksItems = rawHistory.filter(h => h.sort === 3).sort((a, b) => a.val - b.val);
+  displayHistory.push(...worksItems);
+  
+  if (worksItems.length > 0) displayHistory.push({ content: '以上', align: 'right' });
+  else displayHistory.push({ content: 'なし', align: 'center' });
+
+  const TARGET_ROWS = 14;
+  const emptyRows = Array.from({ length: Math.max(0, TARGET_ROWS - displayHistory.length) });
+
+  const licenseList = (licenses || []).map((l: any) => ({ year: l.year, month: l.month, content: l.content }));
+  const emptyLic = Array.from({ length: Math.max(0, 6 - licenseList.length) });
 
   return (
     <Document>
+      {/* ================= PAGE 1 ================= */}
       <Page size="A4" style={styles.page}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 5 }}>
-           <Text style={styles.header}>履歴書</Text>
-           <Text style={{ fontSize: 10 }}>{today.getFullYear()}年 {today.getMonth()+1}月 {today.getDate()}日 現在</Text>
+        
+        <View style={styles.headerContainer}>
+          <Text style={styles.title}>履 歴 書</Text>
+          <Text style={styles.date}>{dateString}</Text>
         </View>
+        {/* ★修正: ヘッダー下のスペーサー(2行分) */}
+        <View style={styles.headerSpacer} />
 
-        {/* 基本情報ブロック */}
-        <View style={[styles.tableBorder, { marginBottom: 10 }]}>
-          <View style={styles.row}>
-            <View style={{ width: '75%', borderRight: '1px solid #000' }}>
-              {/* ふりがな */}
-              <View style={[styles.row, { borderBottom: '1px dotted #ccc', minHeight: 18 }]}>
-                <View style={[styles.cell, styles.w15, { borderRight: 'none' }]}><Text style={styles.label}>ふりがな</Text></View>
-                <View style={[styles.cell, styles.w85, { borderRight: 'none' }]}>
-                   <Text>{safeResume.last_name_kana} {safeResume.first_name_kana}</Text>
+        <View style={{ flexDirection: 'row', marginBottom: 5, alignItems: 'flex-start' }}>
+          <View style={{ width: '80%' }}>
+            <View style={styles.gridContainer}>
+              <View style={styles.gridRow}>
+                <View style={[styles.gridCell, styles.labelCell, { borderBottomStyle: 'dotted' }]}>
+                  <Text style={styles.label}>ふりがな</Text>
+                </View>
+                <View style={[styles.gridCell, styles.valueCell, { borderBottomStyle: 'dotted' }]}>
+                  <Text style={styles.value}>{safeResume.last_name_kana} {safeResume.first_name_kana}</Text>
                 </View>
               </View>
-              {/* 氏名 */}
-              <View style={{ padding: 10 }}>
-                <Text style={styles.label}>氏　　名</Text>
-                <Text style={{ fontSize: 24, textAlign: 'center', marginTop: 10 }}>
-                  {safeResume.last_name_kanji}　{safeResume.first_name_kanji}
-                </Text>
+              <View style={[styles.gridRow, { minHeight: 45 }]}>
+                <View style={[styles.gridCell, styles.labelCell]}>
+                  <Text style={styles.label}>氏　　名</Text>
+                </View>
+                <View style={[styles.gridCell, styles.valueCell]}>
+                  <Text style={styles.nameValue}>{safeResume.last_name_kanji}　{safeResume.first_name_kanji}</Text>
+                </View>
               </View>
-              {/* 生年月日 */}
-              <View style={[styles.row, { borderTop: '1px solid #000', borderBottom: 'none' }]}>
-                 <View style={[styles.cell, { width: '100%', borderRight: 'none' }]}>
-                    <Text style={styles.center}>
-                      {safeResume.dob_year}年 {safeResume.dob_month}月 {safeResume.dob_day}日生 （満 20代）
-                    </Text>
+              <View style={[styles.gridRow, { minHeight: 28 }]}>
+                <View style={[styles.gridCell, styles.labelCell]}>
+                  <Text style={styles.label}>生年月日</Text>
+                </View>
+                <View style={[styles.gridCell, styles.valueCell]}>
+                  <Text style={styles.value}>
+                    {safeResume.dob_year}年 {safeResume.dob_month}月 {safeResume.dob_day}日生 (満 {today.getFullYear() - safeResume.dob_year}歳)
+                    <Text style={{ fontSize: 10, color: '#444' }}>   性別：{safeResume.gender}</Text>
+                  </Text>
+                </View>
+              </View>
+              <View style={[styles.gridRow, { minHeight: 40 }]}>
+                <View style={[styles.gridCell, styles.labelCell]}>
+                  <Text style={styles.label}>現住所</Text>
+                </View>
+                <View style={[styles.gridCell, styles.valueCell]}>
+                  <Text style={styles.value}>〒 {safeResume.postal_code}</Text>
+                  <Text style={styles.value}>{(safeResume.desired_locations || []).join(' ')} {safeResume.address || ''}</Text>
+                </View>
+              </View>
+              <View style={styles.gridRow}>
+                 <View style={[styles.gridCell, styles.labelCell]}>
+                   <Text style={styles.label}>連絡先</Text>
+                 </View>
+                 <View style={[styles.gridCell, styles.valueCell]}>
+                   <Text style={{ fontSize: 9, color: '#666' }}>現住所と異なる場合のみ記入 (同上)</Text>
                  </View>
               </View>
             </View>
-            {/* 性別欄 (簡易) */}
-            <View style={{ width: '25%' }}>
-               <View style={[styles.cell, { borderRight: 'none', height: '100%' }]}>
-                 <Text style={styles.label}>性別</Text>
-                 <Text style={[styles.center, { marginTop: 20 }]}>{safeResume.gender}</Text>
-               </View>
-            </View>
+          </View>
+
+          <View style={styles.photoContainer}>
+            <Text style={styles.photoText}>写真を貼る位置</Text>
+            <Text style={styles.photoDim}>縦 40mm</Text>
+            <Text style={styles.photoDim}>横 30mm</Text>
           </View>
         </View>
 
-        {/* 学歴・職歴ブロック */}
-        <View style={styles.tableBorder}>
-          <View style={[styles.row, { backgroundColor: '#eee', minHeight: 18 }]}>
-             <View style={[styles.cell, styles.w10]}><Text style={styles.center}>年</Text></View>
-             <View style={[styles.cell, styles.w5]}><Text style={styles.center}>月</Text></View>
-             <View style={[styles.cell, styles.w85]}><Text style={styles.center}>学歴・職歴</Text></View>
+        <View style={styles.gridContainer}>
+          <View style={[styles.gridRow, { backgroundColor: '#f0f0f0', minHeight: 22 }]}>
+            <View style={[styles.gridCell, styles.colYear]}><Text style={styles.tableHeader}>年</Text></View>
+            <View style={[styles.gridCell, styles.colMonth]}><Text style={styles.tableHeader}>月</Text></View>
+            <View style={[styles.gridCell, styles.colContent]}><Text style={styles.tableHeader}>学歴・職歴</Text></View>
           </View>
-          
-          {histories.map((h, i) => (
-             <HistoryRow key={i} year={h.year === 9999 ? '' : h.year.toString()} month={h.year === 9999 ? '' : h.month.toString()} content={h.content} />
+          {displayHistory.map((h, i) => (
+            <HistoryRow key={i} year={h.year} month={h.month} content={h.content} align={h.align} />
           ))}
-          
-          <HistoryRow year="" month="" content="以上" />
-          
-          {emptyLines.map((_, i) => (
-             <HistoryRow key={`empty-${i}`} year="" month="" content="" />
+          {emptyRows.map((_, i) => (
+            <HistoryRow key={`emp-${i}`} year="" month="" content="" />
           ))}
         </View>
       </Page>
-      
-      {/* 2ページ目: 自己PR・要約 */}
+
+      {/* ================= PAGE 2 ================= */}
       <Page size="A4" style={styles.page}>
-         <View style={styles.tableBorder}>
-            <View style={[styles.cell, { width: '100%', borderRight: 'none', height: 250, justifyContent: 'flex-start' }]}>
-               <Text style={styles.label}>職務要約</Text>
-               <Text style={{ marginTop: 5 }}>{safeResume.summary}</Text>
-            </View>
-            <View style={[styles.cell, { width: '100%', borderRight: 'none', borderTop: '1px solid #000', height: 250, justifyContent: 'flex-start' }]}>
-               <Text style={styles.label}>志望の動機、自己PR、アピールポイントなど</Text>
-               <Text style={{ marginTop: 5 }}>{safeResume.self_pr}</Text>
-            </View>
-         </View>
+        
+        <View style={styles.headerContainer}>
+          <Text style={styles.title}>履歴書</Text>
+          <Text style={styles.date}>{safeResume.last_name_kanji} {safeResume.first_name_kanji}</Text>
+        </View>
+        {/* ★修正: ヘッダー下のスペーサー(2行分) */}
+        <View style={styles.headerSpacer} />
+
+        {/* 免許・資格 */}
+        {/* ★修正: 下マージンを30確保して2行空ける */}
+        <View style={[styles.gridContainer, { marginBottom: 30 }]}>
+          <View style={[styles.gridRow, { backgroundColor: '#f0f0f0', minHeight: 22 }]}>
+            <View style={[styles.gridCell, styles.colYear]}><Text style={styles.tableHeader}>年</Text></View>
+            <View style={[styles.gridCell, styles.colMonth]}><Text style={styles.tableHeader}>月</Text></View>
+            <View style={[styles.gridCell, styles.colContent]}><Text style={styles.tableHeader}>免許・資格</Text></View>
+          </View>
+          {licenseList.map((l, i) => (
+            <HistoryRow key={i} year={l.year} month={l.month} content={l.content} />
+          ))}
+          {emptyLic.map((_, i) => (
+            <HistoryRow key={`lic-${i}`} year="" month="" content="" />
+          ))}
+        </View>
+
+        {/* 2ページ目メインコンテナ */}
+        <View style={styles.page2Container}>
+          
+          {/* 職務要約 (自動拡張) */}
+          <View style={[styles.sectionBox, { minHeight: 120 }]}>
+            <Text style={styles.sectionTitle}>職務要約</Text>
+            <Text style={styles.sectionText}>{safeResume.summary || ''}</Text>
+          </View>
+
+          {/* ★修正: 職務要約と自己PRの間に2行スペーサー */}
+          <View style={styles.innerSpacer} />
+
+          {/* 自己PR (自動拡張) */}
+          <View style={[styles.sectionBox, { flexGrow: 1, minHeight: 150 }]}>
+            <Text style={styles.sectionTitle}>志望の動機、自己PR、アピールポイントなど</Text>
+            <Text style={styles.sectionText}>{safeResume.self_pr || ''}</Text>
+          </View>
+
+          {/* 本人希望 */}
+          <View style={[styles.sectionBox, { minHeight: 80 }]}>
+            <Text style={styles.sectionTitle}>本人希望記入欄</Text>
+            <Text style={styles.sectionText}>
+               {safeResume.desired_occupations?.length > 0 && `希望職種: ${safeResume.desired_occupations.join(', ')}`}{'\n'}
+               {safeResume.desired_locations?.length > 0 && `希望勤務地: ${safeResume.desired_locations.join(', ')}`}
+            </Text>
+          </View>
+
+          {/* その他 (通勤・扶養) */}
+          <View style={[styles.gridRow, { borderBottom: 'none' }]}>
+             <View style={[styles.gridCell, styles.piLabel]}><Text style={styles.label}>通勤時間</Text></View>
+             <View style={[styles.gridCell, styles.piValue]}>
+                <View style={styles.piRow}>
+                   <Text style={styles.value}>約</Text><Text style={styles.piInput}></Text><Text style={styles.value}>時間</Text>
+                   <Text style={styles.piInput}></Text><Text style={styles.value}>分</Text>
+                </View>
+             </View>
+             <View style={[styles.gridCell, styles.piLabel]}><Text style={styles.label}>扶養家族数</Text></View>
+             <View style={[styles.gridCell, styles.piValue]}>
+                <View style={styles.piRow}>
+                   <Text style={styles.piInput}>0</Text><Text style={styles.value}>人</Text>
+                </View>
+             </View>
+          </View>
+          <View style={[styles.gridRow, { borderBottom: 'none', borderTop: '1px solid #000' }]}>
+             <View style={[styles.gridCell, styles.piLabel]}><Text style={styles.label}>配偶者</Text></View>
+             <View style={[styles.gridCell, styles.piValue]}><Text style={[styles.value, styles.center]}>有 ・ 無</Text></View>
+             <View style={[styles.gridCell, styles.piLabel]}><Text style={styles.label}>配偶者の扶養義務</Text></View>
+             <View style={[styles.gridCell, styles.piValue]}><Text style={[styles.value, styles.center]}>有 ・ 無</Text></View>
+          </View>
+        </View>
+
       </Page>
     </Document>
   );
