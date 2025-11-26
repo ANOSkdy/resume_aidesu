@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   
   // セクション共通
   section: {
-    marginBottom: 15,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 12,
@@ -55,12 +55,12 @@ const styles = StyleSheet.create({
     width: '100%',
     borderTop: '1px solid #ccc',
     borderLeft: '1px solid #ccc',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottom: '1px solid #ccc',
-    minHeight: 30,
+    minHeight: 24,
   },
   tableHeader: {
     backgroundColor: '#f5f5f5',
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
   colDate: { width: '18%' },
   colCompany: { width: '25%' },
   colDesc: { width: '57%' },
+  colFull: { width: '100%' },
 
   bold: { fontWeight: 'bold' },
   small: { fontSize: 9, color: '#666' },
@@ -88,11 +89,44 @@ type ResumeData = {
   works: any[];
 };
 
+const sanitizeLines = (input: unknown): string[] => {
+  if (!input) return [];
+
+  if (typeof input === 'string') {
+    return input
+      .split(/\r?\n/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
+
+  if (Array.isArray(input)) {
+    return input
+      .map((item) => (typeof item === 'string' ? item.trim() : ''))
+      .filter((item) => item.length > 0);
+  }
+
+  return [];
+};
+
+const removeExperienceHeading = (items: string[]): string[] => {
+  return items.filter((item, index) => {
+    const normalized = item.replace(/[【】]/g, '');
+    if (index === 0 && /活かせる経験・?知識|応募先で活かせる/.test(normalized)) {
+      return false;
+    }
+    return true;
+  });
+};
+
 export const JobHistoryDocument = ({ data }: { data: ResumeData }) => {
   const { resume, works } = data;
   const safeResume = resume || {};
   const safeWorks = works || [];
   const today = new Date();
+  const experienceList = removeExperienceHeading(
+    sanitizeLines(safeResume.transferable_skills || safeResume.experience_knowledge)
+  );
+  const licenseList = sanitizeLines(safeResume.licenses_qualifications);
 
   // 職歴を時系列順 (古い順) にソート
   const sortedWorks = [...safeWorks].sort((a, b) => {
@@ -161,7 +195,45 @@ export const JobHistoryDocument = ({ data }: { data: ResumeData }) => {
           </View>
         </View>
 
-        {/* 3. 自己PR */}
+        {/* 3. 活かせる経験・知識 */}
+        {experienceList.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>活かせる経験・知識</Text>
+            <View style={styles.table}>
+              <View style={[styles.tableRow, styles.tableHeader]}>
+                <View style={[styles.cell, styles.colFull]}><Text>内容</Text></View>
+              </View>
+              {experienceList.map((item: string, index: number) => (
+                <View key={index} style={styles.tableRow}>
+                  <View style={[styles.cell, styles.colFull]}>
+                    <Text>・{item}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* 4. 資格・免許 */}
+        {licenseList.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>資格・免許</Text>
+            <View style={styles.table}>
+              <View style={[styles.tableRow, styles.tableHeader]}>
+                <View style={[styles.cell, styles.colFull]}><Text>名称</Text></View>
+              </View>
+              {licenseList.map((item: string, index: number) => (
+                <View key={index} style={styles.tableRow}>
+                  <View style={[styles.cell, styles.colFull]}>
+                    <Text>・{item}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* 5. 自己PR */}
         {safeResume.self_pr && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>自己PR</Text>
