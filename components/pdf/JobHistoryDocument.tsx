@@ -123,7 +123,9 @@ export const JobHistoryDocument = ({ data }: { data: ResumeData }) => {
   const safeResume = resume || {};
   const safeWorks = works || [];
   const today = new Date();
-  const experienceList = removeExperienceHeading(sanitizeLines(safeResume.experience_knowledge));
+  const experienceList = removeExperienceHeading(
+    sanitizeLines(safeResume.transferable_skills || safeResume.experience_knowledge)
+  );
   const licenseList = sanitizeLines(safeResume.licenses_qualifications);
 
   // 職歴を時系列順 (古い順) にソート

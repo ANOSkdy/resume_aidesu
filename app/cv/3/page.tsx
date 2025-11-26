@@ -9,7 +9,7 @@ import { JobHistoryTrigger } from '@/components/pdf/JobHistoryTrigger';
 export default function CVStep3() {
   const router = useRouter();
   const [summary, setSummary] = useState('');
-  const [experienceKnowledge, setExperienceKnowledge] = useState('');
+  const [transferableSkills, setTransferableSkills] = useState('');
   const [fullData, setFullData] = useState<any>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [loadingExperienceAI, setLoadingExperienceAI] = useState(false);
@@ -26,8 +26,8 @@ export default function CVStep3() {
         if (data.resume && data.resume.summary) {
           setSummary(data.resume.summary);
         }
-        if (data.resume && data.resume.experience_knowledge) {
-          setExperienceKnowledge(data.resume.experience_knowledge);
+        if (data.resume && (data.resume.transferable_skills || data.resume.experience_knowledge)) {
+          setTransferableSkills(data.resume.transferable_skills || data.resume.experience_knowledge);
         }
       });
   }, []);
@@ -104,7 +104,7 @@ export default function CVStep3() {
 
       const json = await res.json();
       if (json.result) {
-        setExperienceKnowledge(json.result);
+        setTransferableSkills(json.result);
       } else {
         alert('AI生成エラー: ' + (json.error || '不明なエラー'));
       }
@@ -123,9 +123,10 @@ export default function CVStep3() {
 
       const payload = {
         ...fullData.resume,
+        resume_id: resumeId || fullData.resume?.resume_id,
         user_id: userId,
         summary: summary,
-        experience_knowledge: experienceKnowledge,
+        transferable_skills: transferableSkills,
       };
       
       delete payload.createdTime;
@@ -137,7 +138,7 @@ export default function CVStep3() {
         body: JSON.stringify(payload),
       });
 
-      setFullData({ ...fullData, resume: { ...fullData.resume, summary, experience_knowledge: experienceKnowledge } });
+      setFullData({ ...fullData, resume: { ...fullData.resume, summary, transferable_skills: transferableSkills } });
       alert('保存しました！下のボタンからPDFをダウンロードできます。');
 
     } catch (error) {
@@ -180,14 +181,14 @@ export default function CVStep3() {
           </div>
           <textarea
             className="w-full p-3 border rounded-md h-32 mt-3"
-            value={experienceKnowledge}
-            onChange={(e) => setExperienceKnowledge(e.target.value)}
+            value={transferableSkills}
+            onChange={(e) => setTransferableSkills(e.target.value)}
             placeholder={`- プロジェクトリード経験により...
 - 新規開拓営業の知見を活用し...`}
           />
         </div>
         <div className="text-right mt-2">
-          <Button size="sm" variant="outline" onClick={onSaveSummary} disabled={!summary && !experienceKnowledge}>
+          <Button size="sm" variant="outline" onClick={onSaveSummary} disabled={!summary && !transferableSkills}>
             要約・活かせる経験を保存してPDFに反映
           </Button>
         </div>

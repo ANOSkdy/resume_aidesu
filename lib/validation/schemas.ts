@@ -29,7 +29,7 @@ export const ResumeSchema = z.object({
   licenses_qualifications: z.array(z.string()).optional(),
 
   // Step 3+ : AI生成の活かせる経験・知識
-  experience_knowledge: z.string().optional(),
+  transferable_skills: z.string().optional(),
 
   // ★追加: AI生成テキスト (ここがないと保存時に消されてしまう)
   self_pr: z.string().optional(),
