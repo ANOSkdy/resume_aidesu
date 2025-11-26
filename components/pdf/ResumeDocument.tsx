@@ -125,6 +125,12 @@ const HistoryRow = ({ year, month, content, align = 'left' }: any) => (
   </View>
 );
 
+type LicenseRecord = {
+  year: string | number | undefined;
+  month: string | number | undefined;
+  content: string;
+};
+
 export const ResumeDocument = ({ data }: { data: any }) => {
   const { resume, educations, works, licenses } = data;
   const safeResume = resume || {};
@@ -169,7 +175,11 @@ export const ResumeDocument = ({ data }: { data: any }) => {
   const TARGET_ROWS = 14;
   const emptyRows = Array.from({ length: Math.max(0, TARGET_ROWS - displayHistory.length) });
 
-  const licenseList = (licenses || []).map((l: any) => ({ year: l.year, month: l.month, content: l.content }));
+  const licenseList: LicenseRecord[] = (licenses || []).map((l: Partial<LicenseRecord>) => ({
+    year: l.year,
+    month: l.month,
+    content: l.content ?? '',
+  }));
   const emptyLic = Array.from({ length: Math.max(0, 6 - licenseList.length) });
 
   return (
