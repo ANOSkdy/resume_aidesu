@@ -26,6 +26,7 @@ export const ResumeSchema = z.object({
   desired_occupations: z.array(z.string()).optional(),
   desired_industries: z.array(z.string()).optional(),
   desired_locations: z.array(z.string()).optional(),
+  licenses_qualifications: z.array(z.string()).optional(),
 
   // ★追加: AI生成テキスト (ここがないと保存時に消されてしまう)
   self_pr: z.string().optional(),

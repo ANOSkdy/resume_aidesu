@@ -10,6 +10,7 @@ type FormData = {
   desired_occupations: string[];
   desired_industries: string[];
   desired_locations: string[];
+  licenses_qualifications: string[];
 };
 
 export default function ResumeStep5() {
@@ -18,7 +19,8 @@ export default function ResumeStep5() {
     defaultValues: {
       desired_occupations: [],
       desired_industries: [],
-      desired_locations: []
+      desired_locations: [],
+      licenses_qualifications: []
     }
   });
 
@@ -134,10 +136,28 @@ export default function ResumeStep5() {
               name="desired_locations"
               control={control}
               render={({ field }) => (
-                <TagSelector 
-                  category="location" 
-                  selected={field.value} 
-                  onChange={field.onChange} 
+                <TagSelector
+                  category="location"
+                  selected={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          </div>
+        </div>
+
+        {/* 資格・免許 */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">資格・免許</label>
+          <div className="bg-gray-50 p-4 rounded border">
+            <Controller
+              name="licenses_qualifications"
+              control={control}
+              render={({ field }) => (
+                <TagSelector
+                  category="license"
+                  selected={field.value}
+                  onChange={field.onChange}
                 />
               )}
             />
