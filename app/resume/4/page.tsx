@@ -194,7 +194,7 @@ export default function ResumeStep4() {
                   ?
                 </button>
                 {showHint && (
-                  <div className="absolute z-10 mt-2 right-0 max-w-[calc(100vw-2rem)] w-80 p-3 text-xs text-gray-800 bg-white border border-gray-200 rounded shadow-lg space-y-3 overflow-y-auto max-h-[70vh]">
+                  <div className="absolute z-10 mt-2 left-1/2 -translate-x-1/2 max-w-[min(22rem,calc(100vw-2rem))] w-[21rem] p-3 text-xs text-gray-800 bg-white border border-gray-200 rounded shadow-lg space-y-3 overflow-y-auto max-h-[70vh]">
                     <div>
                       <p className="font-semibold text-gray-700">【営業】</p>
                       <p className="mt-1">前職では法人営業として以下の業務を担当していました。</p>
