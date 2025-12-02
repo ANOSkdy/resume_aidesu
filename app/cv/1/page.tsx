@@ -17,6 +17,8 @@ export default function CVStep1() {
   const router = useRouter();
   const [openHint, setOpenHint] = useState<'pr_summary' | 'episode' | 'policy' | null>(null);
   const { register, handleSubmit, setValue } = useForm<AiInputData>();
+  const hintButtonClass =
+    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
 
   useEffect(() => {
     // 以前の入力があればロード
@@ -58,7 +60,7 @@ export default function CVStep1() {
               type="button"
               onClick={() => setOpenHint('pr_summary')}
               aria-expanded={openHint === 'pr_summary'}
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className={hintButtonClass}
             >
               ?
             </button>
@@ -80,7 +82,7 @@ export default function CVStep1() {
               type="button"
               onClick={() => setOpenHint('episode')}
               aria-expanded={openHint === 'episode'}
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className={hintButtonClass}
             >
               ?
             </button>
@@ -102,7 +104,7 @@ export default function CVStep1() {
               type="button"
               onClick={() => setOpenHint('policy')}
               aria-expanded={openHint === 'policy'}
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className={hintButtonClass}
             >
               ?
             </button>

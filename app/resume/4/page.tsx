@@ -23,6 +23,8 @@ export default function ResumeStep4() {
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHint, setShowHint] = useState(false);
+  const hintButtonClass =
+    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<Work>({
     defaultValues: { 
@@ -182,17 +184,17 @@ export default function ResumeStep4() {
           </div>
 
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <label className="text-xs font-bold text-gray-600">業務内容詳細</label>
-              <div className="relative flex-shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setShowHint((prev) => !prev)}
-                  aria-expanded={showHint}
-                  className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                >
-                  ?
-                </button>
+              <div className="flex items-center gap-2 mb-1">
+                <label className="text-xs font-bold text-gray-600">業務内容詳細</label>
+                <div className="relative flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowHint((prev) => !prev)}
+                    aria-expanded={showHint}
+                    className={hintButtonClass}
+                  >
+                    ?
+                  </button>
                 {showHint && (
                   <div
                     className="fixed inset-0 z-40 flex items-start justify-center bg-black/30 px-4 py-6"
