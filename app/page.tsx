@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
@@ -8,6 +8,12 @@ import { AppShell } from '@/components/layout/AppShell';
 
 export default function Home() {
   const router = useRouter();
+  const [isAgreed, setIsAgreed] = useState(false);
+
+  const handleStart = () => {
+    if (!isAgreed) return;
+    router.push('/resume/1');
+  };
 
   return (
     <AppShell title="ホーム">
@@ -33,10 +39,22 @@ export default function Home() {
               <span role="img" aria-label="document">📄</span>
               個人情報保護方針の詳細を確認する
             </Link>
+            <label className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                checked={isAgreed}
+                onChange={(event) => setIsAgreed(event.target.checked)}
+              />
+              <span>
+                個人情報保護法に基づく取り扱いに同意します。内容を確認のうえ、チェックを入れてください。
+              </span>
+            </label>
             <Button
               size="lg"
               className="font-bold shadow-sm"
-              onClick={() => router.push('/resume/1')}
+              onClick={handleStart}
+              disabled={!isAgreed}
             >
               同意して作成を開始する
             </Button>
