@@ -18,7 +18,7 @@ export default function Home() {
     <AppShell title="ホーム">
       <section className="space-y-6">
         <div className="space-y-3">
-          <h1 className="text-3xl font-extrabold leading-tight text-blue-700">Carrimy</h1>
+          <h1 className="text-3xl font-extrabold leading-tight text-blue-700">Carrime</h1>
           <p className="text-sm text-gray-700">
             AIでつくる、あなたのキャリア。スマホ専用レイアウトで、いつでもどこでも履歴書・職務経歴書を作成できます。
           </p>
@@ -131,7 +131,7 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400">© Carrimy Development Team</p>
+        <p className="text-center text-xs text-gray-400">© Carrime Development Team</p>
       </section>
     </AppShell>
   );

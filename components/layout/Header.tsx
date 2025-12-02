@@ -6,7 +6,7 @@ export const Header = () => {
     <header className="border-b bg-white">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-bold text-blue-600 tracking-tighter">
-          Carrimy
+          Carrime
         </Link>
         <nav className="flex gap-4 text-sm text-gray-600">
           <Link href="/" className="hover:text-blue-600">ホーム</Link>
