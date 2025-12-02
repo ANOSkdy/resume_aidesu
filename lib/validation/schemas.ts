@@ -16,6 +16,7 @@ export const ResumeSchema = z.object({
   dob_month: z.number().min(1).max(12),
   dob_day: z.number().min(1).max(31),
   gender: z.string().optional(),
+  email: z.string().optional(),
   postal_code: z.string().optional(),
   address_prefecture: z.string().optional(),
   address_city: z.string().optional(),

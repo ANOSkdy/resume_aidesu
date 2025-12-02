@@ -27,6 +27,7 @@ const defaultValues: Partial<FormData> = {
   dependents_count: '',
   has_spouse: false,
   spouse_is_dependent: false,
+  email: '',
 };
 
 export default function ResumeStep1() {
@@ -89,6 +90,7 @@ export default function ResumeStep1() {
           dependents_count: resume.dependents_count ?? '',
           has_spouse: resume.has_spouse ?? false,
           spouse_is_dependent: resume.spouse_is_dependent ?? false,
+          email: resume.email ?? '',
         });
       } catch (error) {
         console.error('Failed to load resume', error);
@@ -224,12 +226,21 @@ export default function ResumeStep1() {
           placeholder="101号室"
         />
 
-        <Input
-          label="電話番号"
-          {...register('phone_number')}
-          error={errors.phone_number?.message}
-          placeholder="09012345678"
-        />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input
+            label="メールアドレス"
+            {...register('email')}
+            error={errors.email?.message}
+            placeholder="example@mail.com"
+            type="email"
+          />
+          <Input
+            label="電話番号"
+            {...register('phone_number')}
+            error={errors.phone_number?.message}
+            placeholder="09012345678"
+          />
+        </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">扶養家族数（配偶者を除く）</label>
