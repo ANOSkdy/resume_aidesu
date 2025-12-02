@@ -22,6 +22,7 @@ export default function ResumeStep4() {
   const router = useRouter();
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showHint, setShowHint] = useState(false);
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<Work>({
     defaultValues: { 
@@ -181,7 +182,75 @@ export default function ResumeStep4() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-600 mb-1">業務内容詳細 (AI自己PR生成に使われます)</label>
+            <div className="flex items-center gap-2 relative">
+              <label className="block text-xs font-bold text-gray-600 mb-1">業務内容詳細</label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowHint((prev) => !prev)}
+                  aria-expanded={showHint}
+                  className="flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                >
+                  ?
+                </button>
+                {showHint && (
+                  <div className="absolute z-10 mt-2 w-[360px] p-3 text-xs text-gray-800 bg-white border border-gray-200 rounded shadow-lg space-y-3">
+                    <div>
+                      <p className="font-semibold text-gray-700">【営業】</p>
+                      <p className="mt-1">前職では法人営業として以下の業務を担当していました。</p>
+                      <ul className="list-disc list-inside space-y-1 mt-1">
+                        <li>新規開拓（架電・訪問・メール）</li>
+                        <li>既存顧客フォロー、追加提案</li>
+                        <li>見積・契約業務、請求管理</li>
+                        <li>商談準備、提案資料作成</li>
+                        <li>売上・KPI分析、営業戦略立案</li>
+                        <li>導入後フォロー、トラブル対応</li>
+                      </ul>
+                      <p className="mt-1">顧客課題を把握し、最適な提案につなげる営業活動を行っていました。</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-700">【事務】</p>
+                      <p className="mt-1">前職では一般事務として以下の業務を担当していました。</p>
+                      <ul className="list-disc list-inside space-y-1 mt-1">
+                        <li>データ入力、管理</li>
+                        <li>電話・メール対応</li>
+                        <li>契約書・請求書作成</li>
+                        <li>各種書類のファイリング・管理</li>
+                        <li>スケジュール調整、備品管理</li>
+                        <li>来客対応</li>
+                      </ul>
+                      <p className="mt-1">正確性とスピードを意識し、サポート全般を担当していました。</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-700">【接客】</p>
+                      <p className="mt-1">前職では接客販売として以下の業務を担当していました。</p>
+                      <ul className="list-disc list-inside space-y-1 mt-1">
+                        <li>お客様への商品案内・販売</li>
+                        <li>レジ対応、会計処理</li>
+                        <li>売場づくり、商品陳列・補充</li>
+                        <li>在庫管理・棚卸し</li>
+                        <li>クレーム対応、問い合わせ対応</li>
+                        <li>POP作成、SNS投稿補助</li>
+                      </ul>
+                      <p className="mt-1">常にお客様視点を意識し、満足度の高い接客を心がけていました。</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-700">【工場（製造）】</p>
+                      <p className="mt-1">前職では製造オペレーターとして以下の業務を担当しました。</p>
+                      <ul className="list-disc list-inside space-y-1 mt-1">
+                        <li>製造ラインの機械操作</li>
+                        <li>製品の検査・品質チェック</li>
+                        <li>梱包、出荷業務</li>
+                        <li>不良品の仕分け</li>
+                        <li>日報記録、在庫管理</li>
+                        <li>5S活動、安全管理</li>
+                      </ul>
+                      <p className="mt-1">安全と品質を徹底して、安定したライン稼働に努めていました。</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             <textarea {...register('description')} className="w-full p-2 border rounded text-sm h-24" placeholder="法人営業を担当。新規開拓を中心に..." />
           </div>
 
