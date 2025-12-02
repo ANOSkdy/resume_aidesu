@@ -182,19 +182,19 @@ export default function ResumeStep4() {
           </div>
 
           <div>
-            <div className="flex items-center gap-2 relative">
-              <label className="block text-xs font-bold text-gray-600 mb-1">業務内容詳細</label>
-              <div className="relative">
+            <div className="flex items-center gap-2 mb-1">
+              <label className="text-xs font-bold text-gray-600">業務内容詳細</label>
+              <div className="relative flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowHint((prev) => !prev)}
                   aria-expanded={showHint}
-                  className="flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 >
                   ?
                 </button>
                 {showHint && (
-                  <div className="absolute z-10 mt-2 w-[360px] p-3 text-xs text-gray-800 bg-white border border-gray-200 rounded shadow-lg space-y-3">
+                  <div className="absolute z-10 mt-2 right-0 max-w-[calc(100vw-2rem)] w-80 p-3 text-xs text-gray-800 bg-white border border-gray-200 rounded shadow-lg space-y-3 overflow-y-auto max-h-[70vh]">
                     <div>
                       <p className="font-semibold text-gray-700">【営業】</p>
                       <p className="mt-1">前職では法人営業として以下の業務を担当していました。</p>
