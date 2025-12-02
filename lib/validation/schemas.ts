@@ -16,6 +16,15 @@ export const ResumeSchema = z.object({
   dob_month: z.number().min(1).max(12),
   dob_day: z.number().min(1).max(31),
   gender: z.string().optional(),
+  postal_code: z.string().optional(),
+  address_prefecture: z.string().optional(),
+  address_city: z.string().optional(),
+  address_line1: z.string().optional(),
+  address_line2: z.string().optional(),
+  phone_number: z.string().optional(),
+  dependents_count: z.string().optional(),
+  has_spouse: z.boolean().optional(),
+  spouse_is_dependent: z.boolean().optional(),
 
   // Step 2: 状況
   job_change_count: z.number().optional(),
