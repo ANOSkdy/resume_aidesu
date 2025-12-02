@@ -35,7 +35,7 @@ export default function Home() {
                 <span role="img" aria-label="document">📄</span>
                 利用規約
               </div>
-              <div className="space-y-2 leading-relaxed">
+              <div className="max-h-72 space-y-2 overflow-y-auto pr-2 leading-relaxed">
                 <p>
                   【Carrime（AI履歴書・職務経歴書作成サービス）】株式会社ROBINSON（以下「当社」といいます。）は、当社が提供するAI履歴書・職務経歴書作成サービス「Carrime」（以下「本機能」といいます。）の利用にあたり、以下の事項を定めます。利用者は、本機能を利用した時点で、本規約および以下の注意事項・個人情報の取り扱いに同意したものとみなされます。
                 </p>
