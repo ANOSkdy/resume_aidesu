@@ -295,21 +295,6 @@ export const ResumeDocument = ({ data }: { data: any }) => {
         {/* 2ページ目メインコンテナ */}
         <View style={styles.page2Container}>
           
-          {/* 職務要約 (自動拡張) */}
-          <View style={[styles.sectionBox, { minHeight: 120 }]}>
-            <Text style={styles.sectionTitle}>職務要約</Text>
-            <Text style={styles.sectionText}>{safeResume.summary || ''}</Text>
-          </View>
-
-          {/* ★修正: 職務要約と自己PRの間に2行スペーサー */}
-          <View style={styles.innerSpacer} />
-
-          {/* 自己PR (自動拡張) */}
-          <View style={[styles.sectionBox, { flexGrow: 1, minHeight: 150 }]}>
-            <Text style={styles.sectionTitle}>志望の動機、自己PR、アピールポイントなど</Text>
-            <Text style={styles.sectionText}>{safeResume.self_pr || ''}</Text>
-          </View>
-
           {/* 本人希望 */}
           <View style={[styles.sectionBox, { minHeight: 80 }]}>
             <Text style={styles.sectionTitle}>本人希望記入欄</Text>
