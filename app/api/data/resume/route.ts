@@ -1,5 +1,6 @@
 ﻿import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/airtable';
+import { mapAirtableResume } from '@/lib/db/resume';
 import { ResumeSchema } from '@/lib/validation/schemas';
 
 // GET処理
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
     const works = await db.works.select({ filterByFormula: "{resume_id} = '" + resumeId + "'" }).all();
 
     return NextResponse.json({
-      resume: { id: resumeRecord.id, ...resumeRecord.fields },
+      resume: mapAirtableResume(resumeRecord),
       educations: educations.map(r => ({ id: r.id, ...r.fields })),
       works: works.map(r => ({ id: r.id, ...r.fields }))
     });
@@ -105,7 +106,10 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, record: record[0].fields });
+    const savedRecord = record[0];
+    const mapped = mapAirtableResume(savedRecord);
+
+    return NextResponse.json({ success: true, record: mapped });
 
   } catch (error: any) {
     console.error('API Error:', error);
