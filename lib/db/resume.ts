@@ -56,7 +56,7 @@ export async function updateResumeFields(
       },
     ],
     { typecast: true }
-  )) as Airtable.Records<Airtable.FieldSet>;
+  )) as unknown as Airtable.Records<Airtable.FieldSet>;
 
   const record = Array.isArray(updatedRecords)
     ? updatedRecords[0]
