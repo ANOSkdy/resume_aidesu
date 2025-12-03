@@ -18,7 +18,7 @@ export type Resume = BaseResume & {
 };
 
 export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): Resume {
-  const fields = record.fields as Resume & {
+  const fields = record.fields as unknown as Resume & {
     profilePhoto?: AirtableAttachment[];
   };
 
