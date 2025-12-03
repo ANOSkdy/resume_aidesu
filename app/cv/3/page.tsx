@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { PDFTrigger } from '@/components/pdf/PDFTrigger';
@@ -13,6 +13,12 @@ export default function CVStep3() {
   const [fullData, setFullData] = useState<any>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [loadingExperienceAI, setLoadingExperienceAI] = useState(false);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<
+    { type: 'success' | 'error'; text: string } | null
+  >(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const resumeId = localStorage.getItem('carrimy_resume_id');
@@ -29,8 +35,63 @@ export default function CVStep3() {
         if (data.resume && (data.resume.transferable_skills || data.resume.experience_knowledge)) {
           setTransferableSkills(data.resume.transferable_skills || data.resume.experience_knowledge);
         }
+        if (data.resume && typeof data.resume.profilePhotoUrl === 'string') {
+          setProfilePhotoUrl(data.resume.profilePhotoUrl || null);
+        }
       });
   }, []);
+
+  const handleProfilePhotoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setUploadMessage({ type: 'error', text: '画像ファイルが選択されていません' });
+      return;
+    }
+
+    const resumeId = fullData?.resume?.id || localStorage.getItem('carrimy_resume_id');
+    if (!resumeId) {
+      setUploadMessage({ type: 'error', text: '履歴書IDが見つかりませんでした' });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('resumeId', resumeId);
+
+    setUploadingPhoto(true);
+    setUploadMessage(null);
+
+    try {
+      const res = await fetch('/api/data/resume/profile-photo', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const json = await res.json();
+
+      if (res.ok && json.ok) {
+        const newUrl = json.profilePhotoUrl || null;
+        setProfilePhotoUrl(newUrl);
+        setFullData((prev: any) =>
+          prev
+            ? { ...prev, resume: { ...prev.resume, profilePhotoUrl: newUrl } }
+            : prev,
+        );
+        setUploadMessage({ type: 'success', text: 'プロフィール画像を更新しました' });
+        router.refresh();
+      } else {
+        throw new Error(json.error || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Profile photo upload failed:', error);
+      setUploadMessage({ type: 'error', text: 'プロフィール画像のアップロードに失敗しました' });
+    } finally {
+      setUploadingPhoto(false);
+      event.target.value = '';
+    }
+  };
 
   const buildCareerText = () => {
     if (!fullData || !fullData.works || fullData.works.length === 0) return '';
@@ -151,6 +212,59 @@ export default function CVStep3() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">職務要約と仕上げ</h2>
+
+      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gray-100 text-xs text-gray-500">
+              {profilePhotoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profilePhotoUrl}
+                  alt="プロフィール写真"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-center leading-tight">No Image</span>
+              )}
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-bold text-gray-800">プロフィール写真</p>
+              <p className="text-xs text-gray-500">
+                スマホで撮影した写真をそのままアップロードできます。
+              </p>
+            </div>
+          </div>
+          <div className="flex w-full max-w-xs flex-col gap-2 sm:items-end">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleProfilePhotoUpload}
+              disabled={uploadingPhoto}
+            />
+            <Button
+              type="button"
+              size="sm"
+              className="w-full sm:w-auto"
+              isLoading={uploadingPhoto}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploadingPhoto ? 'アップロード中...' : '画像をアップロード'}
+            </Button>
+            {uploadMessage ? (
+              <p
+                className={`text-xs ${
+                  uploadMessage.type === 'success' ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {uploadMessage.text}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </div>
       
       <div className="bg-green-50 p-4 rounded mb-6">
         <h3 className="font-bold text-sm mb-2 text-green-800">職務要約の自動生成</h3>
