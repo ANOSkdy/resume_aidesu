@@ -18,6 +18,8 @@ const defaultValues: Partial<FormData> = {
   dob_month: 1,
   dob_day: 1,
   gender: '男性',
+  last_name_kana: '',
+  first_name_kana: '',
   postal_code: '',
   address_prefecture: '',
   address_city: '',
@@ -146,6 +148,21 @@ export default function ResumeStep1() {
             {...register('first_name_kanji')}
             error={errors.first_name_kanji?.message}
             placeholder="太郎"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Input
+            label="姓 (カナ)"
+            {...register('last_name_kana')}
+            error={errors.last_name_kana?.message}
+            placeholder="ヤマダ"
+          />
+          <Input
+            label="名 (カナ)"
+            {...register('first_name_kana')}
+            error={errors.first_name_kana?.message}
+            placeholder="タロウ"
           />
         </div>
 
