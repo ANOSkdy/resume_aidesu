@@ -1,6 +1,4 @@
-import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/db/airtable';
 
 export const runtime = 'nodejs';
 
@@ -13,44 +11,85 @@ function getExtension(mimeType: string) {
   return '';
 }
 
-async function uploadToBlob(
-  pathname: string,
-  fileArrayBuffer: ArrayBuffer,
-  contentType: string
-): Promise<string> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
+const airtableBaseId = process.env.AIRTABLE_BASE_ID;
+const airtableApiKey = process.env.AIRTABLE_API_KEY;
+const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
-  if (!token) {
-    throw new Error('Missing BLOB_READ_WRITE_TOKEN');
+function sanitizeFilename(name: string, ext: string) {
+  const fallback = `profile-photo.${ext || 'img'}`;
+  if (!name) return fallback;
+  const cleaned = name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  if (ext && !cleaned.endsWith(`.${ext}`)) {
+    return `${cleaned}.${ext}`;
+  }
+  return cleaned;
+}
+
+async function updateAirtableProfilePhoto(resumeId: string, url: string, filename: string) {
+  if (!airtableBaseId || !airtableApiKey) {
+    throw new Error('Airtable credentials are missing');
+  }
+
+  const response = await fetch(
+    `https://api.airtable.com/v0/${encodeURIComponent(airtableBaseId)}/Resumes/${encodeURIComponent(resumeId)}`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fields: {
+          profilePhoto: [
+            {
+              url,
+              filename,
+            },
+          ],
+        },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Airtable update failed (${response.status}): ${errorText}`);
+  }
+}
+
+async function uploadToBlob(file: File, pathname: string) {
+  if (!blobToken) {
+    throw new Error('Blob token is missing');
   }
 
   const response = await fetch(`https://blob.vercel-storage.com/${pathname}`, {
     method: 'PUT',
     headers: {
-      'content-type': contentType,
-      'x-vercel-blob-token': token,
+      Authorization: `Bearer ${blobToken}`,
+      'Content-Type': file.type,
     },
-    body: new Blob([fileArrayBuffer], { type: contentType }),
+    body: file,
   });
 
   if (!response.ok) {
-    throw new Error(`Blob upload failed with status ${response.status}`);
+    const errorText = await response.text();
+    throw new Error(`Blob upload failed (${response.status}): ${errorText}`);
   }
 
-  const data = (await response.json()) as { url?: string };
-
-  if (!data?.url) {
-    throw new Error('Blob upload response missing url');
-  }
-
-  return data.url;
+  const result = (await response.json()) as { url: string };
+  return result.url;
 }
 
 export async function POST(request: Request) {
+  let resumeIdValue: string | null = null;
   try {
     const formData = await request.formData();
     const file = formData.get('file');
     const resumeId = formData.get('resumeId');
+
+    if (typeof resumeId === 'string') {
+      resumeIdValue = resumeId;
+    }
 
     if (!resumeId || typeof resumeId !== 'string') {
       return NextResponse.json(
@@ -81,33 +120,18 @@ export async function POST(request: Request) {
     }
 
     const extension = getExtension(file.type);
-    const safeFilename = file.name || `profile-photo.${extension || 'img'}`;
-    const pathname = `resumes/${encodeURIComponent(resumeId)}-${randomUUID()}.${
+    const safeFilename = sanitizeFilename(file.name || '', extension);
+    const pathname = `resume-profile-photos/${encodeURIComponent(resumeId)}-${Date.now()}.${
       extension || 'img'
     }`;
 
-    const fileArrayBuffer = await file.arrayBuffer();
-    const blobUrl = await uploadToBlob(pathname, fileArrayBuffer, file.type);
+    const blobUrl = await uploadToBlob(file, pathname);
 
-    const db = getDb();
-    await db.resumes.update(
-      resumeId,
-      {
-        profilePhoto: [
-          {
-            url: blobUrl,
-            filename: safeFilename,
-            type: file.type,
-            size: file.size,
-          },
-        ],
-      } as any,
-      { typecast: true }
-    );
+    await updateAirtableProfilePhoto(resumeId, blobUrl, safeFilename);
 
     return NextResponse.json({ ok: true, profilePhotoUrl: blobUrl });
   } catch (error) {
-    console.error('Profile photo upload error:', error);
+    console.error('Profile photo upload error:', { resumeId: resumeIdValue, error });
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
