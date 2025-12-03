@@ -22,10 +22,12 @@ export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): R
     profilePhoto?: AirtableAttachment[];
   };
 
+  const urlFromField =
+    typeof fields.profilePhotoUrl === 'string' ? fields.profilePhotoUrl : undefined;
   const attachments = Array.isArray(fields.profilePhoto)
     ? fields.profilePhoto
     : [];
-  const profilePhotoUrl = attachments[0]?.url ?? null;
+  const profilePhotoUrl = urlFromField ?? attachments[0]?.url ?? null;
 
   return {
     id: record.id,

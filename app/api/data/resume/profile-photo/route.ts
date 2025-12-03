@@ -15,17 +15,7 @@ const airtableBaseId = process.env.AIRTABLE_BASE_ID;
 const airtableApiKey = process.env.AIRTABLE_API_KEY;
 const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
-function sanitizeFilename(name: string, ext: string) {
-  const fallback = `profile-photo.${ext || 'img'}`;
-  if (!name) return fallback;
-  const cleaned = name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  if (ext && !cleaned.endsWith(`.${ext}`)) {
-    return `${cleaned}.${ext}`;
-  }
-  return cleaned;
-}
-
-async function updateAirtableProfilePhoto(resumeId: string, url: string, filename: string) {
+async function updateAirtableProfilePhoto(resumeId: string, url: string) {
   if (!airtableBaseId || !airtableApiKey) {
     throw new Error('Airtable credentials are missing');
   }
@@ -40,12 +30,7 @@ async function updateAirtableProfilePhoto(resumeId: string, url: string, filenam
       },
       body: JSON.stringify({
         fields: {
-          profilePhoto: [
-            {
-              url,
-              filename,
-            },
-          ],
+          profilePhotoUrl: url,
         },
       }),
     }
@@ -120,14 +105,13 @@ export async function POST(request: Request) {
     }
 
     const extension = getExtension(file.type);
-    const safeFilename = sanitizeFilename(file.name || '', extension);
     const pathname = `resume-profile-photos/${encodeURIComponent(resumeId)}-${Date.now()}.${
       extension || 'img'
     }`;
 
     const blobUrl = await uploadToBlob(file, pathname);
 
-    await updateAirtableProfilePhoto(resumeId, blobUrl, safeFilename);
+    await updateAirtableProfilePhoto(resumeId, blobUrl);
 
     return NextResponse.json({ ok: true, profilePhotoUrl: blobUrl });
   } catch (error) {
