@@ -91,19 +91,17 @@ export async function POST(request: Request) {
 
     const db = getDb();
     await db.resumes.update(
-      [
-        {
-          id: resumeId,
-          fields: {
-            profilePhoto: [
-              {
-                url: blobUrl,
-                filename: safeFilename,
-              },
-            ],
+      resumeId,
+      {
+        profilePhoto: [
+          {
+            url: blobUrl,
+            filename: safeFilename,
+            type: file.type,
+            size: file.size,
           },
-        },
-      ],
+        ],
+      } as any,
       { typecast: true }
     );
 
