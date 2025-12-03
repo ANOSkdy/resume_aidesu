@@ -17,7 +17,7 @@ export type Resume = BaseResume & {
   profilePhotoUrl?: string | null;
 };
 
-export function mapAirtableResume(record: Airtable.Record<unknown>): Resume {
+export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): Resume {
   const fields = record.fields as Partial<Resume>;
   const attachments = Array.isArray(fields.profilePhoto)
     ? (fields.profilePhoto as AirtableAttachment[])
