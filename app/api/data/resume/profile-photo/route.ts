@@ -1,4 +1,3 @@
-import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
@@ -14,6 +13,7 @@ function getExtension(mimeType: string) {
 
 const airtableBaseId = process.env.AIRTABLE_BASE_ID;
 const airtableApiKey = process.env.AIRTABLE_API_KEY;
+const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
 function sanitizeFilename(name: string, ext: string) {
   const fallback = `profile-photo.${ext || 'img'}`;
@@ -55,6 +55,29 @@ async function updateAirtableProfilePhoto(resumeId: string, url: string, filenam
     const errorText = await response.text();
     throw new Error(`Airtable update failed (${response.status}): ${errorText}`);
   }
+}
+
+async function uploadToBlob(file: File, pathname: string) {
+  if (!blobToken) {
+    throw new Error('Blob token is missing');
+  }
+
+  const response = await fetch(`https://blob.vercel-storage.com/${pathname}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${blobToken}`,
+      'Content-Type': file.type,
+    },
+    body: file,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Blob upload failed (${response.status}): ${errorText}`);
+  }
+
+  const result = (await response.json()) as { url: string };
+  return result.url;
 }
 
 export async function POST(request: Request) {
@@ -102,14 +125,11 @@ export async function POST(request: Request) {
       extension || 'img'
     }`;
 
-    const blob = await put(pathname, file, {
-      access: 'public',
-      contentType: file.type,
-    });
+    const blobUrl = await uploadToBlob(file, pathname);
 
-    await updateAirtableProfilePhoto(resumeId, blob.url, safeFilename);
+    await updateAirtableProfilePhoto(resumeId, blobUrl, safeFilename);
 
-    return NextResponse.json({ ok: true, profilePhotoUrl: blob.url });
+    return NextResponse.json({ ok: true, profilePhotoUrl: blobUrl });
   } catch (error) {
     console.error('Profile photo upload error:', { resumeId: resumeIdValue, error });
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
