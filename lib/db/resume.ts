@@ -48,7 +48,7 @@ export async function updateResumeFields(
     Object.entries(fields).filter(([, value]) => value !== undefined)
   );
 
-  const [record] = await db.resumes.update(
+  const updatedRecords = (await db.resumes.update(
     [
       {
         id: recordId,
@@ -56,7 +56,11 @@ export async function updateResumeFields(
       },
     ],
     { typecast: true }
-  );
+  )) as Airtable.Records<Airtable.FieldSet>;
+
+  const record = Array.isArray(updatedRecords)
+    ? updatedRecords[0]
+    : (updatedRecords as Airtable.Record<Airtable.FieldSet>);
 
   return mapAirtableResume(record);
 }
