@@ -15,7 +15,7 @@ function getExtension(mimeType: string) {
 
 async function uploadToBlob(
   pathname: string,
-  fileBuffer: Buffer,
+  fileArrayBuffer: ArrayBuffer,
   contentType: string
 ): Promise<string> {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
@@ -30,7 +30,7 @@ async function uploadToBlob(
       'content-type': contentType,
       'x-vercel-blob-token': token,
     },
-    body: fileBuffer,
+    body: new Blob([fileArrayBuffer], { type: contentType }),
   });
 
   if (!response.ok) {
@@ -86,8 +86,8 @@ export async function POST(request: Request) {
       extension || 'img'
     }`;
 
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
-    const blobUrl = await uploadToBlob(pathname, fileBuffer, file.type);
+    const fileArrayBuffer = await file.arrayBuffer();
+    const blobUrl = await uploadToBlob(pathname, fileArrayBuffer, file.type);
 
     const db = getDb();
     await db.resumes.update(
