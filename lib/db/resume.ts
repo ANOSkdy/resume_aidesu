@@ -1,5 +1,6 @@
 import type Airtable from 'airtable';
 import { z } from 'zod';
+import { getDb } from '@/lib/db/airtable';
 import { ResumeSchema } from '@/lib/validation/schemas';
 
 type BaseResume = z.infer<typeof ResumeSchema>;
@@ -16,6 +17,8 @@ export type Resume = BaseResume & {
   profilePhoto?: AirtableAttachment[];
   profilePhotoUrl?: string | null;
 };
+
+type ResumeUpdateFields = Partial<Omit<Resume, 'id' | 'createdTime'>>;
 
 export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): Resume {
   const fields = record.fields as unknown as Resume & {
@@ -34,4 +37,26 @@ export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): R
     ...fields,
     profilePhotoUrl,
   };
+}
+
+export async function updateResumeFields(
+  recordId: string,
+  fields: ResumeUpdateFields
+): Promise<Resume> {
+  const db = getDb();
+  const sanitizedFields = Object.fromEntries(
+    Object.entries(fields).filter(([, value]) => value !== undefined)
+  );
+
+  const [record] = await db.resumes.update(
+    [
+      {
+        id: recordId,
+        fields: sanitizedFields,
+      },
+    ],
+    { typecast: true }
+  );
+
+  return mapAirtableResume(record);
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { updateResumeFields } from '@/lib/db/resume';
 
 export const runtime = 'nodejs';
 
@@ -11,36 +12,7 @@ function getExtension(mimeType: string) {
   return '';
 }
 
-const airtableBaseId = process.env.AIRTABLE_BASE_ID;
-const airtableApiKey = process.env.AIRTABLE_API_KEY;
 const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
-
-async function updateAirtableProfilePhoto(resumeId: string, url: string) {
-  if (!airtableBaseId || !airtableApiKey) {
-    throw new Error('Airtable credentials are missing');
-  }
-
-  const response = await fetch(
-    `https://api.airtable.com/v0/${encodeURIComponent(airtableBaseId)}/Resumes/${encodeURIComponent(resumeId)}`,
-    {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${airtableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fields: {
-          profilePhotoUrl: url,
-        },
-      }),
-    }
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Airtable update failed (${response.status}): ${errorText}`);
-  }
-}
 
 async function uploadToBlob(file: File, pathname: string) {
   if (!blobToken) {
@@ -111,11 +83,30 @@ export async function POST(request: Request) {
 
     const blobUrl = await uploadToBlob(file, pathname);
 
-    await updateAirtableProfilePhoto(resumeId, blobUrl);
+    const sanitizedFilename =
+      typeof file.name === 'string'
+        ? file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+        : `profile-photo.${extension || 'img'}`;
+
+    await updateResumeFields(resumeId, {
+      profilePhoto: [
+        {
+          url: blobUrl,
+          filename: sanitizedFilename,
+        },
+      ],
+    });
 
     return NextResponse.json({ ok: true, profilePhotoUrl: blobUrl });
   } catch (error) {
     console.error('Profile photo upload error:', { resumeId: resumeIdValue, error });
-    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
+    const errorMessage =
+      error instanceof Error && error.message.toLowerCase().includes('airtable')
+        ? 'Airtable update failed'
+        : 'INTERNAL_ERROR';
+    return NextResponse.json(
+      { ok: false, error: errorMessage },
+      { status: 500 }
+    );
   }
 }
