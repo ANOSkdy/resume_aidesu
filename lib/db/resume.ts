@@ -45,22 +45,12 @@ export async function updateResumeFields(
 ): Promise<Resume> {
   const db = getDb();
   const sanitizedFields = Object.fromEntries(
-    Object.entries(fields).filter(([, value]) => value !== undefined)
+    Object.entries(fields).filter(([, value]) => value !== undefined && value !== null)
   ) as Partial<Airtable.FieldSet>;
 
-  const updatedRecords = (await db.resumes.update(
-    [
-      {
-        id: recordId,
-        fields: sanitizedFields,
-      },
-    ],
-    { typecast: true }
-  )) as unknown as Airtable.Records<Airtable.FieldSet>;
+  const updatedRecord = await db.resumes.update(recordId, sanitizedFields, {
+    typecast: true,
+  });
 
-  const record = Array.isArray(updatedRecords)
-    ? updatedRecords[0]
-    : (updatedRecords as Airtable.Record<Airtable.FieldSet>);
-
-  return mapAirtableResume(record);
+  return mapAirtableResume(updatedRecord);
 }
