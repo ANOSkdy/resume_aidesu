@@ -46,7 +46,7 @@ export async function updateResumeFields(
   const db = getDb();
   const sanitizedFields = Object.fromEntries(
     Object.entries(fields).filter(([, value]) => value !== undefined)
-  );
+  ) as Partial<Airtable.FieldSet>;
 
   const updatedRecords = (await db.resumes.update(
     [
