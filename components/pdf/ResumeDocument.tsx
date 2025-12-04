@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 
 // フォント登録
 Font.register({
@@ -72,6 +72,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  photoImage: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
   photoText: { fontSize: 9, color: '#ccc', marginBottom: 2 },
   photoDim: { fontSize: 8, color: '#ccc' },
 
@@ -131,11 +136,25 @@ type LicenseRecord = {
   content: string;
 };
 
-export const ResumeDocument = ({ data }: { data: any }) => {
+type ResumeDocumentProps = {
+  data: any;
+  profilePhotoUrl?: string | null;
+  showProfilePhoto?: boolean;
+};
+
+export const ResumeDocument = ({ data, profilePhotoUrl, showProfilePhoto = false }: ResumeDocumentProps) => {
   const { resume, educations, works, licenses } = data;
   const safeResume = resume || {};
   const today = new Date();
   const dateString = `${today.getFullYear()}年 ${today.getMonth() + 1}月 ${today.getDate()}日 現在`;
+
+  const normalizedProfilePhotoUrl =
+    typeof profilePhotoUrl === 'string' && profilePhotoUrl.trim().length > 0
+      ? profilePhotoUrl
+      : typeof safeResume.profilePhotoUrl === 'string' && safeResume.profilePhotoUrl.trim().length > 0
+        ? safeResume.profilePhotoUrl
+        : null;
+  const shouldShowPhoto = showProfilePhoto || !!normalizedProfilePhotoUrl;
 
   // --- データ整形 ---
   const rawHistory = [
@@ -245,9 +264,15 @@ export const ResumeDocument = ({ data }: { data: any }) => {
           </View>
 
           <View style={styles.photoContainer}>
-            <Text style={styles.photoText}>写真を貼る位置</Text>
-            <Text style={styles.photoDim}>縦 40mm</Text>
-            <Text style={styles.photoDim}>横 30mm</Text>
+            {shouldShowPhoto && normalizedProfilePhotoUrl ? (
+              <Image src={normalizedProfilePhotoUrl} style={styles.photoImage} />
+            ) : (
+              <>
+                <Text style={styles.photoText}>写真を貼る位置</Text>
+                <Text style={styles.photoDim}>縦 40mm</Text>
+                <Text style={styles.photoDim}>横 30mm</Text>
+              </>
+            )}
           </View>
         </View>
 
