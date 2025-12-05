@@ -2,11 +2,18 @@ import 'server-only';
 
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import path from 'node:path';
 
-Font.register({
-  family: 'NotoSansJP',
-  src: '/fonts/NotoSansJP-Regular.ttf',
-});
+const notoSansSrc = path.join(process.cwd(), 'public', 'fonts', 'NotoSansJP-Regular.ttf');
+
+try {
+  Font.register({
+    family: 'NotoSansJP',
+    src: notoSansSrc,
+  });
+} catch (error) {
+  console.error('Failed to register NotoSansJP font', error);
+}
 
 const styles = StyleSheet.create({
   page: {
