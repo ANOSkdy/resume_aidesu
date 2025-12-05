@@ -1,35 +1,29 @@
-﻿'use client';
+'use client';
 
-import dynamic from 'next/dynamic';
-import React, { useEffect, useState } from 'react';
-import { JobHistoryDocument } from './JobHistoryDocument';
-
-const PDFDownloadLink = dynamic(
-  () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
-  { 
-    ssr: false,
-    loading: () => <button disabled className="px-4 py-2 bg-gray-300 rounded text-white text-sm">準備中...</button>
-  }
-);
+import React from 'react';
 
 export const JobHistoryTrigger = ({ data }: { data: any }) => {
-  const [isClient, setIsClient] = useState(false);
-  
-  useEffect(() => { setIsClient(true); }, []);
+  const resumeId = data?.resume?.resume_id || data?.resume_id;
 
-  if (!isClient || !data) return null;
+  if (!resumeId) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="inline-flex items-center justify-center rounded-md bg-gray-300 px-6 py-3 text-sm font-medium text-white"
+      >
+        準備中
+      </button>
+    );
+  }
 
   return (
-    <PDFDownloadLink
-      document={<JobHistoryDocument data={data} />}
-      fileName="職務経歴書.pdf"
+    <button
+      type="button"
+      onClick={() => alert('職務経歴書のPDFは準備中です。')}
       className="inline-flex items-center justify-center rounded-md bg-green-600 px-6 py-3 text-sm font-medium text-white hover:bg-green-700 shadow-sm transition-colors"
     >
-      {/* @ts-ignore */}
-      {({ loading, error }) => {
-        if (error) return 'エラー';
-        return loading ? '生成中...' : '📥 職務経歴書をダウンロード';
-      }}
-    </PDFDownloadLink>
+      📄 職務経歴書（準備中）
+    </button>
   );
 };
