@@ -1,40 +1,40 @@
 // components/pdf/PDFTrigger.tsx
 'use client';
 
-import dynamic from 'next/dynamic';
-import React, { useEffect, useState } from 'react';
-import { ResumeDocument } from './ResumeDocument'; // 上で作ったファイル
+import React from 'react';
 
-// ★重要: SSR回避のための動的インポート
-const PDFDownloadLink = dynamic(
-  () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
-  { 
-    ssr: false,
-    loading: () => <button disabled className="px-4 py-2 bg-gray-300 rounded text-white">PDF準備中...</button>
+type PDFTriggerProps = {
+  data: any;
+};
+
+export const PDFTrigger = ({ data }: PDFTriggerProps) => {
+  const resumeId = data?.resume?.resume_id || data?.resume_id;
+  const profilePhotoUrl = data?.resume?.profilePhotoUrl ?? null;
+
+  if (!resumeId) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="inline-flex items-center justify-center rounded-md bg-gray-300 px-6 py-3 text-sm font-medium text-white"
+      >
+        履歴書ID未設定
+      </button>
+    );
   }
-);
 
-export const PDFTrigger = ({ data }: { data: any }) => {
-  const [isClient, setIsClient] = useState(false);
-  
-  // クライアントサイドでのみレンダリング許可
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient || !data) return null;
+  const href = `/api/pdf/jis-resume?resumeId=${encodeURIComponent(resumeId)}${
+    profilePhotoUrl ? '&showProfilePhoto=true' : ''
+  }`;
 
   return (
-    <PDFDownloadLink
-      document={<ResumeDocument data={data} />}
-      fileName="履歴書.pdf"
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className="inline-flex items-center justify-center rounded-md bg-blue-600 px-6 py-3 text-sm font-medium text-white hover:bg-blue-700 shadow-sm"
     >
-      {/* @ts-ignore */}
-      {({ loading, error }) => {
-        if (error) return 'エラー発生';
-        return loading ? 'PDF生成中...' : '📥 JIS履歴書をダウンロード';
-      }}
-    </PDFDownloadLink>
+      📥 JIS履歴書をダウンロード
+    </a>
   );
 };
