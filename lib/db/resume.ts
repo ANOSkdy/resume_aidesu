@@ -16,6 +16,11 @@ export type Resume = BaseResume & {
   createdTime?: string;
   profilePhoto?: AirtableAttachment[];
   profilePhotoUrl?: string | null;
+
+  // Airtable: Resumes テーブルに同名フィールドを作成しておく
+  contact_address?: string | null;
+  contact_phone?: string | null;
+  contact_email?: string | null;
 };
 
 type ResumeUpdateFields = Partial<Omit<Resume, 'id' | 'createdTime'>>;
@@ -25,11 +30,10 @@ export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): R
     profilePhoto?: AirtableAttachment[];
   };
 
+  // プロフィール写真 URL を Attachments または URL フィールドから解決
   const urlFromField =
     typeof fields.profilePhotoUrl === 'string' ? fields.profilePhotoUrl : undefined;
-  const attachments = Array.isArray(fields.profilePhoto)
-    ? fields.profilePhoto
-    : [];
+  const attachments = Array.isArray(fields.profilePhoto) ? fields.profilePhoto : [];
   const profilePhotoUrl = urlFromField ?? attachments[0]?.url ?? null;
 
   return {
