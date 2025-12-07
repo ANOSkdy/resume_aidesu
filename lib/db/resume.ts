@@ -16,9 +16,6 @@ export type Resume = BaseResume & {
   createdTime?: string;
   profilePhoto?: AirtableAttachment[];
   profilePhotoUrl?: string | null;
-  contactAddress?: string | null;
-  contactPhone?: string | null;
-  contactEmail?: string | null;
 };
 
 type ResumeUpdateFields = Partial<Omit<Resume, 'id' | 'createdTime'>>;
@@ -54,9 +51,9 @@ export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): R
   return {
     id: record.id,
     ...(restFields as Resume),
-    contactAddress: contactAddress ?? null,
-    contactPhone: contactPhone ?? null,
-    contactEmail: contactEmail ?? null,
+    contactAddress: contactAddress ?? undefined,
+    contactPhone: contactPhone ?? undefined,
+    contactEmail: contactEmail ?? undefined,
     profilePhotoUrl,
   };
 }

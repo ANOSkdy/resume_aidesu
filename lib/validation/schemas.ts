@@ -2,15 +2,17 @@
 
 // 基本情報 + ステップ2以降 + AI生成テキスト
 const optionalString = (max: number) =>
-  z.preprocess(
-    (value) => (value === '' ? undefined : value),
-    z.string().max(max).optional().nullable()
-  );
+  z
+    .union([z.string().max(max), z.literal('')])
+    .optional()
+    .nullable()
+    .transform((value) => (value === '' || value == null ? undefined : value));
 
-const optionalEmail = z.preprocess(
-  (value) => (value === '' ? undefined : value),
-  z.string().email().max(254).optional().nullable()
-);
+const optionalEmail = z
+  .union([z.string().email().max(254), z.literal('')])
+  .optional()
+  .nullable()
+  .transform((value) => (value === '' || value == null ? undefined : value));
 
 export const ResumeSchema = z.object({
   // 必須系
