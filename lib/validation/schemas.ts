@@ -1,6 +1,17 @@
 ﻿import { z } from 'zod';
 
 // 基本情報 + ステップ2以降 + AI生成テキスト
+const optionalString = (max: number) =>
+  z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().max(max).optional().nullable()
+  );
+
+const optionalEmail = z.preprocess(
+  (value) => (value === '' ? undefined : value),
+  z.string().email().max(254).optional().nullable()
+);
+
 export const ResumeSchema = z.object({
   // 必須系
   user_id: z.string().min(1, "User ID is required"),
@@ -23,6 +34,9 @@ export const ResumeSchema = z.object({
   address_line1: z.string().optional(),
   address_line2: z.string().optional(),
   phone_number: z.string().optional(),
+  contactAddress: optionalString(200),
+  contactPhone: optionalString(50),
+  contactEmail: optionalEmail,
   dependents_count: z.string().optional(),
   has_spouse: z.boolean().optional(),
   spouse_is_dependent: z.boolean().optional(),

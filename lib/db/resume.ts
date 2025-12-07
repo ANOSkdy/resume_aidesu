@@ -16,31 +16,60 @@ export type Resume = BaseResume & {
   createdTime?: string;
   profilePhoto?: AirtableAttachment[];
   profilePhotoUrl?: string | null;
-
-  // Airtable: Resumes テーブルに同名フィールドを作成しておく
-  contact_address?: string | null;
-  contact_phone?: string | null;
-  contact_email?: string | null;
+  contactAddress?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
 };
 
 type ResumeUpdateFields = Partial<Omit<Resume, 'id' | 'createdTime'>>;
 
+const airtableContactFieldMap: Record<string, string> = {
+  contactAddress: 'contact_address',
+  contactPhone: 'contact_phone',
+  contactEmail: 'contact_email',
+};
+
 export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): Resume {
-  const fields = record.fields as unknown as Resume & {
+  const fields = record.fields as Airtable.FieldSet & {
     profilePhoto?: AirtableAttachment[];
+    profilePhotoUrl?: string;
+    contact_address?: string | null;
+    contact_phone?: string | null;
+    contact_email?: string | null;
   };
+
+  const {
+    contact_address: contactAddress,
+    contact_phone: contactPhone,
+    contact_email: contactEmail,
+    ...restFields
+  } = fields;
 
   // プロフィール写真 URL を Attachments または URL フィールドから解決
   const urlFromField =
-    typeof fields.profilePhotoUrl === 'string' ? fields.profilePhotoUrl : undefined;
-  const attachments = Array.isArray(fields.profilePhoto) ? fields.profilePhoto : [];
+    typeof restFields.profilePhotoUrl === 'string' ? restFields.profilePhotoUrl : undefined;
+  const attachments = Array.isArray(restFields.profilePhoto) ? restFields.profilePhoto : [];
   const profilePhotoUrl = urlFromField ?? attachments[0]?.url ?? null;
 
   return {
     id: record.id,
-    ...fields,
+    ...(restFields as Resume),
+    contactAddress: contactAddress ?? null,
+    contactPhone: contactPhone ?? null,
+    contactEmail: contactEmail ?? null,
     profilePhotoUrl,
   };
+}
+
+export function mapResumeToAirtableFields(fields: ResumeUpdateFields): Partial<Airtable.FieldSet> {
+  const mappedEntries = Object.entries(fields).map(([key, value]) => {
+    const airtableKey = airtableContactFieldMap[key] ?? key;
+    return [airtableKey, value];
+  });
+
+  return Object.fromEntries(
+    mappedEntries.filter(([, value]) => value !== undefined && value !== null)
+  ) as Partial<Airtable.FieldSet>;
 }
 
 export async function updateResumeFields(
@@ -48,9 +77,7 @@ export async function updateResumeFields(
   fields: ResumeUpdateFields
 ): Promise<Resume> {
   const db = getDb();
-  const sanitizedFields = Object.fromEntries(
-    Object.entries(fields).filter(([, value]) => value !== undefined && value !== null)
-  ) as Partial<Airtable.FieldSet>;
+  const sanitizedFields = mapResumeToAirtableFields(fields);
 
   const updatedRecord = await db.resumes.update(recordId, sanitizedFields, {
     typecast: true,
