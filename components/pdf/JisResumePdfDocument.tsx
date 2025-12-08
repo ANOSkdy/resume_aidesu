@@ -327,6 +327,10 @@ export const JisResumePdfDocument = ({
       }歳)   性別：${safeResume.gender ?? ''}`
     : `性別：${safeResume.gender ?? ''}`;
 
+  const dependentsCountText = toStringSafe(safeResume.dependents_count);
+  const spouseText = safeResume.has_spouse ? '有' : '無';
+  const spouseObligationText = safeResume.spouse_is_dependent ? '有' : '無';
+
   const desiredOccupationLine =
     Array.isArray(safeResume.desired_occupations) && safeResume.desired_occupations.length > 0
       ? `希望職種: ${safeResume.desired_occupations.join(', ')}`
@@ -626,7 +630,7 @@ export const JisResumePdfDocument = ({
               </View>
               <View style={[styles.gridCell, styles.piValue]}>
                 <View style={styles.piRow}>
-                  <Text style={styles.piInput}>0</Text>
+                  <Text style={styles.piInput}>{dependentsCountText}</Text>
                   <Text style={styles.value}>人</Text>
                 </View>
               </View>
@@ -636,13 +640,13 @@ export const JisResumePdfDocument = ({
                 <Text style={styles.label}>配偶者</Text>
               </View>
               <View style={[styles.gridCell, styles.piValue]}>
-                <Text style={[styles.value, styles.center]}>有 ・ 無</Text>
+                <Text style={[styles.value, styles.center]}>{spouseText}</Text>
               </View>
               <View style={[styles.gridCell, styles.piLabel]}>
                 <Text style={styles.label}>配偶者の扶養義務</Text>
               </View>
               <View style={[styles.gridCell, styles.piValue]}>
-                <Text style={[styles.value, styles.center]}>有 ・ 無</Text>
+                <Text style={[styles.value, styles.center]}>{spouseObligationText}</Text>
               </View>
             </View>
           </View>
