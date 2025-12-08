@@ -48,12 +48,17 @@ export function mapAirtableResume(record: Airtable.Record<Airtable.FieldSet>): R
   const attachments = Array.isArray(restFields.profilePhoto) ? restFields.profilePhoto : [];
   const profilePhotoUrl = urlFromField ?? attachments[0]?.url ?? null;
 
-  return {
-    id: record.id,
-    ...(restFields as Resume),
+  const baseResume = ResumeSchema.parse({
+    ...restFields,
     contactAddress: contactAddress ?? undefined,
     contactPhone: contactPhone ?? undefined,
     contactEmail: contactEmail ?? undefined,
+  });
+
+  return {
+    id: record.id,
+    ...baseResume,
+    profilePhoto: attachments.length ? attachments : undefined,
     profilePhotoUrl,
   };
 }
