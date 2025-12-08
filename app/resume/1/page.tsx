@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -26,6 +26,9 @@ const defaultValues: Partial<FormData> = {
   address_line1: '',
   address_line2: '',
   phone_number: '',
+  contactAddress: '',
+  contactPhone: '',
+  contactEmail: '',
   dependents_count: '',
   has_spouse: false,
   spouse_is_dependent: false,
@@ -52,6 +55,7 @@ export default function ResumeStep1() {
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -59,6 +63,7 @@ export default function ResumeStep1() {
   });
 
   const hasSpouse = watch('has_spouse');
+  const [useSeparateContact, setUseSeparateContact] = useState(false);
 
   useEffect(() => {
     const resumeId = localStorage.getItem('carrimy_resume_id');
@@ -93,7 +98,16 @@ export default function ResumeStep1() {
           has_spouse: resume.has_spouse ?? false,
           spouse_is_dependent: resume.spouse_is_dependent ?? false,
           email: resume.email ?? '',
+          contactAddress: resume.contactAddress ?? '',
+          contactPhone: resume.contactPhone ?? '',
+          contactEmail: resume.contactEmail ?? '',
         });
+
+        const hasSeparateContact =
+          !!resume.contactAddress?.trim() ||
+          !!resume.contactPhone?.trim() ||
+          !!resume.contactEmail?.trim();
+        setUseSeparateContact(hasSeparateContact);
       } catch (error) {
         console.error('Failed to load resume', error);
       }
@@ -101,6 +115,17 @@ export default function ResumeStep1() {
 
     loadResume();
   }, [reset]);
+
+  const handleSeparateContactChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = event.target.checked;
+    setUseSeparateContact(enabled);
+
+    if (!enabled) {
+      setValue('contactAddress', '');
+      setValue('contactPhone', '');
+      setValue('contactEmail', '');
+    }
+  };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
@@ -257,6 +282,51 @@ export default function ResumeStep1() {
             error={errors.phone_number?.message}
             placeholder="09012345678"
           />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="use_separate_contact"
+              checked={useSeparateContact}
+              onChange={handleSeparateContactChange}
+            />
+            <label htmlFor="use_separate_contact" className="text-sm font-medium text-gray-700">
+              現住所と異なる連絡先を登録する
+            </label>
+          </div>
+
+          {useSeparateContact && (
+            <div className="space-y-3 rounded-md border border-gray-200 bg-gray-50 p-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">連絡先住所</label>
+                <textarea
+                  {...register('contactAddress')}
+                  className="w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                />
+                {errors.contactAddress?.message && (
+                  <p className="mt-1 text-sm text-red-600">{errors.contactAddress.message}</p>
+                )}
+              </div>
+
+              <Input
+                label="連絡先電話番号"
+                {...register('contactPhone')}
+                error={errors.contactPhone?.message}
+                placeholder="0312345678"
+              />
+
+              <Input
+                label="連絡先メールアドレス"
+                {...register('contactEmail')}
+                error={errors.contactEmail?.message}
+                placeholder="contact@example.com"
+                type="email"
+              />
+            </div>
+          )}
         </div>
 
         <div>

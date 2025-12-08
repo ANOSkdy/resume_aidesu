@@ -1,6 +1,6 @@
 ﻿import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/airtable';
-import { mapAirtableResume } from '@/lib/db/resume';
+import { mapAirtableResume, mapResumeToAirtableFields } from '@/lib/db/resume';
 import { ResumeSchema } from '@/lib/validation/schemas';
 
 // GET処理
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     
     // バリデーション
     const validatedData = ResumeSchema.parse(body);
-    const { user_id, ...fields } = validatedData; 
+    const { user_id, ...fields } = validatedData;
     
     // リクエストにある resume_id を確認
     let targetResumeId = fields.resume_id || body.resume_id;
@@ -54,15 +54,20 @@ export async function POST(request: Request) {
       targetResumeId = "res_" + Date.now(); // ここでIDを発行
       console.log(`Creating NEW record: ${targetResumeId}`);
       
-      record = await db.resumes.create([
-        {
-          fields: {
-            resume_id: targetResumeId,
-            user_id: user_id,
-            ...fields,
+      const airtableFields = mapResumeToAirtableFields({
+        resume_id: targetResumeId,
+        user_id: user_id,
+        ...fields,
+      });
+
+      record = await db.resumes.create(
+        [
+          {
+            fields: airtableFields,
           }
-        }
-      ], { typecast: true });
+        ],
+        { typecast: true }
+      );
 
     } else {
       // ■ ケース2: 更新または指定IDでの作成 (Step 2以降)
@@ -78,31 +83,36 @@ export async function POST(request: Request) {
         const existingRecordId = existingRecords[0].id;
         console.log(`Updating existing record: ${existingRecordId}`);
         
-        const updateData = { ...fields, user_id: user_id };
-        Object.keys(updateData).forEach((key) => {
-  if ((updateData as any)[key] === undefined) delete (updateData as any)[key];
-});
+        const updateData = mapResumeToAirtableFields({ ...fields, user_id: user_id });
 
-        record = await db.resumes.update([
-          {
-            id: existingRecordId,
-            fields: updateData
-          }
-        ], { typecast: true });
+        record = await db.resumes.update(
+          [
+            {
+              id: existingRecordId,
+              fields: updateData,
+            }
+          ],
+          { typecast: true }
+        );
 
       } else {
         // [B] 指定IDで新規作成 (レコードが見つからなかった)
         console.log(`Creating NEW record with specified ID: ${targetResumeId}`);
         
-        record = await db.resumes.create([
-          {
-            fields: {
-              resume_id: targetResumeId,
-              user_id: user_id,
-              ...fields,
+        const airtableFields = mapResumeToAirtableFields({
+          resume_id: targetResumeId,
+          user_id: user_id,
+          ...fields,
+        });
+
+        record = await db.resumes.create(
+          [
+            {
+              fields: airtableFields,
             }
-          }
-        ], { typecast: true });
+          ],
+          { typecast: true }
+        );
       }
     }
 

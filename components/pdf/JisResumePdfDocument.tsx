@@ -353,9 +353,11 @@ export const JisResumePdfDocument = ({
   const currentEmailText = toStringSafe(safeResume.email);
 
   // ▼ 連絡先入力があるかどうか判定
-  const contactAddressRaw = toStringSafe(safeResume.contact_address);
-  const contactPhoneRaw = toStringSafe(safeResume.contact_phone);
-  const contactEmailRaw = toStringSafe(safeResume.contact_email);
+  const contactAddressRaw = toStringSafe(
+    safeResume.contactAddress ?? safeResume.contact_address
+  );
+  const contactPhoneRaw = toStringSafe(safeResume.contactPhone ?? safeResume.contact_phone);
+  const contactEmailRaw = toStringSafe(safeResume.contactEmail ?? safeResume.contact_email);
 
   const hasContactInput =
     !!contactAddressRaw.trim() ||
