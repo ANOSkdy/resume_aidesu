@@ -6,13 +6,17 @@ const optionalString = (max: number) =>
     .union([z.string().max(max), z.literal('')])
     .optional()
     .nullable()
-    .transform((value) => (value === '' || value == null ? undefined : value));
+    .transform((value) => (value === '' || value == null ? undefined : value))
+    .optional()
+    .nullable();
 
 const optionalEmail = z
   .union([z.string().email().max(254), z.literal('')])
   .optional()
   .nullable()
-  .transform((value) => (value === '' || value == null ? undefined : value));
+  .transform((value) => (value === '' || value == null ? undefined : value))
+  .optional()
+  .nullable();
 
 export const ResumeSchema = z.object({
   // 必須系
