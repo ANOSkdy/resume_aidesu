@@ -6,7 +6,11 @@ export async function POST(request: Request) {
   try {
     const db = getDb();
     const body = await request.json();
-    const validated = WorkSchema.parse(body);
+    const sanitizedBody = body?.is_current
+      ? { ...body, end_year: undefined, end_month: undefined }
+      : body;
+
+    const validated = WorkSchema.parse(sanitizedBody);
 
     // ★修正: resume_id (Link) に文字列を入れるため typecast: true
     const record = await db.works.create([{ fields: validated }], { typecast: true });
