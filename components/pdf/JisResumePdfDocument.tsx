@@ -270,12 +270,12 @@ export const JisResumePdfDocument = ({
       val: (w.start_year || 0) * 100 + (w.start_month || 0),
     })),
     ...(works || []).map((w: any) => {
-      const hasEnd = w.end_year || w.end_month;
       const isCurrent =
         w.is_current === true ||
         w.is_current === '現在' ||
-        (!hasEnd && w.is_current !== false); // end が無ければ基本「現在に至る」
+        (w.is_current !== false && !(w.end_year || w.end_month)); // end が無ければ基本「現在に至る」
 
+      const hasEnd = !isCurrent && (w.end_year || w.end_month);
       const content = isCurrent ? '現在に至る' : `${w.company_name ?? ''} 退社`;
 
       return {

@@ -26,15 +26,21 @@ export default function ResumeStep4() {
   const hintButtonClass =
     'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<Work>({
-    defaultValues: { 
-      start_year: 2015, start_month: 4, 
-      end_year: 2020, end_month: 3, 
-      is_current: false 
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<Work>({
+    defaultValues: {
+      start_year: 2015, start_month: 4,
+      is_current: false
     }
   });
 
   const isCurrent = watch('is_current');
+
+  useEffect(() => {
+    if (isCurrent) {
+      setValue('end_year', undefined);
+      setValue('end_month', undefined);
+    }
+  }, [isCurrent, setValue]);
 
   useEffect(() => {
     const resumeId = localStorage.getItem('carrimy_resume_id');
@@ -55,17 +61,25 @@ export default function ResumeStep4() {
     if(!resumeId) return;
 
     try {
-      const payload = { ...data, resume_id: resumeId };
+      const sanitizedEndYear = data.is_current ? undefined : Number.isFinite(data.end_year) ? data.end_year : undefined;
+      const sanitizedEndMonth = data.is_current ? undefined : Number.isFinite(data.end_month) ? data.end_month : undefined;
+
+      const payload = {
+        ...data,
+        end_year: sanitizedEndYear,
+        end_month: sanitizedEndMonth,
+        resume_id: resumeId,
+      };
       const res = await fetch('/api/data/work', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
+
       if (!res.ok) throw new Error('追加失敗');
-      
+
       const saved = await res.json();
-      setWorks([...works, { ...data, id: saved.id }]);
+      setWorks([...works, { ...data, end_year: sanitizedEndYear, end_month: sanitizedEndMonth, id: saved.id }]);
       reset();
 
     } catch (error) {
@@ -105,7 +119,13 @@ export default function ResumeStep4() {
                 {work.department} / {work.position}
               </div>
               <div className="text-xs text-gray-500">
-                {work.start_year}年{work.start_month}月 〜 {work.is_current ? '現在' : `${work.end_year}年${work.end_month}月`}
+                {work.start_year}年{work.start_month}月 〜 {
+                  work.is_current
+                    ? '現在'
+                    : work.end_year && work.end_month
+                      ? `${work.end_year}年${work.end_month}月`
+                      : '未設定'
+                }
               </div>
             </div>
             {work.description && (
