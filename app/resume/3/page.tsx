@@ -126,7 +126,10 @@ export default function ResumeStep3() {
       {/* 新規追加フォーム */}
       <div className="bg-blue-50 p-4 rounded-md mb-6">
         <h3 className="font-bold text-sm text-blue-800 mb-1">学歴を追加する</h3>
-        <p className="text-xs text-gray-500 mb-4">学歴は中学or高校のあとに卒業したほうから記載</p>
+        <p className="text-xs text-gray-500 mb-4">
+          ※最終学歴が〜高卒までは中学から、専門卒〜院卒は高校から記入<br />
+          ※中途退学の場合は中途退学した学校まで記入
+        </p>
         <form onSubmit={handleSubmit(onAdd)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
