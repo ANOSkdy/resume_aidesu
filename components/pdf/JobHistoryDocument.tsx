@@ -16,12 +16,21 @@ try {
   console.error('Failed to register NotoSansJP font', error);
 }
 
+// 日本語向けにハイフネーションを無効化（行途中の自動ハイフン挿入をオフ）
+try {
+  Font.registerHyphenationCallback((word: string) =>
+    Array.from(word).flatMap((char) => [char, ''])
+  );
+} catch (error) {
+  console.error('Failed to register hyphenation callback', error);
+}
+
 const styles = StyleSheet.create({
   page: {
     padding: 34,
     fontFamily: 'NotoSansJP',
     fontSize: 10,
-    lineHeight: 1.5,
+    lineHeight: 1.2,
     color: '#333',
   },
 
@@ -52,19 +61,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     backgroundColor: '#eee',
-    paddingVertical: 4,
+    paddingVertical: 3,      // 少し薄めに
     paddingHorizontal: 8,
     marginBottom: 8,
     borderLeftWidth: 4,
     borderColor: '#444',
+    lineHeight: 1.2,         // 本文と同じ行高で縦位置を揃える
   },
   content: {
     marginLeft: 2,
-    lineHeight: 1.6,
+    lineHeight: 1.2,
   },
 
   // --- テーブル・セル設定 ---
-  // ヘッダー行スタイル
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#f5f5f5',
@@ -122,6 +131,15 @@ const styles = StyleSheet.create({
     marginBottom: 2, 
     marginLeft: 2,
   },
+
+  // ※「活かせる経験・知識」は content スタイルを使うので
+  //    experienceItem は今回は未使用（残しておいてもOK）
+  experienceItem: {
+    marginLeft: 4,
+    marginBottom: 0,
+    fontSize: 10,
+    lineHeight: 1.2,
+  },
 });
 
 type ResumeData = {
@@ -132,12 +150,26 @@ type ResumeData = {
 const sanitizeLines = (input: unknown): string[] => {
   if (!input) return [];
   if (typeof input === 'string') {
-    return input.split(/\r?\n/).map((item) => item.trim()).filter((item) => item.length > 0);
+    return input
+      .split(/\r?\n/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
   }
   if (Array.isArray(input)) {
-    return input.map((item) => (typeof item === 'string' ? item.trim() : '')).filter((item) => item.length > 0);
+    return input
+      .map((item) => (typeof item === 'string' ? item.trim() : ''))
+      .filter((item) => item.length > 0);
   }
   return [];
+};
+
+// 行頭の「-」「・」「**」などを削る（活かせる経験・知識の元テキスト用）
+const stripLeadingSymbols = (text: string): string => {
+  return text
+    .replace(/^[\s　]*[-・*●○■□◆◇]+[\s　]*/, '')
+    .replace(/^[\s　]*\.+[\s　]*/, '')
+    .replace(/\*\*/g, '')
+    .trim();
 };
 
 const removeExperienceHeading = (items: string[]): string[] => {
@@ -158,7 +190,10 @@ export const JobHistoryDocument = ({ data }: { data: ResumeData }) => {
 
   const experienceList = removeExperienceHeading(
     sanitizeLines(safeResume.transferable_skills || safeResume.experience_knowledge),
-  );
+  )
+    .map(stripLeadingSymbols)
+    .filter((item) => item.length > 0);
+
   const licenseList = sanitizeLines(safeResume.licenses_qualifications);
 
   // 職歴ソート
@@ -190,11 +225,7 @@ export const JobHistoryDocument = ({ data }: { data: ResumeData }) => {
   };
 
   const formatCompanyInfo = (work: any) => {
-    const parts = [
-      work.company_name,
-      work.department,
-      work.position
-    ].filter(Boolean);
+    const parts = [work.company_name, work.department, work.position].filter(Boolean);
     return parts.join('　');
   };
 
@@ -226,23 +257,14 @@ export const JobHistoryDocument = ({ data }: { data: ResumeData }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>職務経歴</Text>
 
-          {/* 各職歴のループ */}
           {sortedWorks.map((work: any, index: number) => (
             <View key={work.id ?? index} wrap={false} style={styles.workEntryContainer}>
-              
-              {/* 会社名を枠外に表示 */}
-              <Text style={styles.companyTitleText}>
-                {formatCompanyInfo(work)}
-              </Text>
+              <Text style={styles.companyTitleText}>{formatCompanyInfo(work)}</Text>
 
-              {/* テーブル行（期間・業務内容） */}
               <View style={styles.tableRow}>
-                {/* 期間 */}
                 <View style={[styles.cell, styles.colDate]}>
                   <Text>{formatPeriod(work)}</Text>
                 </View>
-
-                {/* 業務内容 */}
                 <View style={[styles.lastCell, styles.colDesc]}>
                   <Text>{work.description}</Text>
                 </View>
@@ -251,20 +273,15 @@ export const JobHistoryDocument = ({ data }: { data: ResumeData }) => {
           ))}
         </View>
 
-        {/* 3. 活かせる経験・知識 */}
+        {/* 3. 活かせる経験・知識：本文と同じ行間で描画 */}
         {experienceList.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>活かせる経験・知識</Text>
-            
-            {/* ★修正: 「内容」ヘッダー行を削除しました ★ */}
-            
-            {experienceList.map((item: string, index: number) => (
-              <View key={index} style={[styles.tableRow, { marginTop: -1 }]}> 
-                <View style={[styles.lastCell, styles.colFull]}>
-                  <Text>・{item}</Text>
-                </View>
-              </View>
-            ))}
+            <Text style={styles.content}>
+              {experienceList
+                .map((item, index) => (index === 0 ? `・${item}` : `\n・${item}`))
+                .join('')}
+            </Text>
           </View>
         )}
 

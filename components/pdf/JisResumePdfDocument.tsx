@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
   headerSpacer: {
     height: 24,
   },
-  // 重複防止のため、コンテナは「上」と「左」のみ描画
   gridContainer: {
     borderTopWidth: 1,
     borderLeftWidth: 1,
@@ -110,7 +109,7 @@ const styles = StyleSheet.create({
   },
   sectionBox: {
     borderBottomWidth: 1,
-    borderRightWidth: 1, // 右線を追加
+    borderRightWidth: 1,
     borderColor: '#000',
     padding: 8,
   },
@@ -134,12 +133,12 @@ const styles = StyleSheet.create({
   },
   piRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
 
-  // 住所・連絡先エリア用スタイル
+  // 住所・連絡先エリア
   addressRowContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderColor: '#000',
-    height: 55,
+    minHeight: 55,
   },
   addressLeft: {
     flex: 1,
@@ -150,24 +149,14 @@ const styles = StyleSheet.create({
   addressRight: {
     width: '25%',
     flexDirection: 'column',
-    borderRightWidth: 1, // 右線を追加
+    borderRightWidth: 1,
     borderColor: '#000',
-  },
-  dottedSeparator: {
-    borderBottomWidth: 1,
-    borderBottomStyle: 'solid', // 実線に統一
-    borderColor: '#000',
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 5,
   },
   solidArea: {
-    flex: 2,
+    flex: 1,
     justifyContent: 'center',
     padding: 5,
   },
-  furiLabel: { fontSize: 8, marginRight: 5 },
-  furiValue: { fontSize: 9 },
 });
 
 const HistoryRow = ({ year, month, content, align = 'left' }: any) => (
@@ -196,9 +185,33 @@ type JisResumePdfDocumentProps = {
   showProfilePhoto?: boolean;
 };
 
-// 汎用：どんな値でも文字列にする
+// 任意の値を安全に文字列化
 const toStringSafe = (v: unknown): string =>
   typeof v === 'string' ? v : v == null ? '' : String(v);
+
+// 文字列 / 数値 / Airtable配列を安全に 1 つの文字列へ
+const normalizeOptionalString = (value: unknown): string | undefined => {
+  if (value == null) return undefined;
+
+  if (Array.isArray(value)) {
+    for (const v of value) {
+      const s = normalizeOptionalString(v);
+      if (s) return s;
+    }
+    return undefined;
+  }
+
+  const s = String(value).trim();
+  return s.length > 0 ? s : undefined;
+};
+
+const pickFirst = (...vals: unknown[]): string | undefined => {
+  for (const v of vals) {
+    const s = normalizeOptionalString(v);
+    if (s) return s;
+  }
+  return undefined;
+};
 
 export const JisResumePdfDocument = ({
   data,
@@ -210,7 +223,7 @@ export const JisResumePdfDocument = ({
   const today = new Date();
   const dateString = `${today.getFullYear()}年 ${today.getMonth() + 1}月 ${today.getDate()}日 現在`;
 
-  // --- 写真 URL: props → resume.profilePhotoUrl → resume.profilePhoto (配列 or JSON文字列) ---
+  // 写真 URL: props → resume.profilePhotoUrl → resume.profilePhoto (配列 or JSON文字列)
   let profileAttachments: any[] = [];
 
   if (Array.isArray(safeResume.profilePhoto)) {
@@ -224,7 +237,7 @@ export const JisResumePdfDocument = ({
         profileAttachments = [parsed];
       }
     } catch {
-      // パース失敗時は無視
+      // ignore
     }
   }
 
@@ -243,7 +256,7 @@ export const JisResumePdfDocument = ({
 
   const shouldShowPhoto = !!normalizedProfilePhotoUrl || showProfilePhoto;
 
-  // --- 学歴・職歴（入社〜退社 / 現在に至る のセット） ---
+  // 学歴・職歴
   const rawHistory = [
     { type: 'header', content: '学歴', sort: 0 },
     ...(educations || []).map((e: any) => ({
@@ -273,7 +286,7 @@ export const JisResumePdfDocument = ({
       const isCurrent =
         w.is_current === true ||
         w.is_current === '現在' ||
-        (w.is_current !== false && !(w.end_year || w.end_month)); // end が無ければ基本「現在に至る」
+        (w.is_current !== false && !(w.end_year || w.end_month));
 
       const hasEnd = !isCurrent && (w.end_year || w.end_month);
       const content = isCurrent ? '現在に至る' : `${w.company_name ?? ''} 退社`;
@@ -297,7 +310,6 @@ export const JisResumePdfDocument = ({
   displayHistory.push({ content: '職歴', align: 'center' });
   const worksItems = rawHistory.filter((h) => h.sort === 3).sort((a, b) => a.val - b.val);
   displayHistory.push(...worksItems);
-
   if (worksItems.length > 0) displayHistory.push({ content: '以上', align: 'right' });
   else displayHistory.push({ content: 'なし', align: 'center' });
 
@@ -342,7 +354,7 @@ export const JisResumePdfDocument = ({
   const desiredText =
     [desiredOccupationLine, desiredLocationLine].filter(Boolean).join('\n') || '特になし';
 
-  // ▼ 現住所テキスト：address_* カラムから組み立て
+  // 現住所テキスト
   const addressParts = [
     toStringSafe(safeResume.address_prefecture),
     toStringSafe(safeResume.address_city),
@@ -351,34 +363,47 @@ export const JisResumePdfDocument = ({
   ].filter((p) => p && p.trim().length > 0);
   const addressText = addressParts.join(' ');
 
-  // ▼ 現住所の電話・メール（phone_number を優先して必ず拾う）
+  // 現住所の電話・メール
   const currentPhoneText =
-    toStringSafe(safeResume.phone) || toStringSafe(safeResume.phone_number);
+    pickFirst(
+      (safeResume as any).phone_number,
+      (safeResume as any).phone,
+    ) ?? '';
   const currentEmailText = toStringSafe(safeResume.email);
 
-  // ▼ 連絡先入力があるかどうか判定
-  const contactAddressRaw = toStringSafe(
-    safeResume.contactAddress ?? safeResume.contact_address
-  );
-  const contactPhoneRaw = toStringSafe(safeResume.contactPhone ?? safeResume.contact_phone);
-  const contactEmailRaw = toStringSafe(safeResume.contactEmail ?? safeResume.contact_email);
+  // 連絡先（チェック OFF のときは address 空 → 同上、電話/メールは空欄）
+  const rawContactAddress =
+    pickFirst(
+      (safeResume as any).contactAddress,
+      (safeResume as any).contact_address,
+    ) ?? '';
+  const rawContactPhone =
+    pickFirst(
+      (safeResume as any).contactPhone,
+      (safeResume as any).contact_phone,
+    ) ?? '';
+  const rawContactEmail =
+    pickFirst(
+      (safeResume as any).contactEmail,
+      (safeResume as any).contact_email,
+    ) ?? '';
 
-  const hasContactInput =
-    !!contactAddressRaw.trim() ||
-    !!contactPhoneRaw.trim() ||
-    !!contactEmailRaw.trim();
+  const hasDifferentContactAddress = rawContactAddress.trim().length > 0;
 
-  // 入力がないときだけ「同上」＋現住所の電話・メールを流用
-  const contactAddressText = hasContactInput ? contactAddressRaw : '同上';
-  const contactPhoneText = hasContactInput ? contactPhoneRaw : currentPhoneText;
-  const contactEmailText = hasContactInput ? contactEmailRaw : currentEmailText;
+  const contactAddressText = hasDifferentContactAddress ? rawContactAddress : '同上';
+  const contactPhoneText = hasDifferentContactAddress
+    ? normalizeOptionalString(rawContactPhone) ?? ''
+    : '';
+  const contactEmailText = hasDifferentContactAddress
+    ? normalizeOptionalString(rawContactEmail) ?? ''
+    : '';
 
   const rightHistoryEmptyRows = Array.from({ length: 4 });
 
   return (
     <Document>
       <Page size="A3" orientation="landscape" style={styles.page}>
-        {/* ▼▼▼ 左側カラム ▼▼▼ */}
+        {/* ▼ 左カラム */}
         <View style={styles.leftColumn}>
           <View style={styles.headerContainer}>
             <Text style={styles.title}>履 歴 書</Text>
@@ -419,20 +444,10 @@ export const JisResumePdfDocument = ({
                   </View>
                 </View>
 
-                {/* 現住所エリア */}
+                {/* 現住所（フリガナ行なし） */}
                 <View style={styles.addressRowContainer}>
                   <View style={styles.addressLeft}>
-                    <View
-                      style={[
-                        styles.dottedSeparator,
-                        { flexDirection: 'row', alignItems: 'center' },
-                      ]}
-                    >
-                      <Text style={styles.furiLabel}>フリガナ</Text>
-                      {/* TODO: 住所フリガナがあればここに反映 */}
-                      <Text style={styles.furiValue}>ホッカイドウ サッポロシ チュウオウク</Text>
-                    </View>
-                    <View style={styles.solidArea}>
+                    <View style={[styles.solidArea, { flex: 1 }]}>
                       <View
                         style={{
                           flexDirection: 'row',
@@ -448,30 +463,34 @@ export const JisResumePdfDocument = ({
                       <Text style={{ fontSize: 10, lineHeight: 1.2 }}>{addressText}</Text>
                     </View>
                   </View>
+
                   <View style={styles.addressRight}>
-                    <View style={styles.dottedSeparator}>
-                      <Text style={{ fontSize: 8 }}>電話 {currentPhoneText}</Text>
+                    {/* 電話 */}
+                    <View
+                      style={[
+                        styles.solidArea,
+                        { borderBottomWidth: 1, borderColor: '#000', flex: 1 },
+                      ]}
+                    >
+                      <Text style={{ fontSize: 8 }}>電話</Text>
+                      <Text style={{ fontSize: 8, marginTop: 2 }}>
+                        {currentPhoneText || ' '}
+                      </Text>
                     </View>
-                    <View style={styles.solidArea}>
+                    {/* メール */}
+                    <View style={[styles.solidArea, { flex: 1 }]}>
                       <Text style={{ fontSize: 8 }}>メール</Text>
-                      <Text style={{ fontSize: 8, marginTop: 2 }}>{currentEmailText}</Text>
+                      <Text style={{ fontSize: 8, marginTop: 2 }}>
+                        {currentEmailText || ' '}
+                      </Text>
                     </View>
                   </View>
                 </View>
 
-                {/* 連絡先エリア */}
+                {/* 連絡先（フリガナ行なし） */}
                 <View style={styles.addressRowContainer}>
                   <View style={styles.addressLeft}>
-                    <View
-                      style={[
-                        styles.dottedSeparator,
-                        { flexDirection: 'row', alignItems: 'center' },
-                      ]}
-                    >
-                      <Text style={styles.furiLabel}>フリガナ</Text>
-                      <Text style={styles.furiValue}></Text>
-                    </View>
-                    <View style={styles.solidArea}>
+                    <View style={[styles.solidArea, { flex: 1 }]}>
                       <View
                         style={{
                           flexDirection: 'row',
@@ -503,13 +522,26 @@ export const JisResumePdfDocument = ({
                       </View>
                     </View>
                   </View>
+
                   <View style={styles.addressRight}>
-                    <View style={styles.dottedSeparator}>
-                      <Text style={{ fontSize: 8 }}>電話 {contactPhoneText}</Text>
+                    {/* 連絡先電話（チェック OFF の時はラベルのみで値は空） */}
+                    <View
+                      style={[
+                        styles.solidArea,
+                        { borderBottomWidth: 1, borderColor: '#000', flex: 1 },
+                      ]}
+                    >
+                      <Text style={{ fontSize: 8 }}>電話</Text>
+                      <Text style={{ fontSize: 8, marginTop: 2 }}>
+                        {contactPhoneText || ' '}
+                      </Text>
                     </View>
-                    <View style={styles.solidArea}>
+                    {/* 連絡先メール（同上） */}
+                    <View style={[styles.solidArea, { flex: 1 }]}>
                       <Text style={{ fontSize: 8 }}>メール</Text>
-                      <Text style={{ fontSize: 8, marginTop: 2 }}>{contactEmailText}</Text>
+                      <Text style={{ fontSize: 8, marginTop: 2 }}>
+                        {contactEmailText || ' '}
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -563,12 +595,12 @@ export const JisResumePdfDocument = ({
           </View>
         </View>
 
-        {/* ▼▼▼ 右側カラム ▼▼▼ */}
+        {/* ▼ 右カラム */}
         <View style={styles.rightColumn}>
           {/* スペーサー */}
           <View style={{ height: 30 + 24 }} />
 
-          {/* 右側の学歴・職歴欄（規定値4行空挿入） */}
+          {/* 右側の学歴・職歴欄（空欄） */}
           <View style={[styles.gridContainer, { marginBottom: 5 }]}>
             <View
               style={[
