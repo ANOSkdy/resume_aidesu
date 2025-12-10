@@ -211,7 +211,7 @@ export default function CVStep3() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">職務要約と仕上げ</h2>
+      <h2 className="text-xl font-bold mb-4">職務要約</h2>
 
       <div className="mb-8 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -287,7 +287,7 @@ export default function CVStep3() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm font-bold text-blue-800 mb-1">活かせる経験・知識</p>
-              <p className="text-xs text-blue-700 mb-2">cv/4の職歴入力を元にAIが箇条書き化します。PDFの新セクションに反映されます。</p>
+              <p className="text-xs text-blue-700 mb-2">入力した職歴情報を元にAIが自動で生成します。</p>
             </div>
             <Button onClick={generateExperienceKnowledge} isLoading={loadingExperienceAI} size="sm" className="bg-blue-600 hover:bg-blue-700">
               💡 AIで生成する

@@ -112,14 +112,10 @@ export default function CVStep2() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">自己PRの作成</h2>
+      <h2 className="text-xl font-bold mb-4">自己PR</h2>
       
       <div className="bg-blue-50 p-4 rounded mb-6">
         <h3 className="font-bold text-sm mb-2 text-blue-800">AI アシスタント</h3>
-        <p className="text-xs text-blue-600 mb-3">
-           Step 1の入力内容（強み・エピソード等）を元に生成します。<br/>
-           ボタンを押してもテンプレートが出る場合は、Step 1の入力を見直してください。
-        </p>
         <div className="text-xs mb-2 text-gray-500">
           認識されているエピソード文字数: {inputs?.episode?.length || 0}文字
         </div>

@@ -20,7 +20,8 @@ export default function Home() {
         <div className="space-y-3">
           <h1 className="text-3xl font-extrabold leading-tight text-blue-700">Carrime</h1>
           <p className="text-sm text-gray-700">
-            AIでつくる、あなたのキャリア。スマホ専用レイアウトで、いつでもどこでも履歴書・職務経歴書を作成できます。
+            AIでつくる、あなたのキャリア。
+            いつでもどこでもモバイル端末から履歴書・職務経歴書を作成できます。
           </p>
         </div>
 
