@@ -188,20 +188,19 @@ export type ResumeBundle = {
   works: Array<{ id: string; [key: string]: unknown }>;
 };
 
-const escapeFormulaValue = (value: unknown) =>
-  typeof value === 'string' ? value.replace(/'/g, "\\'") : '';
+const formulaString = (value: string) => JSON.stringify(value);
 
 const buildSearchFormula = (query: string) => {
   const normalized = query.trim();
   if (!normalized) return undefined;
-  const escaped = escapeFormulaValue(normalized.toLowerCase());
+  const escaped = formulaString(normalized.toLowerCase());
   const conditions = [
-    `FIND(LOWER('${escaped}'), LOWER({last_name_kanji}))`,
-    `FIND(LOWER('${escaped}'), LOWER({first_name_kanji}))`,
-    `FIND(LOWER('${escaped}'), LOWER({contact_email}))`,
-    `FIND(LOWER('${escaped}'), LOWER({email}))`,
-    `FIND(LOWER('${escaped}'), LOWER({contact_phone}))`,
-    `FIND(LOWER('${escaped}'), LOWER({phone_number}))`,
+    `FIND(LOWER(${escaped}), LOWER({last_name_kanji}))`,
+    `FIND(LOWER(${escaped}), LOWER({first_name_kanji}))`,
+    `FIND(LOWER(${escaped}), LOWER({contact_email}))`,
+    `FIND(LOWER(${escaped}), LOWER({email}))`,
+    `FIND(LOWER(${escaped}), LOWER({contact_phone}))`,
+    `FIND(LOWER(${escaped}), LOWER({phone_number}))`,
   ];
 
   return `OR(${conditions.join(',')})`;
@@ -344,20 +343,49 @@ export async function listResumes({
 
 export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | null> {
   const db = getDb();
-  const escaped = escapeFormulaValue(resumeId);
-  const resumes = await db.resumes
-    .select({
-      filterByFormula: "{resume_id} = '" + escaped + "'",
-      maxRecords: 1,
-    })
-    .firstPage();
+  const byResumeIdFormula = `{resume_id} = ${formulaString(resumeId)}`;
+  const selectFirst = async (formula: string) => {
+    const records = await db.resumes
+      .select({
+        filterByFormula: formula,
+        maxRecords: 1,
+      })
+      .firstPage();
+    return records[0] ?? null;
+  };
 
-  if (resumes.length === 0) return null;
+  let resumeRecord: Airtable.Record<Airtable.FieldSet> | null = null;
 
-  const resumeRecord = resumes[0];
+  if (/^rec[a-zA-Z0-9]+$/.test(resumeId)) {
+    try {
+      resumeRecord = await db.resumes.find(resumeId);
+    } catch {
+      resumeRecord = null;
+    }
+  }
+
+  if (!resumeRecord) {
+    resumeRecord = await selectFirst(byResumeIdFormula);
+  }
+
+  if (!resumeRecord) {
+    try {
+      const fallbackFormula = `OR(${byResumeIdFormula}, {id} = ${formulaString(resumeId)})`;
+      resumeRecord = await selectFirst(fallbackFormula);
+    } catch (error) {
+      if (isInvalidFieldError(error)) {
+        resumeRecord = await selectFirst(byResumeIdFormula);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  if (!resumeRecord) return null;
+
   const [educations, works] = await Promise.all([
-    db.educations.select({ filterByFormula: "{resume_id} = '" + escaped + "'" }).all(),
-    db.works.select({ filterByFormula: "{resume_id} = '" + escaped + "'" }).all(),
+    db.educations.select({ filterByFormula: `{resume_id} = ${formulaString(resumeId)}` }).all(),
+    db.works.select({ filterByFormula: `{resume_id} = ${formulaString(resumeId)}` }).all(),
   ]);
 
   return {

@@ -2,7 +2,6 @@ import type React from 'react';
 import { randomUUID } from 'crypto';
 import Link from 'next/link';
 import { headers } from 'next/headers';
-import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { getResumeBundle } from '@/lib/db/resume';
 
@@ -105,7 +104,20 @@ export default async function CrmDetailPage({
   }
 
   if (!bundle) {
-    notFound();
+    const correlationId = randomUUID();
+    console.warn('CRM resume not found', { correlationId, resumeId });
+    return (
+      <AppShell title="CRM / 応募者詳細">
+        <div className="space-y-3">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm">
+            応募者が見つかりませんでした (ID: {resumeId})
+          </div>
+          <Link className="text-sm font-medium text-blue-600 hover:text-blue-700" href={returnTo}>
+            ← 一覧へ戻る
+          </Link>
+        </div>
+      </AppShell>
+    );
   }
 
   const { resume, educations, works } = bundle;
