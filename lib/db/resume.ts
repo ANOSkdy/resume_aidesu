@@ -161,3 +161,210 @@ export async function updateResumeFields(
 
   return mapAirtableResume(updatedRecord);
 }
+
+export type ResumeListItem = {
+  id: string;
+  rid?: string;
+  nameKanji: string;
+  title?: string;
+  profilePhotoUrl?: string | null;
+  contactEmail?: string;
+  contactPhone?: string;
+  currentStatus?: string;
+  desiredRoles?: string[];
+  desiredLocations?: string[];
+  updatedAt?: string;
+};
+
+type ResumeListParams = {
+  pageSize: number;
+  cursor?: string | null;
+  q?: string | null;
+  sort?: 'updated_at' | 'created_at';
+};
+
+export type ResumeBundle = {
+  resume: Resume;
+  educations: Array<{ id: string; [key: string]: unknown }>;
+  works: Array<{ id: string; [key: string]: unknown }>;
+};
+
+const escapeFormulaValue = (value: string) => value.replace(/'/g, "\\'");
+
+const buildSearchFormula = (query: string) => {
+  const normalized = query.trim();
+  if (!normalized) return undefined;
+  const escaped = escapeFormulaValue(normalized.toLowerCase());
+  const conditions = [
+    `FIND(LOWER('${escaped}'), LOWER({last_name_kanji}))`,
+    `FIND(LOWER('${escaped}'), LOWER({first_name_kanji}))`,
+    `FIND(LOWER('${escaped}'), LOWER({contact_email}))`,
+    `FIND(LOWER('${escaped}'), LOWER({email}))`,
+    `FIND(LOWER('${escaped}'), LOWER({contact_phone}))`,
+    `FIND(LOWER('${escaped}'), LOWER({phone_number}))`,
+  ];
+
+  return `OR(${conditions.join(',')})`;
+};
+
+const isInvalidFieldError = (error: unknown) => {
+  if (!error || typeof error !== 'object' || !('message' in error)) return false;
+  const message = String((error as { message?: string }).message ?? '');
+  return message.includes('INVALID_FIELD_NAME') || message.includes('Unknown field name');
+};
+
+const listRecordsWithOffset = async (
+  params: Omit<ResumeListParams, 'sort'> & { sortField?: string }
+) => {
+  const db = getDb();
+  const table = db.resumes as unknown as {
+    _listRecords: (
+      pageSize: number,
+      offset: string | null,
+      options: Record<string, unknown>,
+      done: (
+        err: Error | null,
+        records?: Airtable.Record<Airtable.FieldSet>[],
+        offset?: string
+      ) => void
+    ) => void;
+  };
+
+  const fields = [
+    'user_id',
+    'resume_id',
+    'last_name_kanji',
+    'first_name_kanji',
+    'dob_year',
+    'dob_month',
+    'dob_day',
+    'title',
+    'contact_address',
+    'contact_phone',
+    'contact_email',
+    'email',
+    'phone_number',
+    'current_status',
+    'desired_occupations',
+    'desired_locations',
+    'profilePhoto',
+    'profilePhotoUrl',
+    'updated_at',
+    'created_at',
+  ];
+
+  const options: Record<string, unknown> = {
+    fields,
+  };
+
+  if (params.q) {
+    const formula = buildSearchFormula(params.q);
+    if (formula) options.filterByFormula = formula;
+  }
+
+  if (params.sortField) {
+    options.sort = [{ field: params.sortField, direction: 'desc' }];
+  }
+
+  return new Promise<{ records: Airtable.Record<Airtable.FieldSet>[]; offset?: string }>(
+    (resolve, reject) => {
+      table._listRecords(
+        params.pageSize,
+        params.cursor ?? null,
+        options,
+        (err, records, offset) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve({ records: records ?? [], offset });
+        }
+      );
+    }
+  );
+};
+
+export async function listResumes({
+  pageSize,
+  cursor,
+  q,
+  sort = 'updated_at',
+}: ResumeListParams): Promise<{
+  data: ResumeListItem[];
+  nextCursor: string | null;
+  pageSize: number;
+}> {
+  const sortField = sort === 'created_at' ? 'created_at' : 'updated_at';
+  let result: { records: Airtable.Record<Airtable.FieldSet>[]; offset?: string };
+
+  try {
+    result = await listRecordsWithOffset({ pageSize, cursor, q, sortField });
+  } catch (error) {
+    if (sortField === 'updated_at' && isInvalidFieldError(error)) {
+      result = await listRecordsWithOffset({ pageSize, cursor, q, sortField: 'created_at' });
+    } else {
+      throw error;
+    }
+  }
+
+  const data = result.records.map((record) => {
+    const resume = mapAirtableResume(record);
+    const nameKanji = [resume.last_name_kanji, resume.first_name_kanji].filter(Boolean).join(' ');
+    const fields = record.fields as Airtable.FieldSet & {
+      updated_at?: string;
+      updatedAt?: string;
+      created_at?: string;
+    };
+    const updatedAt =
+      fields.updated_at ??
+      fields.updatedAt ??
+      fields.created_at ??
+      resume.createdTime ??
+      record.createdTime;
+
+    return {
+      id: resume.resume_id ?? record.id,
+      rid: record.id,
+      nameKanji: nameKanji || '未入力',
+      title: resume.title,
+      profilePhotoUrl: resume.profilePhotoUrl ?? null,
+      contactEmail: resume.contactEmail ?? resume.email,
+      contactPhone: resume.contactPhone ?? resume.phone_number,
+      currentStatus: resume.current_status,
+      desiredRoles: resume.desired_occupations,
+      desiredLocations: resume.desired_locations,
+      updatedAt,
+    };
+  });
+
+  return {
+    data,
+    nextCursor: result.offset ?? null,
+    pageSize,
+  };
+}
+
+export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | null> {
+  const db = getDb();
+  const escaped = escapeFormulaValue(resumeId);
+  const resumes = await db.resumes
+    .select({
+      filterByFormula: "{resume_id} = '" + escaped + "'",
+      maxRecords: 1,
+    })
+    .firstPage();
+
+  if (resumes.length === 0) return null;
+
+  const resumeRecord = resumes[0];
+  const [educations, works] = await Promise.all([
+    db.educations.select({ filterByFormula: "{resume_id} = '" + escaped + "'" }).all(),
+    db.works.select({ filterByFormula: "{resume_id} = '" + escaped + "'" }).all(),
+  ]);
+
+  return {
+    resume: mapAirtableResume(resumeRecord),
+    educations: educations.map((record) => ({ id: record.id, ...record.fields })),
+    works: works.map((record) => ({ id: record.id, ...record.fields })),
+  };
+}
