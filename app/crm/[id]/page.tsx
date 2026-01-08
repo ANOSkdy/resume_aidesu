@@ -42,13 +42,22 @@ export default async function CrmDetailPage({
   params,
   searchParams,
 }: {
-  params: Record<string, unknown>;
+  params?: Record<string, unknown> | Promise<Record<string, unknown>>;
   searchParams?: SearchParams | Promise<SearchParams>;
 }) {
   const accessError = await getAccessError();
+  const resolvedParams = params ? await Promise.resolve(params) : {};
+  const paramKeys = Object.keys(resolvedParams ?? {});
+  const fallbackValue =
+    paramKeys.length === 1 ? (resolvedParams as Record<string, unknown>)[paramKeys[0]] : undefined;
   const rawParam =
-    (params as any)?.id ?? (params as any)?.resumeId ?? (params as any)?.resume_id;
-  const resumeIdInfo = normalizeResumeId(rawParam);
+    (resolvedParams as any)?.id ??
+    (resolvedParams as any)?.resumeId ??
+    (resolvedParams as any)?.resume_id ??
+    (resolvedParams as any)?.slug ??
+    fallbackValue;
+  const rawValue = Array.isArray(rawParam) ? rawParam[0] : rawParam;
+  const resumeIdInfo = normalizeResumeId(rawValue);
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
   const returnTo = normalizeReturnTo(resolvedSearchParams?.from);
 
@@ -58,9 +67,9 @@ export default async function CrmDetailPage({
     const traceId = randomUUID();
     console.warn('CRM invalid resume id', {
       traceId,
-      params,
-      raw: resumeIdInfo.raw,
-      normalized: resumeIdInfo.normalized,
+      paramKeys,
+      rawType: typeof rawValue,
+      isArray: Array.isArray(rawParam),
     });
     return (
       <AppShell title="CRM / 応募者詳細">
