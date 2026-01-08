@@ -38,6 +38,9 @@ const Tag = ({ children }: { children: React.ReactNode }) => (
 const toText = (value: unknown, fallback: string) =>
   typeof value === 'string' && value.trim() ? value : fallback;
 
+const toDisplayNumber = (value: unknown, fallback: string) =>
+  typeof value === 'number' && Number.isFinite(value) ? String(value) : fallback;
+
 export default async function CrmDetailPage({
   params,
   searchParams,
@@ -168,7 +171,6 @@ export default async function CrmDetailPage({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
               <h1 className="text-xl font-semibold text-gray-900">{nameKanji || '未入力'}</h1>
-              {resume.title ? <p className="text-sm text-gray-600">{resume.title}</p> : null}
               <div className="text-sm text-gray-600">
                 {resume.contactEmail ?? resume.email ? (
                   <div>メール: {resume.contactEmail ?? resume.email}</div>
@@ -184,7 +186,7 @@ export default async function CrmDetailPage({
               <img
                 src={resume.profilePhotoUrl}
                 alt={`${nameKanji}のプロフィール写真`}
-                className="h-24 w-24 rounded-full border border-gray-200 object-cover"
+                className="h-24 w-24 rounded-md border border-gray-200 object-cover"
               />
             ) : null}
           </div>
@@ -196,6 +198,46 @@ export default async function CrmDetailPage({
             {resume.desired_locations?.map((location) => (
               <Tag key={location}>{location}</Tag>
             ))}
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-semibold text-gray-900">応募者情報</h2>
+          <div className="mt-3 grid gap-4 text-sm text-gray-700 md:grid-cols-2">
+            <div>
+              <div className="text-sm font-bold text-gray-700">転職回数</div>
+              <div>{toDisplayNumber(resume.job_change_count, '未入力')}</div>
+            </div>
+            <div>
+              <div className="text-sm font-bold text-gray-700">入社希望時期</div>
+              <div>{toText(resume.desired_joining_date, '未入力')}</div>
+            </div>
+            <div className="md:col-span-2">
+              <div className="text-sm font-bold text-gray-700">資格・免許</div>
+              {resume.licenses_qualifications && resume.licenses_qualifications.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {resume.licenses_qualifications.map((license) => (
+                    <Tag key={license}>{license}</Tag>
+                  ))}
+                </div>
+              ) : (
+                <div>未入力</div>
+              )}
+            </div>
+            <div className="md:col-span-2">
+              <div className="text-sm font-bold text-gray-700">活かせる経験・スキル</div>
+              <p className="whitespace-pre-wrap">
+                {toText(resume.transferable_skills, '未入力')}
+              </p>
+            </div>
+            <div className="md:col-span-2">
+              <div className="text-sm font-bold text-gray-700">自己PR</div>
+              <p className="whitespace-pre-wrap">{toText(resume.self_pr, '未入力')}</p>
+            </div>
+            <div className="md:col-span-2">
+              <div className="text-sm font-bold text-gray-700">要約</div>
+              <p className="whitespace-pre-wrap">{toText(resume.summary, '未入力')}</p>
+            </div>
           </div>
         </section>
 
