@@ -6,6 +6,7 @@ import { listResumes } from '@/lib/db/resume';
 type SearchParams = {
   q?: string | string[];
   pageSize?: string | string[];
+  cursor?: string | string[];
   cursorStack?: string | string[];
 };
 
@@ -53,11 +54,12 @@ export default async function CrmPage({
   const pageSize = parsePageSize(normalizeParam(resolvedSearchParams?.pageSize));
   const cursorStackParam = normalizeParam(resolvedSearchParams?.cursorStack) ?? '';
   const cursorStack = cursorStackParam.split(',').filter(Boolean);
-  const cursor = cursorStack.length > 0 ? cursorStack[cursorStack.length - 1] : null;
+  const cursor = normalizeParam(resolvedSearchParams?.cursor) ?? null;
 
   const baseQuery = buildQueryString({
     q: q || undefined,
     pageSize: String(pageSize),
+    cursor: cursor || undefined,
     cursorStack: cursorStackParam || undefined,
   });
   const returnTo = baseQuery ? `/crm${baseQuery}` : '/crm';
@@ -93,8 +95,10 @@ export default async function CrmPage({
     );
   }
 
-  const nextStack = nextCursor ? [...cursorStack, nextCursor] : null;
+  const nextStack = nextCursor ? (cursor ? [...cursorStack, cursor] : cursorStack) : null;
+  const prevCursor = cursorStack.length > 0 ? cursorStack[cursorStack.length - 1] : null;
   const prevStack = cursorStack.length > 0 ? cursorStack.slice(0, -1) : null;
+  const hasPrev = Boolean(cursor);
 
   return (
     <AppShell title="CRM / 応募者一覧">
@@ -121,63 +125,55 @@ export default async function CrmPage({
           </div>
         </form>
 
-        <div className="space-y-3">
+        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
           {data.length === 0 ? (
-            <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600 shadow-sm">
-              該当する応募者が見つかりませんでした。
-            </div>
+            <div className="p-4 text-sm text-gray-600">該当する応募者が見つかりませんでした。</div>
           ) : (
-            data.map((item) => (
-              <Link
-                key={item.id}
-                href={`/crm/${item.id}?from=${encodeURIComponent(returnTo)}`}
-                className="block rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-blue-200 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-1">
-                    <p className="text-base font-semibold text-gray-900">{item.nameKanji}</p>
-                    {item.title ? (
-                      <p className="text-sm text-gray-600">{item.title}</p>
-                    ) : null}
-                    <div className="text-xs text-gray-500">
-                      {item.contactEmail ? <span>{item.contactEmail}</span> : null}
-                      {item.contactPhone ? <span> ・ {item.contactPhone}</span> : null}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                    {item.currentStatus ? (
-                      <span className="rounded-full bg-blue-50 px-2 py-1 text-blue-700">
-                        {item.currentStatus}
-                      </span>
-                    ) : null}
-                    {item.desiredRoles?.slice(0, 2).map((role) => (
-                      <span
-                        key={role}
-                        className="rounded-full bg-gray-100 px-2 py-1 text-gray-700"
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+              <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <tr>
+                  <th className="px-4 py-3">ID</th>
+                  <th className="px-4 py-3">氏名</th>
+                  <th className="px-4 py-3">フリガナ</th>
+                  <th className="px-4 py-3">メール</th>
+                  <th className="px-4 py-3">電話</th>
+                  <th className="px-4 py-3">現在</th>
+                  <th className="px-4 py-3">住所</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {data.map((item) => (
+                  <tr key={item.resume_id} className="hover:bg-blue-50/40">
+                    <td className="px-4 py-3 text-xs font-semibold text-gray-700">
+                      <Link
+                        href={{ pathname: `/crm/${item.resume_id}`, query: { from: returnTo } }}
+                        className="text-blue-600 hover:text-blue-700"
                       >
-                        {role}
-                      </span>
-                    ))}
-                    {item.updatedAt ? (
-                      <span className="rounded-full bg-gray-100 px-2 py-1 text-gray-500">
-                        更新: {item.updatedAt}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              </Link>
-            ))
+                        {item.resume_id}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-gray-900">{item.nameKanji}</td>
+                    <td className="px-4 py-3 text-gray-700">{item.furigana || '-'}</td>
+                    <td className="px-4 py-3 text-gray-700">{item.contactEmail ?? ''}</td>
+                    <td className="px-4 py-3 text-gray-700">{item.contactPhone ?? ''}</td>
+                    <td className="px-4 py-3 text-gray-700">{item.currentStatus ?? ''}</td>
+                    <td className="px-4 py-3 text-gray-500">{item.addressCity ?? ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
 
         <div className="flex items-center justify-between">
-          {prevStack ? (
+          {hasPrev ? (
             <Link
               className="text-sm font-medium text-blue-600 hover:text-blue-700"
               href={buildQueryString({
                 q: q || undefined,
                 pageSize: String(pageSize),
-                cursorStack: prevStack.length ? prevStack.join(',') : undefined,
+                cursor: prevCursor || undefined,
+                cursorStack: prevStack?.length ? prevStack.join(',') : undefined,
               })}
             >
               ← 前へ
@@ -191,6 +187,7 @@ export default async function CrmPage({
               href={buildQueryString({
                 q: q || undefined,
                 pageSize: String(pageSize),
+                cursor: nextCursor ?? undefined,
                 cursorStack: nextStack.join(','),
               })}
             >
