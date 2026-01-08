@@ -1,4 +1,5 @@
-﻿import { NextResponse } from 'next/server';
+﻿import { randomUUID } from 'crypto';
+import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/airtable';
 import { getResumeBundle, mapAirtableResume, mapResumeToAirtableFields } from '@/lib/db/resume';
 import { ResumeSchema } from '@/lib/validation/schemas';
@@ -18,7 +19,16 @@ export async function GET(request: Request) {
     return NextResponse.json(bundle);
 
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const correlationId = randomUUID();
+    console.error('Resume bundle fetch error', {
+      correlationId,
+      message: error?.message,
+      stack: error?.stack,
+    });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unexpected error', correlationId },
+      { status: 500 }
+    );
   }
 }
 

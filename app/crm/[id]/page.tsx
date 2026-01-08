@@ -40,10 +40,13 @@ const Tag = ({ children }: { children: React.ReactNode }) => (
 const toText = (value: unknown, fallback: string) =>
   typeof value === 'string' && value.trim() ? value : fallback;
 
-const safeDecodeFrom = (value?: string) => {
-  if (typeof value !== 'string' || !value) return '/crm';
+const coerceString = (value: unknown) => (typeof value === 'string' ? value : undefined);
+
+const safeDecodeFrom = (value?: unknown) => {
+  const source = coerceString(value);
+  if (!source) return '/crm';
   try {
-    const decoded = decodeURIComponent(value);
+    const decoded = decodeURIComponent(source);
     return decoded || '/crm';
   } catch {
     return '/crm';
@@ -87,7 +90,11 @@ export default async function CrmDetailPage({
     bundle = await getResumeBundle(resumeId);
   } catch (error: any) {
     const correlationId = randomUUID();
-    console.error('CRM resume detail error', { correlationId, error });
+    console.error('CRM resume detail error', {
+      correlationId,
+      message: error?.message,
+      stack: error?.stack,
+    });
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
