@@ -422,7 +422,10 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
     }
   }
 
-  if (!resumeRecord) return null;
+  if (!resumeRecord) {
+    console.warn('Resume not found', { correlationId, formula: byResumeIdFormula });
+    return null;
+  }
 
   const educationFormula = `${resumeIdField} = ${formulaValue(resumeId)}`;
   const worksFormula = `${resumeIdField} = ${formulaValue(resumeId)}`;

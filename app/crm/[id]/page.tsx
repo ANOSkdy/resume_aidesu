@@ -105,12 +105,12 @@ export default async function CrmDetailPage({
 
   if (!bundle) {
     const correlationId = randomUUID();
-    console.warn('CRM resume not found', { correlationId, resumeId });
+    console.warn('CRM resume not found', { correlationId });
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="space-y-3">
           <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm">
-            応募者が見つかりませんでした (ID: {resumeId})
+            応募者が見つかりませんでした (ID: {correlationId})
           </div>
           <Link className="text-sm font-medium text-blue-600 hover:text-blue-700" href={returnTo}>
             ← 一覧へ戻る
