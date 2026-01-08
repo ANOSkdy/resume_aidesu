@@ -62,7 +62,12 @@ export default async function CrmPage({
     cursor: cursor || undefined,
     cursorStack: cursorStackParam || undefined,
   });
-  const returnTo = baseQuery ? `/crm${baseQuery}` : '/crm';
+  const returnQuery = buildQueryString({
+    q: q || undefined,
+    pageSize: String(pageSize),
+    cursor: cursor || undefined,
+  });
+  const returnTo = returnQuery ? `/crm${returnQuery}` : '/crm';
 
   if (accessError) {
     return (

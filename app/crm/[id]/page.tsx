@@ -4,13 +4,11 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import { AppShell } from '@/components/layout/AppShell';
 import { getResumeBundle } from '@/lib/db/resume';
+import { isValidResumeId, normalizeResumeId, normalizeReturnTo } from '@/lib/crm/resume-id';
 
 type SearchParams = {
   from?: string;
 };
-
-const isValidId = (value: unknown): value is string =>
-  typeof value === 'string' && /^[a-zA-Z0-9_-]+$/.test(value);
 
 const getAccessError = async () => {
   const token = process.env.CRM_ACCESS_TOKEN;
@@ -40,19 +38,6 @@ const Tag = ({ children }: { children: React.ReactNode }) => (
 const toText = (value: unknown, fallback: string) =>
   typeof value === 'string' && value.trim() ? value : fallback;
 
-const coerceString = (value: unknown) => (typeof value === 'string' ? value : undefined);
-
-const safeDecodeFrom = (value?: unknown) => {
-  const source = coerceString(value);
-  if (!source) return '/crm';
-  try {
-    const decoded = decodeURIComponent(source);
-    return decoded || '/crm';
-  } catch {
-    return '/crm';
-  }
-};
-
 export default async function CrmDetailPage({
   params,
   searchParams,
@@ -61,22 +46,27 @@ export default async function CrmDetailPage({
   searchParams?: SearchParams | Promise<SearchParams>;
 }) {
   const accessError = await getAccessError();
-  const resumeId =
-    typeof params.id === 'string'
-      ? params.id
-      : typeof params.resumeId === 'string'
-        ? params.resumeId
-        : typeof params.resume_id === 'string'
-          ? params.resume_id
-          : undefined;
+  const rawParam =
+    (params as any)?.id ?? (params as any)?.resumeId ?? (params as any)?.resume_id;
+  const resumeIdInfo = normalizeResumeId(rawParam);
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
-  const returnTo = safeDecodeFrom(resolvedSearchParams?.from);
+  const returnTo = normalizeReturnTo(resolvedSearchParams?.from);
 
-  if (!isValidId(resumeId)) {
+  if (!isValidResumeId(resumeIdInfo.normalized)) {
+    const traceId = randomUUID();
+    console.warn('CRM invalid resume id', {
+      traceId,
+      params,
+      raw: resumeIdInfo.raw,
+      normalized: resumeIdInfo.normalized,
+    });
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
-          不正なIDが指定されました。
+          <p>不正なIDが指定されました。</p>
+          <p>resume_id (raw): {resumeIdInfo.raw ?? 'undefined'}</p>
+          <p>resume_id (normalized): {resumeIdInfo.normalized ?? 'undefined'}</p>
+          <p>Trace ID: {traceId}</p>
         </div>
       </AppShell>
     );
@@ -94,7 +84,7 @@ export default async function CrmDetailPage({
 
   let bundle;
   try {
-    bundle = await getResumeBundle(resumeId);
+    bundle = await getResumeBundle(resumeIdInfo.normalized);
   } catch (error: any) {
     const correlationId = randomUUID();
     console.error('CRM resume detail error', {
@@ -113,13 +103,13 @@ export default async function CrmDetailPage({
 
   if (!bundle) {
     const correlationId = randomUUID();
-    console.warn('CRM resume not found', { correlationId, resumeId });
+    console.warn('CRM resume not found', { correlationId, resumeId: resumeIdInfo.normalized });
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="space-y-3">
           <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm">
             <p>応募者が見つかりませんでした。</p>
-            <p>resume_id: {resumeId}</p>
+            <p>resume_id: {resumeIdInfo.normalized}</p>
             <p>Trace ID: {correlationId}</p>
           </div>
           <Link className="text-sm font-medium text-blue-600 hover:text-blue-700" href={returnTo}>
