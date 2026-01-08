@@ -188,7 +188,8 @@ export type ResumeBundle = {
   works: Array<{ id: string; [key: string]: unknown }>;
 };
 
-const escapeFormulaValue = (value: string) => value.replace(/'/g, "\\'");
+const escapeFormulaValue = (value: unknown) =>
+  typeof value === 'string' ? value.replace(/'/g, "\\'") : '';
 
 const buildSearchFormula = (query: string) => {
   const normalized = query.trim();
