@@ -32,10 +32,10 @@ const buildQueryString = (params: Record<string, string | undefined>) => {
   return query ? `?${query}` : '';
 };
 
-const getAccessError = () => {
+const getAccessError = async () => {
   const token = process.env.CRM_ACCESS_TOKEN;
   if (!token) return null;
-  const provided = headers().get('x-crm-token');
+  const provided = (await headers()).get('x-crm-token');
   if (!provided || provided !== token) {
     return 'このページにアクセスするための認証トークンが不足しています。';
   }
@@ -47,7 +47,7 @@ export default async function CrmPage({
 }: {
   searchParams?: SearchParams | Promise<SearchParams>;
 }) {
-  const accessError = getAccessError();
+  const accessError = await getAccessError();
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
   const q = normalizeParam(resolvedSearchParams?.q)?.trim() ?? '';
   const pageSize = parsePageSize(normalizeParam(resolvedSearchParams?.pageSize));

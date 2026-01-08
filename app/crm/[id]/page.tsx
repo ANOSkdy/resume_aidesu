@@ -11,10 +11,10 @@ type SearchParams = {
 
 const isValidId = (value: string) => /^[a-zA-Z0-9_-]+$/.test(value);
 
-const getAccessError = () => {
+const getAccessError = async () => {
   const token = process.env.CRM_ACCESS_TOKEN;
   if (!token) return null;
-  const provided = headers().get('x-crm-token');
+  const provided = (await headers()).get('x-crm-token');
   if (!provided || provided !== token) {
     return 'このページにアクセスするための認証トークンが不足しています。';
   }
@@ -43,7 +43,7 @@ export default async function CrmDetailPage({
   params: { id: string };
   searchParams?: SearchParams | Promise<SearchParams>;
 }) {
-  const accessError = getAccessError();
+  const accessError = await getAccessError();
   const resumeId = params.id;
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
   const returnTo = resolvedSearchParams?.from
