@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
 import { listResumes } from '@/lib/db/resume';
 
@@ -38,6 +39,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result);
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const correlationId = randomUUID();
+    console.error('CRM resumes list error', { correlationId, error });
+    const message = error instanceof Error ? error.message : 'Unexpected error';
+    return NextResponse.json({ error: message, correlationId }, { status: 500 });
   }
 }

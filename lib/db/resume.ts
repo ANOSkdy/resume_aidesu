@@ -167,7 +167,6 @@ export type ResumeListItem = {
   rid?: string;
   nameKanji: string;
   title?: string;
-  profilePhotoUrl?: string | null;
   contactEmail?: string;
   contactPhone?: string;
   currentStatus?: string;
@@ -248,7 +247,6 @@ const listRecordsWithOffset = async (
     'desired_occupations',
     'desired_locations',
     'profilePhoto',
-    'profilePhotoUrl',
     'updated_at',
     'created_at',
   ];
@@ -327,7 +325,6 @@ export async function listResumes({
       rid: record.id,
       nameKanji: nameKanji || '未入力',
       title: resume.title,
-      profilePhotoUrl: resume.profilePhotoUrl ?? null,
       contactEmail: resume.contactEmail ?? resume.email,
       contactPhone: resume.contactPhone ?? resume.phone_number,
       currentStatus: resume.current_status,
