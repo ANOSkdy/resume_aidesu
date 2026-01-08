@@ -4,13 +4,11 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import { AppShell } from '@/components/layout/AppShell';
 import { getResumeBundle } from '@/lib/db/resume';
+import { isValidResumeId, normalizeResumeId, normalizeReturnTo } from '@/lib/crm/resume-id';
 
 type SearchParams = {
   from?: string;
 };
-
-const isValidId = (value: unknown): value is string =>
-  typeof value === 'string' && /^[a-zA-Z0-9_-]+$/.test(value);
 
 const getAccessError = async () => {
   const token = process.env.CRM_ACCESS_TOKEN;
@@ -40,43 +38,46 @@ const Tag = ({ children }: { children: React.ReactNode }) => (
 const toText = (value: unknown, fallback: string) =>
   typeof value === 'string' && value.trim() ? value : fallback;
 
-const coerceString = (value: unknown) => (typeof value === 'string' ? value : undefined);
-
-const safeDecodeFrom = (value?: unknown) => {
-  const source = coerceString(value);
-  if (!source) return '/crm';
-  try {
-    const decoded = decodeURIComponent(source);
-    return decoded || '/crm';
-  } catch {
-    return '/crm';
-  }
-};
-
 export default async function CrmDetailPage({
   params,
   searchParams,
 }: {
-  params: Record<string, unknown>;
+  params?: Record<string, unknown> | Promise<Record<string, unknown>>;
   searchParams?: SearchParams | Promise<SearchParams>;
 }) {
   const accessError = await getAccessError();
-  const resumeId =
-    typeof params.id === 'string'
-      ? params.id
-      : typeof params.resumeId === 'string'
-        ? params.resumeId
-        : typeof params.resume_id === 'string'
-          ? params.resume_id
-          : undefined;
+  const resolvedParams = params ? await Promise.resolve(params) : {};
+  const paramKeys = Object.keys(resolvedParams ?? {});
+  const fallbackValue =
+    paramKeys.length === 1 ? (resolvedParams as Record<string, unknown>)[paramKeys[0]] : undefined;
+  const rawParam =
+    (resolvedParams as any)?.id ??
+    (resolvedParams as any)?.resumeId ??
+    (resolvedParams as any)?.resume_id ??
+    (resolvedParams as any)?.slug ??
+    fallbackValue;
+  const rawValue = Array.isArray(rawParam) ? rawParam[0] : rawParam;
+  const resumeIdInfo = normalizeResumeId(rawValue);
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
-  const returnTo = safeDecodeFrom(resolvedSearchParams?.from);
+  const returnTo = normalizeReturnTo(resolvedSearchParams?.from);
 
-  if (!isValidId(resumeId)) {
+  const resumeId = resumeIdInfo.normalized;
+
+  if (!resumeId || !isValidResumeId(resumeId)) {
+    const traceId = randomUUID();
+    console.warn('CRM invalid resume id', {
+      traceId,
+      paramKeys,
+      rawType: typeof rawValue,
+      isArray: Array.isArray(rawParam),
+    });
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
-          不正なIDが指定されました。
+          <p>不正なIDが指定されました。</p>
+          <p>resume_id (raw): {resumeIdInfo.raw ?? 'undefined'}</p>
+          <p>resume_id (normalized): {resumeIdInfo.normalized ?? 'undefined'}</p>
+          <p>Trace ID: {traceId}</p>
         </div>
       </AppShell>
     );
