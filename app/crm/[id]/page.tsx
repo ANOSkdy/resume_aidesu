@@ -171,7 +171,6 @@ export default async function CrmDetailPage({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
               <h1 className="text-xl font-semibold text-gray-900">{nameKanji || '未入力'}</h1>
-              {resume.title ? <p className="text-sm text-gray-600">{resume.title}</p> : null}
               <div className="text-sm text-gray-600">
                 {resume.contactEmail ?? resume.email ? (
                   <div>メール: {resume.contactEmail ?? resume.email}</div>
@@ -206,15 +205,15 @@ export default async function CrmDetailPage({
           <h2 className="text-base font-semibold text-gray-900">応募者情報</h2>
           <div className="mt-3 grid gap-4 text-sm text-gray-700 md:grid-cols-2">
             <div>
-              <div className="text-xs font-medium text-gray-500">転職回数</div>
+              <div className="text-sm font-bold text-gray-700">転職回数</div>
               <div>{toDisplayNumber(resume.job_change_count, '未入力')}</div>
             </div>
             <div>
-              <div className="text-xs font-medium text-gray-500">入社希望時期</div>
+              <div className="text-sm font-bold text-gray-700">入社希望時期</div>
               <div>{toText(resume.desired_joining_date, '未入力')}</div>
             </div>
             <div className="md:col-span-2">
-              <div className="text-xs font-medium text-gray-500">資格・免許</div>
+              <div className="text-sm font-bold text-gray-700">資格・免許</div>
               {resume.licenses_qualifications && resume.licenses_qualifications.length > 0 ? (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {resume.licenses_qualifications.map((license) => (
@@ -226,17 +225,17 @@ export default async function CrmDetailPage({
               )}
             </div>
             <div className="md:col-span-2">
-              <div className="text-xs font-medium text-gray-500">活かせる経験・スキル</div>
+              <div className="text-sm font-bold text-gray-700">活かせる経験・スキル</div>
               <p className="whitespace-pre-wrap">
                 {toText(resume.transferable_skills, '未入力')}
               </p>
             </div>
             <div className="md:col-span-2">
-              <div className="text-xs font-medium text-gray-500">自己PR</div>
+              <div className="text-sm font-bold text-gray-700">自己PR</div>
               <p className="whitespace-pre-wrap">{toText(resume.self_pr, '未入力')}</p>
             </div>
             <div className="md:col-span-2">
-              <div className="text-xs font-medium text-gray-500">要約</div>
+              <div className="text-sm font-bold text-gray-700">要約</div>
               <p className="whitespace-pre-wrap">{toText(resume.summary, '未入力')}</p>
             </div>
           </div>
