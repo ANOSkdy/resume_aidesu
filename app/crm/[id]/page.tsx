@@ -208,9 +208,11 @@ export default async function CrmDetailPage({
                 ];
                 return (
                   <div key={work.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
-                    <div className="font-medium text-gray-900">{work.company_name ?? '企業名未入力'}</div>
+                    <div className="font-medium text-gray-900">
+                      {toText(work.company_name, '企業名未入力')}
+                    </div>
                     <div className="text-xs text-gray-500">
-                      {work.department ?? '部署未入力'} / {work.position ?? '役職未入力'}
+                      {toText(work.department, '部署未入力')} / {toText(work.position, '役職未入力')}
                     </div>
                     <div className="text-xs text-gray-500">
                       {start || '開始時期未入力'} {end ? `〜 ${end}` : ''}
