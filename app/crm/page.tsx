@@ -132,13 +132,13 @@ export default async function CrmPage({
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                 <tr>
-                  <th className="px-4 py-3">resume_id</th>
-                  <th className="px-4 py-3">nameKanji</th>
-                  <th className="px-4 py-3">title</th>
-                  <th className="px-4 py-3">contactEmail</th>
-                  <th className="px-4 py-3">contactPhone</th>
-                  <th className="px-4 py-3">currentStatus</th>
-                  <th className="px-4 py-3">updatedAt</th>
+                  <th className="px-4 py-3">ID</th>
+                  <th className="px-4 py-3">氏名</th>
+                  <th className="px-4 py-3">フリガナ</th>
+                  <th className="px-4 py-3">メール</th>
+                  <th className="px-4 py-3">電話</th>
+                  <th className="px-4 py-3">現在</th>
+                  <th className="px-4 py-3">住所</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -153,11 +153,11 @@ export default async function CrmPage({
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-gray-900">{item.nameKanji}</td>
-                    <td className="px-4 py-3 text-gray-700">{item.title || '-'}</td>
+                    <td className="px-4 py-3 text-gray-700">{item.furigana || '-'}</td>
                     <td className="px-4 py-3 text-gray-700">{item.contactEmail ?? ''}</td>
                     <td className="px-4 py-3 text-gray-700">{item.contactPhone ?? ''}</td>
                     <td className="px-4 py-3 text-gray-700">{item.currentStatus ?? ''}</td>
-                    <td className="px-4 py-3 text-gray-500">{item.updatedAt ?? ''}</td>
+                    <td className="px-4 py-3 text-gray-500">{item.addressCity ?? ''}</td>
                   </tr>
                 ))}
               </tbody>

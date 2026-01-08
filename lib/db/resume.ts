@@ -166,11 +166,11 @@ export async function updateResumeFields(
 export type ResumeListItem = {
   resume_id: string;
   nameKanji: string;
-  title?: string | null;
+  furigana: string;
   contactEmail?: string | null;
   contactPhone?: string | null;
   currentStatus?: string | null;
-  updatedAt?: string | null;
+  addressCity?: string | null;
 };
 
 type ResumeListParams = {
@@ -246,17 +246,17 @@ const listRecordsWithOffset = async (
     'resume_id',
     'last_name_kanji',
     'first_name_kanji',
+    'last_name_kana',
+    'first_name_kana',
     'dob_year',
     'dob_month',
     'dob_day',
-    'title',
+    'address_city',
     'contact_phone',
     'contact_email',
     'email',
     'phone_number',
     'current_status',
-    'updated_at',
-    'created_at',
   ];
 
   const options: Record<string, unknown> = {
@@ -319,19 +319,13 @@ export async function listResumes({
       .filter(Boolean)
       .join(' ')
       .trim();
+    const furigana = [resume.last_name_kana, resume.first_name_kana]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
     const fields = record.fields as Airtable.FieldSet & {
-      updated_at?: string;
-      updatedAt?: string;
-      created_at?: string;
       resume_id?: string | string[] | { id?: string }[];
     };
-    const updatedAt =
-      fields.updated_at ??
-      fields.updatedAt ??
-      fields.created_at ??
-      resume.createdTime ??
-      (record as { createdTime?: string }).createdTime ??
-      (record as { _rawJson?: { createdTime?: string } })._rawJson?.createdTime;
     const resumeId =
       resume.resume_id ??
       normalizeSingleTextField(fields.resume_id) ??
@@ -340,11 +334,11 @@ export async function listResumes({
     return {
       resume_id: resumeId,
       nameKanji,
-      title: resume.title ?? null,
+      furigana,
       contactEmail: resume.contactEmail ?? resume.email ?? null,
       contactPhone: resume.contactPhone ?? resume.phone_number ?? null,
       currentStatus: resume.current_status ?? null,
-      updatedAt: updatedAt ?? null,
+      addressCity: resume.address_city ?? null,
     };
   });
 
