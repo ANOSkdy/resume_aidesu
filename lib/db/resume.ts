@@ -164,16 +164,13 @@ export async function updateResumeFields(
 }
 
 export type ResumeListItem = {
-  id: string;
-  rid?: string;
+  resume_id: string;
   nameKanji: string;
-  title?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  currentStatus?: string;
-  desiredRoles?: string[];
-  desiredLocations?: string[];
-  updatedAt?: string;
+  title?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  currentStatus?: string | null;
+  updatedAt?: string | null;
 };
 
 type ResumeListParams = {
@@ -253,15 +250,11 @@ const listRecordsWithOffset = async (
     'dob_month',
     'dob_day',
     'title',
-    'contact_address',
     'contact_phone',
     'contact_email',
     'email',
     'phone_number',
     'current_status',
-    'desired_occupations',
-    'desired_locations',
-    'profilePhoto',
     'updated_at',
     'created_at',
   ];
@@ -322,30 +315,36 @@ export async function listResumes({
 
   const data = result.records.map((record) => {
     const resume = mapAirtableResume(record);
-    const nameKanji = [resume.last_name_kanji, resume.first_name_kanji].filter(Boolean).join(' ');
+    const nameKanji = [resume.last_name_kanji, resume.first_name_kanji]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
     const fields = record.fields as Airtable.FieldSet & {
       updated_at?: string;
       updatedAt?: string;
       created_at?: string;
+      resume_id?: string | string[] | { id?: string }[];
     };
     const updatedAt =
       fields.updated_at ??
       fields.updatedAt ??
       fields.created_at ??
       resume.createdTime ??
-      (record as { createdTime?: string }).createdTime;
+      (record as { createdTime?: string }).createdTime ??
+      (record as { _rawJson?: { createdTime?: string } })._rawJson?.createdTime;
+    const resumeId =
+      resume.resume_id ??
+      normalizeSingleTextField(fields.resume_id) ??
+      (typeof record.id === 'string' ? record.id : '');
 
     return {
-      id: resume.resume_id ?? record.id,
-      rid: record.id,
-      nameKanji: nameKanji || '未入力',
-      title: resume.title,
-      contactEmail: resume.contactEmail ?? resume.email,
-      contactPhone: resume.contactPhone ?? resume.phone_number,
-      currentStatus: resume.current_status,
-      desiredRoles: resume.desired_occupations,
-      desiredLocations: resume.desired_locations,
-      updatedAt,
+      resume_id: resumeId,
+      nameKanji,
+      title: resume.title ?? null,
+      contactEmail: resume.contactEmail ?? resume.email ?? null,
+      contactPhone: resume.contactPhone ?? resume.phone_number ?? null,
+      currentStatus: resume.current_status ?? null,
+      updatedAt: updatedAt ?? null,
     };
   });
 
