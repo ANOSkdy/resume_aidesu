@@ -320,7 +320,7 @@ export async function listResumes({
       fields.updatedAt ??
       fields.created_at ??
       resume.createdTime ??
-      record.createdTime;
+      (record as { createdTime?: string }).createdTime;
 
     return {
       id: resume.resume_id ?? record.id,
