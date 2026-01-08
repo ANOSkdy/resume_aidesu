@@ -1,6 +1,6 @@
 ﻿import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/airtable';
-import { getResumeBundle, mapResumeToAirtableFields } from '@/lib/db/resume';
+import { getResumeBundle, mapAirtableResume, mapResumeToAirtableFields } from '@/lib/db/resume';
 import { ResumeSchema } from '@/lib/validation/schemas';
 
 // GET処理
