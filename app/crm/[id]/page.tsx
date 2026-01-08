@@ -9,7 +9,8 @@ type SearchParams = {
   from?: string;
 };
 
-const isValidId = (value: string) => /^[a-zA-Z0-9_-]+$/.test(value);
+const isValidId = (value: unknown): value is string =>
+  typeof value === 'string' && /^[a-zA-Z0-9_-]+$/.test(value);
 
 const getAccessError = async () => {
   const token = process.env.CRM_ACCESS_TOKEN;
@@ -56,11 +57,18 @@ export default async function CrmDetailPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
+  params: Record<string, unknown>;
   searchParams?: SearchParams | Promise<SearchParams>;
 }) {
   const accessError = await getAccessError();
-  const resumeId = params.id;
+  const resumeId =
+    typeof params.id === 'string'
+      ? params.id
+      : typeof params.resumeId === 'string'
+        ? params.resumeId
+        : typeof params.resume_id === 'string'
+          ? params.resume_id
+          : undefined;
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
   const returnTo = safeDecodeFrom(resolvedSearchParams?.from);
 
@@ -105,7 +113,7 @@ export default async function CrmDetailPage({
 
   if (!bundle) {
     const correlationId = randomUUID();
-    console.warn('CRM resume not found', { correlationId });
+    console.warn('CRM resume not found', { correlationId, resumeId });
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="space-y-3">

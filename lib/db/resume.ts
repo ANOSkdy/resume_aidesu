@@ -359,12 +359,14 @@ export async function listResumes({
 export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | null> {
   const db = getDb();
   if (typeof resumeId !== 'string' || !resumeId.trim()) return null;
+  const trimmedResumeId = resumeId.trim();
   const correlationId = randomUUID();
   const resumeIdField = fieldRef('resume_id');
-  const byResumeIdFormula = `TRIM(${resumeIdField}) = ${formulaValue(resumeId)}`;
+  const byResumeIdFormula = `TRIM(${resumeIdField}) = ${JSON.stringify(trimmedResumeId)}`;
   const logFormulaError = (formula: string, error: unknown) => {
     console.error('Airtable formula error', {
       correlationId,
+      resumeId: trimmedResumeId,
       formula,
       message: (error as { message?: string }).message,
       stack: (error as { stack?: string }).stack,
@@ -395,9 +397,9 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
 
   let resumeRecord: Airtable.Record<Airtable.FieldSet> | null = null;
 
-  if (/^rec[a-zA-Z0-9]+$/.test(resumeId)) {
+  if (/^rec[a-zA-Z0-9]+$/.test(trimmedResumeId)) {
     try {
-      resumeRecord = await db.resumes.find(resumeId);
+      resumeRecord = await db.resumes.find(trimmedResumeId);
     } catch {
       resumeRecord = null;
     }
@@ -410,7 +412,7 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
   if (!resumeRecord) {
     try {
       const fallbackFormula = `OR(${byResumeIdFormula}, ${fieldRef('id')} = ${formulaValue(
-        resumeId
+        trimmedResumeId
       )})`;
       resumeRecord = await selectFirst(fallbackFormula);
     } catch (error) {
@@ -423,16 +425,16 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
   }
 
   if (!resumeRecord) {
-    console.warn('Resume not found', { correlationId, formula: byResumeIdFormula });
+    console.warn('Resume not found', { correlationId, resumeId: trimmedResumeId, formula: byResumeIdFormula });
     return null;
   }
 
   const resumeJoinId =
     normalizeSingleTextField(
       (resumeRecord.fields as { resume_id?: string | string[] | { id?: string }[] }).resume_id
-    ) ?? resumeId;
-  const educationFormula = `TRIM(${resumeIdField}) = ${formulaValue(resumeJoinId)}`;
-  const worksFormula = `TRIM(${resumeIdField}) = ${formulaValue(resumeJoinId)}`;
+    ) ?? trimmedResumeId;
+  const educationFormula = `TRIM(${resumeIdField}) = ${JSON.stringify(resumeJoinId)}`;
+  const worksFormula = `TRIM(${resumeIdField}) = ${JSON.stringify(resumeJoinId)}`;
   const [educations, works] = await Promise.all([
     selectAll(educationFormula, db.educations),
     selectAll(worksFormula, db.works),
