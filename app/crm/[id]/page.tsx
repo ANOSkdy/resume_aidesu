@@ -1,4 +1,5 @@
 import type React from 'react';
+import { randomUUID } from 'crypto';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -39,6 +40,16 @@ const Tag = ({ children }: { children: React.ReactNode }) => (
 const toText = (value: unknown, fallback: string) =>
   typeof value === 'string' && value.trim() ? value : fallback;
 
+const safeDecodeFrom = (value?: string) => {
+  if (typeof value !== 'string' || !value) return '/crm';
+  try {
+    const decoded = decodeURIComponent(value);
+    return decoded || '/crm';
+  } catch {
+    return '/crm';
+  }
+};
+
 export default async function CrmDetailPage({
   params,
   searchParams,
@@ -49,9 +60,7 @@ export default async function CrmDetailPage({
   const accessError = await getAccessError();
   const resumeId = params.id;
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
-  const returnTo = resolvedSearchParams?.from
-    ? decodeURIComponent(resolvedSearchParams.from)
-    : '/crm';
+  const returnTo = safeDecodeFrom(resolvedSearchParams?.from);
 
   if (!isValidId(resumeId)) {
     return (
@@ -77,10 +86,12 @@ export default async function CrmDetailPage({
   try {
     bundle = await getResumeBundle(resumeId);
   } catch (error: any) {
+    const correlationId = randomUUID();
+    console.error('CRM resume detail error', { correlationId, error });
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
-          データ取得中にエラーが発生しました。{error?.message ?? ''}
+          データ取得中にエラーが発生しました。{error?.message ?? ''} (ID: {correlationId})
         </div>
       </AppShell>
     );
