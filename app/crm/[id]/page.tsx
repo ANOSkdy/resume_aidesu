@@ -52,7 +52,9 @@ export default async function CrmDetailPage({
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
   const returnTo = normalizeReturnTo(resolvedSearchParams?.from);
 
-  if (!isValidResumeId(resumeIdInfo.normalized)) {
+  const resumeId = resumeIdInfo.normalized;
+
+  if (!resumeId || !isValidResumeId(resumeId)) {
     const traceId = randomUUID();
     console.warn('CRM invalid resume id', {
       traceId,
@@ -84,7 +86,7 @@ export default async function CrmDetailPage({
 
   let bundle;
   try {
-    bundle = await getResumeBundle(resumeIdInfo.normalized);
+    bundle = await getResumeBundle(resumeId);
   } catch (error: any) {
     const correlationId = randomUUID();
     console.error('CRM resume detail error', {
@@ -103,13 +105,13 @@ export default async function CrmDetailPage({
 
   if (!bundle) {
     const correlationId = randomUUID();
-    console.warn('CRM resume not found', { correlationId, resumeId: resumeIdInfo.normalized });
+    console.warn('CRM resume not found', { correlationId, resumeId });
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="space-y-3">
           <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm">
             <p>応募者が見つかりませんでした。</p>
-            <p>resume_id: {resumeIdInfo.normalized}</p>
+            <p>resume_id: {resumeId}</p>
             <p>Trace ID: {correlationId}</p>
           </div>
           <Link className="text-sm font-medium text-blue-600 hover:text-blue-700" href={returnTo}>
