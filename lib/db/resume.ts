@@ -361,7 +361,7 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
   if (typeof resumeId !== 'string' || !resumeId.trim()) return null;
   const correlationId = randomUUID();
   const resumeIdField = fieldRef('resume_id');
-  const byResumeIdFormula = `${resumeIdField} = ${formulaValue(resumeId)}`;
+  const byResumeIdFormula = `TRIM(${resumeIdField}) = ${formulaValue(resumeId)}`;
   const logFormulaError = (formula: string, error: unknown) => {
     console.error('Airtable formula error', {
       correlationId,
@@ -427,8 +427,12 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
     return null;
   }
 
-  const educationFormula = `${resumeIdField} = ${formulaValue(resumeId)}`;
-  const worksFormula = `${resumeIdField} = ${formulaValue(resumeId)}`;
+  const resumeJoinId =
+    normalizeSingleTextField(
+      (resumeRecord.fields as { resume_id?: string | string[] | { id?: string }[] }).resume_id
+    ) ?? resumeId;
+  const educationFormula = `TRIM(${resumeIdField}) = ${formulaValue(resumeJoinId)}`;
+  const worksFormula = `TRIM(${resumeIdField}) = ${formulaValue(resumeJoinId)}`;
   const [educations, works] = await Promise.all([
     selectAll(educationFormula, db.educations),
     selectAll(worksFormula, db.works),

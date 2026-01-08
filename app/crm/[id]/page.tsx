@@ -97,7 +97,7 @@ export default async function CrmDetailPage({
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
-          データ取得中にエラーが発生しました。{error?.message ?? ''} (ID: {correlationId})
+          データ取得中にエラーが発生しました。{error?.message ?? ''} (Trace ID: {correlationId})
         </div>
       </AppShell>
     );
@@ -110,7 +110,9 @@ export default async function CrmDetailPage({
       <AppShell title="CRM / 応募者詳細">
         <div className="space-y-3">
           <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm">
-            応募者が見つかりませんでした (ID: {correlationId})
+            <p>応募者が見つかりませんでした。</p>
+            <p>resume_id: {resumeId}</p>
+            <p>Trace ID: {correlationId}</p>
           </div>
           <Link className="text-sm font-medium text-blue-600 hover:text-blue-700" href={returnTo}>
             ← 一覧へ戻る
