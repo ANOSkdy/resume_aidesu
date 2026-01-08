@@ -2,7 +2,6 @@ import type React from 'react';
 import { randomUUID } from 'crypto';
 import Link from 'next/link';
 import { headers } from 'next/headers';
-import { notFound } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { getResumeBundle } from '@/lib/db/resume';
 
@@ -10,7 +9,8 @@ type SearchParams = {
   from?: string;
 };
 
-const isValidId = (value: string) => /^[a-zA-Z0-9_-]+$/.test(value);
+const isValidId = (value: unknown): value is string =>
+  typeof value === 'string' && /^[a-zA-Z0-9_-]+$/.test(value);
 
 const getAccessError = async () => {
   const token = process.env.CRM_ACCESS_TOKEN;
@@ -57,11 +57,18 @@ export default async function CrmDetailPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
+  params: Record<string, unknown>;
   searchParams?: SearchParams | Promise<SearchParams>;
 }) {
   const accessError = await getAccessError();
-  const resumeId = params.id;
+  const resumeId =
+    typeof params.id === 'string'
+      ? params.id
+      : typeof params.resumeId === 'string'
+        ? params.resumeId
+        : typeof params.resume_id === 'string'
+          ? params.resume_id
+          : undefined;
   const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
   const returnTo = safeDecodeFrom(resolvedSearchParams?.from);
 
@@ -98,14 +105,29 @@ export default async function CrmDetailPage({
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
-          データ取得中にエラーが発生しました。{error?.message ?? ''} (ID: {correlationId})
+          データ取得中にエラーが発生しました。{error?.message ?? ''} (Trace ID: {correlationId})
         </div>
       </AppShell>
     );
   }
 
   if (!bundle) {
-    notFound();
+    const correlationId = randomUUID();
+    console.warn('CRM resume not found', { correlationId, resumeId });
+    return (
+      <AppShell title="CRM / 応募者詳細">
+        <div className="space-y-3">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm">
+            <p>応募者が見つかりませんでした。</p>
+            <p>resume_id: {resumeId}</p>
+            <p>Trace ID: {correlationId}</p>
+          </div>
+          <Link className="text-sm font-medium text-blue-600 hover:text-blue-700" href={returnTo}>
+            ← 一覧へ戻る
+          </Link>
+        </div>
+      </AppShell>
+    );
   }
 
   const { resume, educations, works } = bundle;

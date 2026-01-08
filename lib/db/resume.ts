@@ -1,4 +1,5 @@
 import type Airtable from 'airtable';
+import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import { getDb } from '@/lib/db/airtable';
 import { ResumeSchema } from '@/lib/validation/schemas';
@@ -188,20 +189,33 @@ export type ResumeBundle = {
   works: Array<{ id: string; [key: string]: unknown }>;
 };
 
-const escapeFormulaValue = (value: unknown) =>
-  typeof value === 'string' ? value.replace(/'/g, "\\'") : '';
+// --- Airtable formula helpers (safe) ---
+const formulaValue = (value: unknown) => {
+  if (typeof value === 'string') return JSON.stringify(value);
+  if (value === null || value === undefined) return JSON.stringify('');
+  return JSON.stringify(String(value));
+};
+
+const assertFieldName = (name: unknown, fallback?: string): string => {
+  const normalized = typeof name === 'string' ? name.trim() : '';
+  if (normalized) return normalized;
+  if (fallback) return fallback;
+  throw new Error('Invalid Airtable field name (empty/undefined)');
+};
+
+const fieldRef = (name: unknown, fallback?: string) => `{${assertFieldName(name, fallback)}}`;
 
 const buildSearchFormula = (query: string) => {
   const normalized = query.trim();
   if (!normalized) return undefined;
-  const escaped = escapeFormulaValue(normalized.toLowerCase());
+  const escaped = formulaValue(normalized.toLowerCase());
   const conditions = [
-    `FIND(LOWER('${escaped}'), LOWER({last_name_kanji}))`,
-    `FIND(LOWER('${escaped}'), LOWER({first_name_kanji}))`,
-    `FIND(LOWER('${escaped}'), LOWER({contact_email}))`,
-    `FIND(LOWER('${escaped}'), LOWER({email}))`,
-    `FIND(LOWER('${escaped}'), LOWER({contact_phone}))`,
-    `FIND(LOWER('${escaped}'), LOWER({phone_number}))`,
+    `FIND(LOWER(${escaped}), LOWER({last_name_kanji}))`,
+    `FIND(LOWER(${escaped}), LOWER({first_name_kanji}))`,
+    `FIND(LOWER(${escaped}), LOWER({contact_email}))`,
+    `FIND(LOWER(${escaped}), LOWER({email}))`,
+    `FIND(LOWER(${escaped}), LOWER({contact_phone}))`,
+    `FIND(LOWER(${escaped}), LOWER({phone_number}))`,
   ];
 
   return `OR(${conditions.join(',')})`;
@@ -344,20 +358,86 @@ export async function listResumes({
 
 export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | null> {
   const db = getDb();
-  const escaped = escapeFormulaValue(resumeId);
-  const resumes = await db.resumes
-    .select({
-      filterByFormula: "{resume_id} = '" + escaped + "'",
-      maxRecords: 1,
-    })
-    .firstPage();
+  if (typeof resumeId !== 'string' || !resumeId.trim()) return null;
+  const trimmedResumeId = resumeId.trim();
+  const correlationId = randomUUID();
+  const resumeIdField = fieldRef('resume_id');
+  const byResumeIdFormula = `TRIM(${resumeIdField}) = ${JSON.stringify(trimmedResumeId)}`;
+  const logFormulaError = (formula: string, error: unknown) => {
+    console.error('Airtable formula error', {
+      correlationId,
+      resumeId: trimmedResumeId,
+      formula,
+      message: (error as { message?: string }).message,
+      stack: (error as { stack?: string }).stack,
+    });
+  };
+  const selectFirst = async (formula: string) => {
+    try {
+      const records = await db.resumes
+        .select({
+          filterByFormula: formula,
+          maxRecords: 1,
+        })
+        .firstPage();
+      return records[0] ?? null;
+    } catch (error) {
+      logFormulaError(formula, error);
+      throw error;
+    }
+  };
+  const selectAll = async (formula: string, table: typeof db.educations | typeof db.works) => {
+    try {
+      return await table.select({ filterByFormula: formula }).all();
+    } catch (error) {
+      logFormulaError(formula, error);
+      throw error;
+    }
+  };
 
-  if (resumes.length === 0) return null;
+  let resumeRecord: Airtable.Record<Airtable.FieldSet> | null = null;
 
-  const resumeRecord = resumes[0];
+  if (/^rec[a-zA-Z0-9]+$/.test(trimmedResumeId)) {
+    try {
+      resumeRecord = await db.resumes.find(trimmedResumeId);
+    } catch {
+      resumeRecord = null;
+    }
+  }
+
+  if (!resumeRecord) {
+    resumeRecord = await selectFirst(byResumeIdFormula);
+  }
+
+  if (!resumeRecord) {
+    try {
+      const fallbackFormula = `OR(${byResumeIdFormula}, ${fieldRef('id')} = ${formulaValue(
+        trimmedResumeId
+      )})`;
+      resumeRecord = await selectFirst(fallbackFormula);
+    } catch (error) {
+      if (isInvalidFieldError(error)) {
+        resumeRecord = await selectFirst(byResumeIdFormula);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  if (!resumeRecord) {
+    console.warn('Resume not found', { correlationId, resumeId: trimmedResumeId, formula: byResumeIdFormula });
+    return null;
+  }
+
+  const resumeJoinId =
+    normalizeSingleTextField(
+      (resumeRecord.fields as { resume_id?: string | string[] | { id?: string }[] }).resume_id
+    ) ?? trimmedResumeId;
+  const educationFormula = `TRIM(${resumeIdField}) = ${JSON.stringify(resumeJoinId)}`;
+  const worksFormula = `TRIM(${resumeIdField}) = ${JSON.stringify(resumeJoinId)}`;
   const [educations, works] = await Promise.all([
-    db.educations.select({ filterByFormula: "{resume_id} = '" + escaped + "'" }).all(),
-    db.works.select({ filterByFormula: "{resume_id} = '" + escaped + "'" }).all(),
+    selectAll(educationFormula, db.educations),
+    selectAll(worksFormula, db.works),
   ]);
 
   return {
