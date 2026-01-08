@@ -1,6 +1,7 @@
-﻿import { NextResponse } from 'next/server';
+﻿import { randomUUID } from 'crypto';
+import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db/airtable';
-import { mapAirtableResume, mapResumeToAirtableFields } from '@/lib/db/resume';
+import { getResumeBundle, mapAirtableResume, mapResumeToAirtableFields } from '@/lib/db/resume';
 import { ResumeSchema } from '@/lib/validation/schemas';
 
 // GET処理
@@ -11,26 +12,23 @@ export async function GET(request: Request) {
   if (!resumeId) return NextResponse.json({ error: 'Missing resumeId' }, { status: 400 });
 
   try {
-    const db = getDb();
-    const resumes = await db.resumes.select({
-      filterByFormula: "{resume_id} = '" + resumeId + "'",
-      maxRecords: 1
-    }).firstPage();
+    const bundle = await getResumeBundle(resumeId);
 
-    if (resumes.length === 0) return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
-    
-    const resumeRecord = resumes[0];
-    const educations = await db.educations.select({ filterByFormula: "{resume_id} = '" + resumeId + "'" }).all();
-    const works = await db.works.select({ filterByFormula: "{resume_id} = '" + resumeId + "'" }).all();
+    if (!bundle) return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
 
-    return NextResponse.json({
-      resume: mapAirtableResume(resumeRecord),
-      educations: educations.map(r => ({ id: r.id, ...r.fields })),
-      works: works.map(r => ({ id: r.id, ...r.fields }))
-    });
+    return NextResponse.json(bundle);
 
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const correlationId = randomUUID();
+    console.error('Resume bundle fetch error', {
+      correlationId,
+      message: error?.message,
+      stack: error?.stack,
+    });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unexpected error', correlationId },
+      { status: 500 }
+    );
   }
 }
 
