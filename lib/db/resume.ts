@@ -1,4 +1,5 @@
 import type Airtable from 'airtable';
+import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import { getDb } from '@/lib/db/airtable';
 import { ResumeSchema } from '@/lib/validation/schemas';
@@ -188,12 +189,26 @@ export type ResumeBundle = {
   works: Array<{ id: string; [key: string]: unknown }>;
 };
 
-const formulaString = (value: string) => JSON.stringify(value);
+// --- Airtable formula helpers (safe) ---
+const formulaValue = (value: unknown) => {
+  if (typeof value === 'string') return JSON.stringify(value);
+  if (value === null || value === undefined) return JSON.stringify('');
+  return JSON.stringify(String(value));
+};
+
+const assertFieldName = (name: unknown, fallback?: string): string => {
+  const normalized = typeof name === 'string' ? name.trim() : '';
+  if (normalized) return normalized;
+  if (fallback) return fallback;
+  throw new Error('Invalid Airtable field name (empty/undefined)');
+};
+
+const fieldRef = (name: unknown, fallback?: string) => `{${assertFieldName(name, fallback)}}`;
 
 const buildSearchFormula = (query: string) => {
   const normalized = query.trim();
   if (!normalized) return undefined;
-  const escaped = formulaString(normalized.toLowerCase());
+  const escaped = formulaValue(normalized.toLowerCase());
   const conditions = [
     `FIND(LOWER(${escaped}), LOWER({last_name_kanji}))`,
     `FIND(LOWER(${escaped}), LOWER({first_name_kanji}))`,
@@ -343,15 +358,39 @@ export async function listResumes({
 
 export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | null> {
   const db = getDb();
-  const byResumeIdFormula = `{resume_id} = ${formulaString(resumeId)}`;
+  if (typeof resumeId !== 'string' || !resumeId.trim()) return null;
+  const correlationId = randomUUID();
+  const resumeIdField = fieldRef('resume_id');
+  const byResumeIdFormula = `${resumeIdField} = ${formulaValue(resumeId)}`;
+  const logFormulaError = (formula: string, error: unknown) => {
+    console.error('Airtable formula error', {
+      correlationId,
+      formula,
+      message: (error as { message?: string }).message,
+      stack: (error as { stack?: string }).stack,
+    });
+  };
   const selectFirst = async (formula: string) => {
-    const records = await db.resumes
-      .select({
-        filterByFormula: formula,
-        maxRecords: 1,
-      })
-      .firstPage();
-    return records[0] ?? null;
+    try {
+      const records = await db.resumes
+        .select({
+          filterByFormula: formula,
+          maxRecords: 1,
+        })
+        .firstPage();
+      return records[0] ?? null;
+    } catch (error) {
+      logFormulaError(formula, error);
+      throw error;
+    }
+  };
+  const selectAll = async (formula: string, table: typeof db.educations | typeof db.works) => {
+    try {
+      return await table.select({ filterByFormula: formula }).all();
+    } catch (error) {
+      logFormulaError(formula, error);
+      throw error;
+    }
   };
 
   let resumeRecord: Airtable.Record<Airtable.FieldSet> | null = null;
@@ -370,7 +409,9 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
 
   if (!resumeRecord) {
     try {
-      const fallbackFormula = `OR(${byResumeIdFormula}, {id} = ${formulaString(resumeId)})`;
+      const fallbackFormula = `OR(${byResumeIdFormula}, ${fieldRef('id')} = ${formulaValue(
+        resumeId
+      )})`;
       resumeRecord = await selectFirst(fallbackFormula);
     } catch (error) {
       if (isInvalidFieldError(error)) {
@@ -383,9 +424,11 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
 
   if (!resumeRecord) return null;
 
+  const educationFormula = `${resumeIdField} = ${formulaValue(resumeId)}`;
+  const worksFormula = `${resumeIdField} = ${formulaValue(resumeId)}`;
   const [educations, works] = await Promise.all([
-    db.educations.select({ filterByFormula: `{resume_id} = ${formulaString(resumeId)}` }).all(),
-    db.works.select({ filterByFormula: `{resume_id} = ${formulaString(resumeId)}` }).all(),
+    selectAll(educationFormula, db.educations),
+    selectAll(worksFormula, db.works),
   ]);
 
   return {
