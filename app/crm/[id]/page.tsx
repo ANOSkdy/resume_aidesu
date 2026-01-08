@@ -36,6 +36,9 @@ const Tag = ({ children }: { children: React.ReactNode }) => (
   <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700">{children}</span>
 );
 
+const toText = (value: unknown, fallback: string) =>
+  typeof value === 'string' && value.trim() ? value : fallback;
+
 export default async function CrmDetailPage({
   params,
   searchParams,
@@ -170,9 +173,11 @@ export default async function CrmDetailPage({
                   : formatYm(toNumber(edu.end_year), toNumber(edu.end_month));
                 return (
                   <div key={edu.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
-                    <div className="font-medium text-gray-900">{edu.school_name ?? '学校名未入力'}</div>
+                    <div className="font-medium text-gray-900">
+                      {toText(edu.school_name, '学校名未入力')}
+                    </div>
                     <div className="text-xs text-gray-500">
-                      {edu.department ?? '学部/学科未入力'}
+                      {toText(edu.department, '学部/学科未入力')}
                     </div>
                     <div className="text-xs text-gray-500">
                       {start || '入学時期未入力'} {end ? `〜 ${end}` : ''}
