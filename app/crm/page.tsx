@@ -130,43 +130,88 @@ export default async function CrmPage({
           </div>
         </form>
 
-        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           {data.length === 0 ? (
             <div className="p-4 text-sm text-gray-600">該当する応募者が見つかりませんでした。</div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                <tr>
-                  <th className="px-4 py-3">ID</th>
-                  <th className="px-4 py-3">氏名</th>
-                  <th className="px-4 py-3">フリガナ</th>
-                  <th className="px-4 py-3">メール</th>
-                  <th className="px-4 py-3">電話</th>
-                  <th className="px-4 py-3">現在</th>
-                  <th className="px-4 py-3">住所</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
+            <>
+              <div className="divide-y divide-gray-200 md:hidden">
                 {data.map((item) => (
-                  <tr key={item.resume_id} className="hover:bg-blue-50/40">
-                    <td className="px-4 py-3 text-xs font-semibold text-gray-700">
+                  <div key={item.resume_id} className="space-y-2 p-4 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-500">ID</span>
                       <Link
                         href={{ pathname: `/crm/${item.resume_id}`, query: { from: returnTo } }}
-                        className="text-blue-600 hover:text-blue-700"
+                        className="text-xs font-semibold text-blue-600 hover:text-blue-700"
                       >
                         {item.resume_id}
                       </Link>
-                    </td>
-                    <td className="px-4 py-3 text-gray-900">{item.nameKanji}</td>
-                    <td className="px-4 py-3 text-gray-700">{item.furigana || '-'}</td>
-                    <td className="px-4 py-3 text-gray-700">{item.contactEmail ?? ''}</td>
-                    <td className="px-4 py-3 text-gray-700">{item.contactPhone ?? ''}</td>
-                    <td className="px-4 py-3 text-gray-700">{item.currentStatus ?? ''}</td>
-                    <td className="px-4 py-3 text-gray-500">{item.addressCity ?? ''}</td>
-                  </tr>
+                    </div>
+                    <div className="grid gap-2 text-sm text-gray-800">
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500">氏名</p>
+                        <p className="text-gray-900">{item.nameKanji}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500">フリガナ</p>
+                        <p className="text-gray-700">{item.furigana || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500">メール</p>
+                        <p className="text-gray-700">{item.contactEmail ?? ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500">電話</p>
+                        <p className="text-gray-700">{item.contactPhone ?? ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500">現在</p>
+                        <p className="text-gray-700">{item.currentStatus ?? ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-gray-500">住所</p>
+                        <p className="text-gray-500">{item.addressCity ?? ''}</p>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+              <div className="hidden overflow-x-auto md:block">
+                <table className="min-w-full divide-y divide-gray-200 text-sm">
+                  <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    <tr>
+                      <th className="px-4 py-3">ID</th>
+                      <th className="px-4 py-3">氏名</th>
+                      <th className="px-4 py-3">フリガナ</th>
+                      <th className="px-4 py-3">メール</th>
+                      <th className="px-4 py-3">電話</th>
+                      <th className="px-4 py-3">現在</th>
+                      <th className="px-4 py-3">住所</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {data.map((item) => (
+                      <tr key={item.resume_id} className="hover:bg-blue-50/40">
+                        <td className="px-4 py-3 text-xs font-semibold text-gray-700">
+                          <Link
+                            href={{ pathname: `/crm/${item.resume_id}`, query: { from: returnTo } }}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            {item.resume_id}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3 text-gray-900">{item.nameKanji}</td>
+                        <td className="px-4 py-3 text-gray-700">{item.furigana || '-'}</td>
+                        <td className="px-4 py-3 text-gray-700">{item.contactEmail ?? ''}</td>
+                        <td className="px-4 py-3 text-gray-700">{item.contactPhone ?? ''}</td>
+                        <td className="px-4 py-3 text-gray-700">{item.currentStatus ?? ''}</td>
+                        <td className="px-4 py-3 text-gray-500">{item.addressCity ?? ''}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 
