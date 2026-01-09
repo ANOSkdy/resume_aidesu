@@ -136,45 +136,47 @@ export default async function CrmPage({
           ) : (
             <>
               <div className="divide-y divide-gray-200 md:hidden">
-                {data.map((item) => (
-                  <div key={item.resume_id} className="space-y-2 p-4 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-gray-500">ID</span>
-                      <Link
-                        href={{ pathname: `/crm/${item.resume_id}`, query: { from: returnTo } }}
-                        className="text-xs font-semibold text-blue-600 hover:text-blue-700"
-                      >
-                        {item.resume_id}
-                      </Link>
-                    </div>
-                    <div className="grid gap-2 text-sm text-gray-800">
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500">氏名</p>
-                        <p className="text-gray-900">{item.nameKanji}</p>
+                {data.map((item) => {
+                  const href = { pathname: `/crm/${item.resume_id}`, query: { from: returnTo } };
+                  return (
+                    <Link
+                      key={item.resume_id}
+                      href={href}
+                      className="block space-y-2 p-4 text-sm transition hover:bg-blue-50/40"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-gray-500">ID</span>
+                        <span className="text-xs font-semibold text-blue-600">{item.resume_id}</span>
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500">フリガナ</p>
-                        <p className="text-gray-700">{item.furigana || '-'}</p>
+                      <div className="grid gap-2 text-sm text-gray-800">
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500">氏名</p>
+                          <p className="text-gray-900">{item.nameKanji}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500">フリガナ</p>
+                          <p className="text-gray-700">{item.furigana || '-'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500">メール</p>
+                          <p className="text-gray-700">{item.contactEmail ?? ''}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500">電話</p>
+                          <p className="text-gray-700">{item.contactPhone ?? ''}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500">現在</p>
+                          <p className="text-gray-700">{item.currentStatus ?? ''}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500">住所</p>
+                          <p className="text-gray-500">{item.addressCity ?? ''}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500">メール</p>
-                        <p className="text-gray-700">{item.contactEmail ?? ''}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500">電話</p>
-                        <p className="text-gray-700">{item.contactPhone ?? ''}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500">現在</p>
-                        <p className="text-gray-700">{item.currentStatus ?? ''}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500">住所</p>
-                        <p className="text-gray-500">{item.addressCity ?? ''}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
               <div className="hidden overflow-x-auto md:block">
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -190,24 +192,48 @@ export default async function CrmPage({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {data.map((item) => (
-                      <tr key={item.resume_id} className="hover:bg-blue-50/40">
-                        <td className="px-4 py-3 text-xs font-semibold text-gray-700">
-                          <Link
-                            href={{ pathname: `/crm/${item.resume_id}`, query: { from: returnTo } }}
-                            className="text-blue-600 hover:text-blue-700"
-                          >
-                            {item.resume_id}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 text-gray-900">{item.nameKanji}</td>
-                        <td className="px-4 py-3 text-gray-700">{item.furigana || '-'}</td>
-                        <td className="px-4 py-3 text-gray-700">{item.contactEmail ?? ''}</td>
-                        <td className="px-4 py-3 text-gray-700">{item.contactPhone ?? ''}</td>
-                        <td className="px-4 py-3 text-gray-700">{item.currentStatus ?? ''}</td>
-                        <td className="px-4 py-3 text-gray-500">{item.addressCity ?? ''}</td>
-                      </tr>
-                    ))}
+                    {data.map((item) => {
+                      const href = { pathname: `/crm/${item.resume_id}`, query: { from: returnTo } };
+                      return (
+                        <tr key={item.resume_id} className="hover:bg-blue-50/40">
+                          <td className="p-0 text-xs font-semibold text-gray-700">
+                            <Link href={href} className="block px-4 py-3 text-blue-600 hover:text-blue-700">
+                              {item.resume_id}
+                            </Link>
+                          </td>
+                          <td className="p-0 text-gray-900">
+                            <Link href={href} className="block px-4 py-3">
+                              {item.nameKanji}
+                            </Link>
+                          </td>
+                          <td className="p-0 text-gray-700">
+                            <Link href={href} className="block px-4 py-3">
+                              {item.furigana || '-'}
+                            </Link>
+                          </td>
+                          <td className="p-0 text-gray-700">
+                            <Link href={href} className="block px-4 py-3">
+                              {item.contactEmail ?? ''}
+                            </Link>
+                          </td>
+                          <td className="p-0 text-gray-700">
+                            <Link href={href} className="block px-4 py-3">
+                              {item.contactPhone ?? ''}
+                            </Link>
+                          </td>
+                          <td className="p-0 text-gray-700">
+                            <Link href={href} className="block px-4 py-3">
+                              {item.currentStatus ?? ''}
+                            </Link>
+                          </td>
+                          <td className="p-0 text-gray-500">
+                            <Link href={href} className="block px-4 py-3">
+                              {item.addressCity ?? ''}
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
