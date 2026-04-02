@@ -27,6 +27,7 @@ export async function GET() {
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unexpected error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Lookup fetch error', { message });
+    return NextResponse.json({ error: 'データ取得に失敗しました。時間をおいて再度お試しください。' }, { status: 500 });
   }
 }

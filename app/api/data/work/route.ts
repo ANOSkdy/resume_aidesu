@@ -17,7 +17,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, id });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unexpected error';
-    return NextResponse.json({ error: message }, { status: 400 });
+    console.error('Work save error', { message });
+    return NextResponse.json({ error: '保存に失敗しました。時間をおいて再度お試しください。' }, { status: 400 });
   }
 }
 
