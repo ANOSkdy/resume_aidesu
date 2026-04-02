@@ -43,7 +43,6 @@ export async function GET(request: Request) {
   } catch (error: any) {
     const correlationId = randomUUID();
     console.error('CRM resumes list error', { correlationId, error });
-    const message = error instanceof Error ? error.message : 'Unexpected error';
-    return NextResponse.json({ error: message, correlationId }, { status: 500 });
+    return NextResponse.json({ error: 'データ取得に失敗しました。時間をおいて再度お試しください。', correlationId }, { status: 500 });
   }
 }

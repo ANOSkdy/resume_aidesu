@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const correlationId = randomUUID();
     const message = error instanceof Error ? error.message : 'Unexpected error';
     console.error('Resume bundle fetch error', { correlationId, message });
-    return NextResponse.json({ error: message, correlationId }, { status: 500 });
+    return NextResponse.json({ error: 'データ取得に失敗しました。時間をおいて再度お試しください。', correlationId }, { status: 500 });
   }
 }
 

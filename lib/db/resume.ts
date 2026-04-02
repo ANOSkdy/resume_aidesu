@@ -24,7 +24,45 @@ const toNullableUuid = (value: unknown) => {
   return isUuid(value) ? value : null;
 };
 
+const toNullableSmallint = (value: unknown) => {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'number') return Number.isFinite(value) ? Math.trunc(value) : null;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? Math.trunc(parsed) : null;
+  }
+  return null;
+};
+
+const toPaddedMonth = (value: number) => String(value).padStart(2, '0');
+const toPaddedDay = (value: number) => String(value).padStart(2, '0');
+
+const buildDate = (year?: number | null, month?: number | null, day = 1): string | null => {
+  if (!year || !month) return null;
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return null;
+  return `${year}-${toPaddedMonth(month)}-${toPaddedDay(day)}`;
+};
+
+const parseDateParts = (value: unknown): { year: number; month: number; day: number } | null => {
+  if (typeof value !== 'string') return null;
+  const matched = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!matched) return null;
+
+  const year = Number(matched[1]);
+  const month = Number(matched[2]);
+  const day = Number(matched[3]);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return null;
+
+  return { year, month, day };
+};
+
 const mapDbResume = (row: Record<string, unknown>): Resume => {
+  const dobParts = parseDateParts(row.dob) ?? {
+    year: Number(row.dob_year) || 1990,
+    month: Number(row.dob_month) || 1,
+    day: Number(row.dob_day) || 1,
+  };
+
   const baseResume = ResumeSchema.parse({
     user_id: typeof row.user_id === 'string' ? row.user_id : '00000000-0000-0000-0000-000000000000',
     resume_id: row.resume_id,
@@ -33,9 +71,9 @@ const mapDbResume = (row: Record<string, unknown>): Resume => {
     first_name_kanji: row.first_name_kanji,
     last_name_kana: row.last_name_kana,
     first_name_kana: row.first_name_kana,
-    dob_year: row.dob_year,
-    dob_month: row.dob_month,
-    dob_day: row.dob_day,
+    dob_year: dobParts.year,
+    dob_month: dobParts.month,
+    dob_day: dobParts.day,
     gender: row.gender,
     email: row.email,
     postal_code: row.postal_code,
@@ -109,7 +147,7 @@ const replaceDesiredConditions = async (
   const hasDesiredUpdate = desiredConditionMap.some(([key]) => Array.isArray(payload[key]));
   if (!hasDesiredUpdate) return;
 
-  await client.query('delete from resume_desired_conditions where resume_pk = $1', [resumePk]);
+  await client.query('delete from resume_desired_conditions where resume_id = $1', [resumePk]);
 
   for (const [key, type] of desiredConditionMap) {
     const values = payload[key];
@@ -120,7 +158,7 @@ const replaceDesiredConditions = async (
       if (typeof label !== 'string' || !label.trim()) continue;
 
       await client.query(
-        `insert into resume_desired_conditions (resume_pk, condition_type, label, sort_order)
+        `insert into resume_desired_conditions (resume_id, condition_type, label, sort_order)
          values ($1, $2, $3, $4)`,
         [resumePk, type, label.trim(), i]
       );
@@ -136,7 +174,7 @@ const loadDesiredConditions = async (resumePk: string) => {
   }>(
     `select condition_type, label, sort_order
      from resume_desired_conditions
-     where resume_pk = $1
+     where resume_id = $1
      order by condition_type asc, sort_order asc`,
     [resumePk]
   );
@@ -160,16 +198,18 @@ const loadDesiredConditions = async (resumePk: string) => {
 
 export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
   const values = mapResumeToAirtableFields(payload);
-  const resumeId = typeof payload.resume_id === 'string' && payload.resume_id.trim()
-    ? payload.resume_id.trim()
-    : `res_${Date.now()}`;
+  const resumeId =
+    typeof payload.resume_id === 'string' && payload.resume_id.trim()
+      ? payload.resume_id.trim()
+      : `res_${Date.now()}`;
+  const dob = buildDate(payload.dob_year, payload.dob_month, payload.dob_day);
 
   const result = await withTransaction(async (client) => {
     const { rows } = await client.query<Record<string, unknown>>(
       `insert into resume_drafts (
         resume_id, user_id, title, status,
         last_name_kanji, first_name_kanji, last_name_kana, first_name_kana,
-        dob_year, dob_month, dob_day, gender, email, phone_number,
+        dob, gender, email, phone_number,
         postal_code, address_prefecture, address_city, address_line1, address_line2,
         contact_address, contact_phone, contact_email,
         dependents_count, has_spouse, spouse_is_dependent,
@@ -178,12 +218,12 @@ export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
       ) values (
         $1, $2, $3, coalesce($4, 'draft'),
         $5, $6, $7, $8,
-        $9, $10, $11, $12, $13, $14,
-        $15, $16, $17, $18, $19,
-        $20, $21, $22,
-        $23, $24, $25,
-        $26, $27, $28,
-        $29, $30, $31, $32, now()
+        $9, $10, $11, $12,
+        $13, $14, $15, $16, $17,
+        $18, $19, $20,
+        $21, $22, $23,
+        $24, $25, $26,
+        $27, $28, $29, $30, now()
       )
       on conflict (resume_id)
       do update set
@@ -193,9 +233,7 @@ export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
         first_name_kanji = excluded.first_name_kanji,
         last_name_kana = excluded.last_name_kana,
         first_name_kana = excluded.first_name_kana,
-        dob_year = excluded.dob_year,
-        dob_month = excluded.dob_month,
-        dob_day = excluded.dob_day,
+        dob = excluded.dob,
         gender = excluded.gender,
         email = excluded.email,
         phone_number = excluded.phone_number,
@@ -228,9 +266,7 @@ export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
         values.first_name_kanji,
         values.last_name_kana ?? null,
         values.first_name_kana ?? null,
-        values.dob_year ?? null,
-        values.dob_month ?? null,
-        values.dob_day ?? null,
+        dob,
         values.gender ?? null,
         values.email ?? null,
         values.phone_number ?? null,
@@ -242,10 +278,10 @@ export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
         values.contact_address ?? null,
         values.contact_phone ?? null,
         values.contact_email ?? null,
-        values.dependents_count ?? null,
+        toNullableSmallint(values.dependents_count),
         values.has_spouse ?? null,
         values.spouse_is_dependent ?? null,
-        values.job_change_count ?? null,
+        toNullableSmallint(values.job_change_count),
         values.current_status ?? null,
         values.desired_joining_date ?? null,
         values.transferable_skills ?? null,
@@ -403,17 +439,36 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
   const [desired, educationsRes, worksRes] = await Promise.all([
     loadDesiredConditions(resumeRow.id),
     query<Record<string, unknown>>(
-      `select id, school_name, department, degree, start_year, start_month, end_year, end_month, is_current
+      `select
+         id,
+         school_name,
+         department,
+         degree,
+         extract(year from start_date)::int as start_year,
+         extract(month from start_date)::int as start_month,
+         extract(year from end_date)::int as end_year,
+         extract(month from end_date)::int as end_month,
+         is_current
        from resume_educations
-       where resume_pk = $1
-       order by sort_order asc, start_year asc nulls last, start_month asc nulls last`,
+       where resume_id = $1
+       order by sort_order asc, start_date asc nulls last`,
       [resumeRow.id]
     ),
     query<Record<string, unknown>>(
-      `select id, company_name, department, position, start_year, start_month, end_year, end_month, is_current, description
+      `select
+         id,
+         company_name,
+         department,
+         position,
+         extract(year from start_date)::int as start_year,
+         extract(month from start_date)::int as start_month,
+         extract(year from end_date)::int as end_year,
+         extract(month from end_date)::int as end_month,
+         is_current,
+         description
        from resume_works
-       where resume_pk = $1
-       order by sort_order asc, start_year asc nulls last, start_month asc nulls last`,
+       where resume_id = $1
+       order by sort_order asc, start_date asc nulls last`,
       [resumeRow.id]
     ),
   ]);
@@ -445,21 +500,22 @@ export async function createEducation(data: {
     throw new Error('Resume not found');
   }
 
+  const startDate = buildDate(data.start_year, data.start_month);
+  const endDate = data.is_current ? null : buildDate(data.end_year, data.end_month);
+
   const { rows } = await query<{ id: string }>(
     `insert into resume_educations (
-      resume_pk, school_name, department, degree,
-      start_year, start_month, end_year, end_month, is_current
-    ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      resume_id, school_name, department, degree,
+      start_date, end_date, is_current
+    ) values ($1,$2,$3,$4,$5,$6,$7)
     returning id`,
     [
       resumeRow.id,
       data.school_name,
       data.department ?? null,
       data.degree ?? null,
-      data.start_year ?? null,
-      data.start_month ?? null,
-      data.end_year ?? null,
-      data.end_month ?? null,
+      startDate,
+      endDate,
       data.is_current ?? false,
     ]
   );
@@ -488,21 +544,22 @@ export async function createWork(data: {
     throw new Error('Resume not found');
   }
 
+  const startDate = buildDate(data.start_year, data.start_month);
+  const endDate = data.is_current ? null : buildDate(data.end_year, data.end_month);
+
   const { rows } = await query<{ id: string }>(
     `insert into resume_works (
-      resume_pk, company_name, department, position,
-      start_year, start_month, end_year, end_month, is_current, description
-    ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      resume_id, company_name, department, position,
+      start_date, end_date, is_current, description
+    ) values ($1,$2,$3,$4,$5,$6,$7,$8)
     returning id`,
     [
       resumeRow.id,
       data.company_name,
       data.department ?? null,
       data.position ?? null,
-      data.start_year ?? null,
-      data.start_month ?? null,
-      data.end_year ?? null,
-      data.end_month ?? null,
+      startDate,
+      endDate,
       data.is_current ?? false,
       data.description ?? null,
     ]
