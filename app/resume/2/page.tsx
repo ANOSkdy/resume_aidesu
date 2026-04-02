@@ -1,10 +1,10 @@
 ﻿'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
-import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
+import { ensureResumeId, hasPendingResumeSave, retryPendingResumeSave, saveResumeInBackground } from '@/lib/storage/resume-save';
 
 type FormData = {
   job_change_count: number;
@@ -14,7 +14,7 @@ type FormData = {
 
 export default function ResumeStep2() {
   const router = useRouter();
-  const { register, handleSubmit, setValue } = useForm<FormData>({
+  const { register, handleSubmit } = useForm<FormData>({
     defaultValues: {
       job_change_count: 0,
       current_status: '在職中',
@@ -22,67 +22,34 @@ export default function ResumeStep2() {
     }
   });
 
-  // TODO: 既存データがあればロードする処理を入れると親切
+  const [isRetryingSave, setIsRetryingSave] = useState(false);
 
-  const onSubmit = async (data: FormData) => {
-    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
+  useEffect(() => {
+    const resumeId = ensureResumeId();
+    if (!resumeId) return;
+    if (hasPendingResumeSave(resumeId)) {
+      queueMicrotask(() => setIsRetryingSave(true));
+      void retryPendingResumeSave(resumeId).finally(() => {
+        setIsRetryingSave(false);
+      });
+    }
+  }, []);
+
+  const onSubmit = (data: FormData) => {
+    const resumeId = ensureResumeId();
     if (!resumeId) {
       alert('履歴書IDが見つかりません。Step 1からやり直してください。');
       router.push('/resume/1');
       return;
     }
 
-    try {
-      // バリデーションを通すための必須項目ダミー + 更新データ
-      // ※本来はPATCHメソッドで部分更新すべきですが、Phase 4の実装がUpsertなので
-      // 既存データを取得してマージするか、必須チェックを緩める対応が必要です。
-      // 今回は「必須フィールド(user_id等)を含めた更新」として送信します。
-      
-      const userId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy) || 'guest';
+    const payload = {
+      resume_id: resumeId,
+      ...data,
+    };
 
-      // Step 1の必須項目がバリデーションで弾かれないよう、API側が部分更新に対応しているか、
-      // もしくはここで全データを送る必要があります。
-      // 今回の Phase 4 API実装は "ResumeSchema.parse(body)" をしているので、
-      // Step 1の必須項目(names)がないとエラーになります。
-      
-      // ★暫定対応: 一旦Step 1に戻らなくて済むよう、APIに送るデータにダミーを含めるか、
-      // API側のバリデーションを「Partial」にする修正が理想です。
-      // ここでは「APIから現在のデータを取得 → マージして保存」の流れを実装します。
-
-      // 1. 現在のデータを取得
-      const getRes = await fetch('/api/data/resume?id=' + resumeId);
-      const currentData = await getRes.json();
-      if (!currentData.resume) throw new Error('データ取得失敗');
-
-      // 2. マージして送信
-      const payload = {
-        ...currentData.resume, // 既存データ(Step1の内容)
-        user_id: userId,       // user_id再設定
-        ...data,               // 今回の入力データ
-      };
-      
-      // Airtableから来る不要なフィールドを除去 (id, createdTimeなど)
-      delete payload.id;
-      delete payload.createdTime;
-      delete payload.fields; 
-
-      const res = await fetch('/api/data/resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || '保存失敗');
-      }
-
-      router.push('/resume/3');
-
-    } catch (error: any) {
-      console.error(error);
-      alert('保存に失敗しました: ' + error.message);
-    }
+    saveResumeInBackground('PATCH', payload);
+    router.push('/resume/3');
   };
 
   return (
@@ -121,6 +88,13 @@ export default function ResumeStep2() {
             <option value="未定">未定</option>
           </select>
         </div>
+
+        {isRetryingSave && (
+          <p className="text-sm text-gray-600 inline-flex items-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+            保存中です
+          </p>
+        )}
 
         <div className="flex justify-between pt-4">
           <Button type="button" variant="outline" onClick={() => router.back()}>戻る</Button>

@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
-import { getResumeBundle, saveResumeDraft } from '@/lib/db/resume';
-import { ResumeSchema } from '@/lib/validation/schemas';
+import { getResumeBundle, patchResumeDraft, saveResumeDraft } from '@/lib/db/resume';
+import { ResumePatchSchema, ResumeSchema } from '@/lib/validation/schemas';
 
 export const runtime = 'nodejs';
 
@@ -36,6 +36,24 @@ export async function POST(request: Request) {
     const correlationId = randomUUID();
     const message = error instanceof Error ? error.message : 'Unexpected error';
     console.error('Resume save error', { correlationId, message });
+    return NextResponse.json(
+      { error: '保存に失敗しました。時間をおいて再度お試しください。', correlationId },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const parsed = ResumePatchSchema.parse(body);
+    const saved = await patchResumeDraft(parsed);
+
+    return NextResponse.json({ success: true, record: saved });
+  } catch (error: unknown) {
+    const correlationId = randomUUID();
+    const message = error instanceof Error ? error.message : 'Unexpected error';
+    console.error('Resume patch error', { correlationId, message });
     return NextResponse.json(
       { error: '保存に失敗しました。時間をおいて再度お試しください。', correlationId },
       { status: 500 }

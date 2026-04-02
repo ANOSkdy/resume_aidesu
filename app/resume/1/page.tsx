@@ -9,6 +9,7 @@ import { ResumeSchema } from '@/lib/validation/schemas';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/form/Input';
 import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
+import { ensureResumeId, hasPendingResumeSave, retryPendingResumeSave, saveResumeInBackground } from '@/lib/storage/resume-save';
 
 const formSchema = ResumeSchema.omit({ user_id: true });
 
@@ -65,10 +66,18 @@ export default function ResumeStep1() {
 
   const hasSpouse = watch('has_spouse');
   const [useSeparateContact, setUseSeparateContact] = useState(false);
+  const [isRetryingSave, setIsRetryingSave] = useState(false);
 
   useEffect(() => {
-    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
+    const resumeId = ensureResumeId();
+
     if (!resumeId) return;
+    if (hasPendingResumeSave(resumeId)) {
+      setIsRetryingSave(true);
+      void retryPendingResumeSave(resumeId).finally(() => {
+        setIsRetryingSave(false);
+      });
+    }
 
     const loadResume = async () => {
       try {
@@ -128,33 +137,17 @@ export default function ResumeStep1() {
     }
   };
 
-  const onSubmit: SubmitHandler<FormInput> = async (data) => {
-    try {
-      const payload = {
-        ...data,
-        user_id: getUserId(),
-        title: `${data.last_name_kanji}さんの履歴書`,
-      };
+  const onSubmit: SubmitHandler<FormInput> = (data) => {
+    const resumeId = ensureResumeId();
+    const payload = {
+      ...data,
+      resume_id: resumeId,
+      user_id: getUserId(),
+      title: `${data.last_name_kanji}さんの履歴書`,
+    };
 
-      const res = await fetch('/api/data/resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || '保存に失敗しました');
-      }
-
-      const json = await res.json();
-      console.log('Saved:', json);
-
-      localStorage.setItem('aidesu_resume_id', json.record.resume_id);
-      router.push('/resume/2');
-    } catch (error: any) {
-      alert(error.message);
-    }
+    saveResumeInBackground('POST', payload);
+    router.push('/resume/2');
   };
 
   return (
@@ -366,6 +359,13 @@ export default function ResumeStep1() {
             </label>
           </div>
         </div>
+
+        {isRetryingSave && (
+          <p className="text-sm text-gray-600 inline-flex items-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+            保存中です
+          </p>
+        )}
 
         <div className="pt-4">
           <Button type="submit" isLoading={isSubmitting}>
