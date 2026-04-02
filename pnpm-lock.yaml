@@ -17,6 +17,9 @@ importers:
       '@react-pdf/renderer':
         specifier: ^4.3.1
         version: 4.3.1(react@19.2.1)
+      '@vercel/blob':
+        specifier: ^1.1.1
+        version: 1.1.1
       airtable:
         specifier: ^0.12.2
         version: 0.12.2
@@ -2168,7 +2171,12 @@ packages:
   zod@4.1.12:
     resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
 
+  '@vercel/blob@1.1.1':
+    resolution: {tarball: https://registry.npmjs.org/@vercel/blob/-/blob-1.1.1.tgz}
+
 snapshots:
+
+  '@vercel/blob@1.1.1': {}
 
   '@alloc/quick-lru@5.2.0': {}
 
