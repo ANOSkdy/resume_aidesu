@@ -36,7 +36,7 @@ export default function ResumeStep3() {
       return;
     }
     
-    fetch('/api/data/resume?id=' + resumeId)
+    fetch('/api/data/education?resumeId=' + resumeId)
       .then(res => res.json())
       .then(data => {
         if (data.educations) {
@@ -88,15 +88,14 @@ export default function ResumeStep3() {
     router.push('/resume/4');
   };
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">学歴の入力</h2>
       
       {/* 登録済みリスト */}
       <div className="mb-8 space-y-3">
-        {educations.length === 0 && <p className="text-gray-500">学歴はまだ登録されていません。</p>}
+        {loading && <p className="text-sm text-gray-400">学歴を読み込み中...</p>}
+        {!loading && educations.length === 0 && <p className="text-gray-500">学歴はまだ登録されていません。</p>}
         
         {educations.map((edu) => (
           <div key={edu.id} className="p-4 border rounded bg-gray-50 space-y-3">

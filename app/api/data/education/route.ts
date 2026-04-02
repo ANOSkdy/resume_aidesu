@@ -1,8 +1,23 @@
 import { NextResponse } from 'next/server';
-import { createEducation, deleteEducation } from '@/lib/db/resume';
+import { createEducation, deleteEducation, getResumeEducations } from '@/lib/db/resume';
 import { EducationSchema } from '@/lib/validation/schemas';
 
 export const runtime = 'nodejs';
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const resumeId = searchParams.get('resumeId');
+  if (!resumeId) return NextResponse.json({ error: 'Missing resumeId' }, { status: 400 });
+
+  try {
+    const educations = await getResumeEducations(resumeId);
+    return NextResponse.json({ educations });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unexpected error';
+    console.error('Education fetch error', { message });
+    return NextResponse.json({ error: 'データ取得に失敗しました。時間をおいて再度お試しください。' }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {

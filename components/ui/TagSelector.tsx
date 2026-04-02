@@ -15,14 +15,34 @@ type Props = {
   maxSelect?: number;
 };
 
+let lookupCache: Option[] | null = null;
+let lookupCachePromise: Promise<Option[]> | null = null;
+
+const loadLookupOptions = async (): Promise<Option[]> => {
+  if (lookupCache) return lookupCache;
+  if (!lookupCachePromise) {
+    lookupCachePromise = fetch('/api/data/lookups')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch lookup options');
+        return res.json() as Promise<Option[]>;
+      })
+      .then((data) => {
+        lookupCache = data;
+        return data;
+      })
+      .finally(() => {
+        lookupCachePromise = null;
+      });
+  }
+  return lookupCachePromise;
+};
+
 export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }: Props) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // マスタデータ取得 (本来はSWRやReact Queryでキャッシュすべきですが簡易実装)
-    fetch('/api/data/lookups')
-      .then(res => res.json())
+    loadLookupOptions()
       .then((data: Option[]) => {
         // 指定カテゴリのみ抽出
         const filtered = data.filter(d => d.category === category);
