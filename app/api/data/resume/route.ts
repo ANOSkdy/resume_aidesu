@@ -33,7 +33,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, record: saved });
   } catch (error: unknown) {
+    const correlationId = randomUUID();
     const message = error instanceof Error ? error.message : 'Unexpected error';
-    return NextResponse.json({ error: message }, { status: 400 });
+    console.error('Resume save error', { correlationId, message });
+    return NextResponse.json(
+      { error: '保存に失敗しました。時間をおいて再度お試しください。', correlationId },
+      { status: 500 }
+    );
   }
 }

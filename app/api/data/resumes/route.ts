@@ -5,6 +5,8 @@ import { listResumes } from '@/lib/db/resume';
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 100;
 
+export const runtime = 'nodejs';
+
 const parsePageSize = (value: string | null) => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return DEFAULT_PAGE_SIZE;
