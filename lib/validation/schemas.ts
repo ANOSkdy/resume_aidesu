@@ -90,6 +90,11 @@ export const ResumeSchema = z.object({
   summary: optionalString(10000),
 });
 
+
+export const ResumePatchSchema = ResumeSchema.partial().extend({
+  resume_id: z.string().min(1, "resume_id is required"),
+});
+
 // 学歴
 export const EducationSchema = z.object({
   resume_id: z.string().min(1),

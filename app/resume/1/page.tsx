@@ -9,6 +9,7 @@ import { ResumeSchema } from '@/lib/validation/schemas';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/form/Input';
 import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
+import { ensureResumeId, hasPendingResumeSave, retryPendingResumeSave, saveResumeInBackground } from '@/lib/storage/resume-save';
 
 const formSchema = ResumeSchema.omit({ user_id: true });
 
@@ -65,10 +66,19 @@ export default function ResumeStep1() {
 
   const hasSpouse = watch('has_spouse');
   const [useSeparateContact, setUseSeparateContact] = useState(false);
+  const [hasUnsyncedChanges, setHasUnsyncedChanges] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
+    return !!resumeId && hasPendingResumeSave(resumeId);
+  });
 
   useEffect(() => {
-    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
+    const resumeId = ensureResumeId();
+
     if (!resumeId) return;
+    void retryPendingResumeSave(resumeId).then((synced) => {
+      if (synced) setHasUnsyncedChanges(false);
+    });
 
     const loadResume = async () => {
       try {
@@ -128,33 +138,18 @@ export default function ResumeStep1() {
     }
   };
 
-  const onSubmit: SubmitHandler<FormInput> = async (data) => {
-    try {
-      const payload = {
-        ...data,
-        user_id: getUserId(),
-        title: `${data.last_name_kanji}さんの履歴書`,
-      };
+  const onSubmit: SubmitHandler<FormInput> = (data) => {
+    const resumeId = ensureResumeId();
+    const payload = {
+      ...data,
+      resume_id: resumeId,
+      user_id: getUserId(),
+      title: `${data.last_name_kanji}さんの履歴書`,
+    };
 
-      const res = await fetch('/api/data/resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || '保存に失敗しました');
-      }
-
-      const json = await res.json();
-      console.log('Saved:', json);
-
-      localStorage.setItem('aidesu_resume_id', json.record.resume_id);
-      router.push('/resume/2');
-    } catch (error: any) {
-      alert(error.message);
-    }
+    setHasUnsyncedChanges(true);
+    saveResumeInBackground('POST', payload);
+    router.push('/resume/2');
   };
 
   return (
@@ -366,6 +361,10 @@ export default function ResumeStep1() {
             </label>
           </div>
         </div>
+
+        {hasUnsyncedChanges && (
+          <p className="text-sm text-amber-700">未保存の変更があります。次の操作時に再試行します。</p>
+        )}
 
         <div className="pt-4">
           <Button type="submit" isLoading={isSubmitting}>

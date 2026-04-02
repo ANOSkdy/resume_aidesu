@@ -1,9 +1,10 @@
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import { query, withTransaction } from '@/lib/db/postgres';
-import { ResumeSchema } from '@/lib/validation/schemas';
+import { ResumePatchSchema, ResumeSchema } from '@/lib/validation/schemas';
 
 type BaseResume = z.infer<typeof ResumeSchema>;
+type ResumePatchPayload = z.infer<typeof ResumePatchSchema>;
 
 export type Resume = BaseResume & {
   id?: string;
@@ -298,6 +299,105 @@ export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
 
     await replaceDesiredConditions(client, row.id, payload);
 
+    return row;
+  });
+
+  const desired = await loadDesiredConditions(String(result.id));
+  return mapDbResume({ ...result, ...desired });
+}
+
+export async function patchResumeDraft(payload: ResumePatchPayload): Promise<Resume> {
+  const { resume_id, ...rest } = payload;
+  const values = mapResumeToAirtableFields(rest);
+
+  const desiredPayload = {
+    desired_occupations: payload.desired_occupations,
+    desired_industries: payload.desired_industries,
+    desired_locations: payload.desired_locations,
+    licenses_qualifications: payload.licenses_qualifications,
+  };
+
+  const columns: Array<[keyof typeof values, string]> = [
+    ['title', 'title'],
+    ['last_name_kanji', 'last_name_kanji'],
+    ['first_name_kanji', 'first_name_kanji'],
+    ['last_name_kana', 'last_name_kana'],
+    ['first_name_kana', 'first_name_kana'],
+    ['gender', 'gender'],
+    ['email', 'email'],
+    ['phone_number', 'phone_number'],
+    ['postal_code', 'postal_code'],
+    ['address_prefecture', 'address_prefecture'],
+    ['address_city', 'address_city'],
+    ['address_line1', 'address_line1'],
+    ['address_line2', 'address_line2'],
+    ['contact_address', 'contact_address'],
+    ['contact_phone', 'contact_phone'],
+    ['contact_email', 'contact_email'],
+    ['dependents_count', 'dependents_count'],
+    ['has_spouse', 'has_spouse'],
+    ['spouse_is_dependent', 'spouse_is_dependent'],
+    ['job_change_count', 'job_change_count'],
+    ['current_status', 'current_status'],
+    ['desired_joining_date', 'desired_joining_date'],
+    ['transferable_skills', 'transferable_skills'],
+    ['self_pr', 'self_pr'],
+    ['summary', 'summary'],
+    ['profile_photo_url', 'profile_photo_url'],
+  ];
+
+  const setClauses: string[] = [];
+  const params: unknown[] = [resume_id];
+  let index = 2;
+
+  for (const [valueKey, columnName] of columns) {
+    const value = values[valueKey];
+    if (value === undefined) continue;
+
+    if (columnName === 'job_change_count' || columnName === 'dependents_count') {
+      params.push(toNullableSmallint(value));
+    } else {
+      params.push(value);
+    }
+
+    setClauses.push(`${columnName} = $${index}`);
+    index += 1;
+  }
+
+  const dob = buildDate(payload.dob_year ?? null, payload.dob_month ?? null, payload.dob_day ?? 1);
+  const hasDobPatch =
+    payload.dob_year !== undefined || payload.dob_month !== undefined || payload.dob_day !== undefined;
+  if (hasDobPatch) {
+    params.push(dob);
+    setClauses.push(`dob = $${index}`);
+    index += 1;
+  }
+
+  const result = await withTransaction(async (client) => {
+    let row: Record<string, unknown> | undefined;
+
+    if (setClauses.length > 0) {
+      const { rows } = await client.query<Record<string, unknown>>(
+        `update resume_drafts
+         set ${setClauses.join(', ')}, updated_at = now()
+         where resume_id = $1
+         returning *`,
+        params
+      );
+      row = rows[0];
+    } else {
+      const { rows } = await client.query<Record<string, unknown>>(
+        `select * from resume_drafts where resume_id = $1 limit 1`,
+        [resume_id]
+      );
+      row = rows[0];
+    }
+
+    if (!row || typeof row.id !== 'string') {
+      throw new Error('Resume not found for patch');
+    }
+
+    await replaceDesiredConditions(client, row.id, desiredPayload);
     return row;
   });
 
