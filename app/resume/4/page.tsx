@@ -49,7 +49,7 @@ export default function ResumeStep4() {
       router.push('/resume/1');
       return;
     }
-    fetch('/api/data/resume?id=' + resumeId)
+    fetch('/api/data/work?resumeId=' + resumeId)
       .then(res => res.json())
       .then(data => {
         if (data.works) setWorks(data.works);
@@ -102,15 +102,14 @@ export default function ResumeStep4() {
     router.push('/resume/5');
   };
 
-  if (loading) return <div>Loading...</div>;
-
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">職歴の入力</h2>
       
       {/* 登録済みリスト */}
       <div className="mb-8 space-y-4">
-        {works.length === 0 && <p className="text-gray-500">職歴はまだ登録されていません。</p>}
+        {loading && <p className="text-sm text-gray-400">職歴を読み込み中...</p>}
+        {!loading && works.length === 0 && <p className="text-gray-500">職歴はまだ登録されていません。</p>}
         
         {works.map((work) => (
           <div key={work.id} className="p-4 border rounded bg-gray-50 space-y-3">

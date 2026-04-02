@@ -584,6 +584,84 @@ export async function getResumeBundle(resumeId: string): Promise<ResumeBundle | 
   };
 }
 
+export type ResumeEducationRow = {
+  id: string;
+  school_name: string;
+  department: string | null;
+  degree: string | null;
+  start_year: number | null;
+  start_month: number | null;
+  end_year: number | null;
+  end_month: number | null;
+  is_current: boolean | null;
+};
+
+export async function getResumeEducations(resumeId: string): Promise<ResumeEducationRow[]> {
+  if (typeof resumeId !== 'string' || !resumeId.trim()) return [];
+
+  const resumeRow = await getResumeRowByIdentifier(resumeId.trim());
+  if (!resumeRow || typeof resumeRow.id !== 'string') return [];
+
+  const { rows } = await query<ResumeEducationRow>(
+    `select
+       id,
+       school_name,
+       department,
+       degree,
+       extract(year from start_date)::int as start_year,
+       extract(month from start_date)::int as start_month,
+       extract(year from end_date)::int as end_year,
+       extract(month from end_date)::int as end_month,
+       is_current
+     from resume_educations
+     where resume_id = $1
+     order by sort_order asc, start_date asc nulls last`,
+    [resumeRow.id]
+  );
+
+  return rows;
+}
+
+export type ResumeWorkRow = {
+  id: string;
+  company_name: string;
+  department: string | null;
+  position: string | null;
+  start_year: number | null;
+  start_month: number | null;
+  end_year: number | null;
+  end_month: number | null;
+  is_current: boolean | null;
+  description: string | null;
+};
+
+export async function getResumeWorks(resumeId: string): Promise<ResumeWorkRow[]> {
+  if (typeof resumeId !== 'string' || !resumeId.trim()) return [];
+
+  const resumeRow = await getResumeRowByIdentifier(resumeId.trim());
+  if (!resumeRow || typeof resumeRow.id !== 'string') return [];
+
+  const { rows } = await query<ResumeWorkRow>(
+    `select
+       id,
+       company_name,
+       department,
+       position,
+       extract(year from start_date)::int as start_year,
+       extract(month from start_date)::int as start_month,
+       extract(year from end_date)::int as end_year,
+       extract(month from end_date)::int as end_month,
+       is_current,
+       description
+     from resume_works
+     where resume_id = $1
+     order by sort_order asc, start_date asc nulls last`,
+    [resumeRow.id]
+  );
+
+  return rows;
+}
+
 export async function createEducation(data: {
   resume_id: string;
   school_name: string;
