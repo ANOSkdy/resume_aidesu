@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { pdf } from '@react-pdf/renderer';
 import { JobHistoryDocument } from '@/components/pdf/JobHistoryDocument';
-import { getDb } from '@/lib/db/airtable';
-import { mapAirtableResume } from '@/lib/db/resume';
+import { getResumeBundle } from '@/lib/db/resume';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,40 +15,20 @@ export async function GET(request: Request) {
   }
 
   try {
-    const db = getDb();
+    const bundle = await getResumeBundle(resumeId);
 
-    // 履歴書本体を1件取得
-    const resumes = await db.resumes
-      .select({
-        filterByFormula: `{resume_id} = '${resumeId}'`,
-        maxRecords: 1,
-      })
-      .firstPage();
-
-    if (resumes.length === 0) {
+    if (!bundle) {
       return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
     }
 
-    const resumeRecord = resumes[0];
-
-    // 職歴一覧を取得
-    const works = await db.works
-      .select({
-        filterByFormula: `{resume_id} = '${resumeId}'`,
-      })
-      .all();
-
     const data = {
-      resume: mapAirtableResume(resumeRecord),
-      works: works.map((record) => ({
-        id: record.id,
-        ...record.fields,
-      })),
-    } as any;
+      resume: bundle.resume,
+      works: bundle.works,
+    };
 
-    const buffer = (await pdf(<JobHistoryDocument data={data} />).toBuffer()) as any;
+    const buffer = await pdf(<JobHistoryDocument data={data} />).toBuffer();
 
-    return new NextResponse(buffer, {
+    return new NextResponse(buffer as unknown as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

@@ -3,7 +3,7 @@ import { updateResumeFields } from '@/lib/db/resume';
 
 export const runtime = 'nodejs';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
 
 function getExtension(mimeType: string) {
@@ -49,31 +49,19 @@ export async function POST(request: Request) {
     }
 
     if (!resumeId || typeof resumeId !== 'string') {
-      return NextResponse.json(
-        { ok: false, error: 'RESUME_ID_REQUIRED' },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: 'RESUME_ID_REQUIRED' }, { status: 400 });
     }
 
     if (!file || !(file instanceof File)) {
-      return NextResponse.json(
-        { ok: false, error: 'FILE_REQUIRED' },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: 'FILE_REQUIRED' }, { status: 400 });
     }
 
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      return NextResponse.json(
-        { ok: false, error: 'INVALID_FILE_TYPE' },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: 'INVALID_FILE_TYPE' }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { ok: false, error: 'FILE_TOO_LARGE' },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: 'FILE_TOO_LARGE' }, { status: 400 });
     }
 
     const extension = getExtension(file.type);
@@ -83,30 +71,15 @@ export async function POST(request: Request) {
 
     const blobUrl = await uploadToBlob(file, pathname);
 
-    const sanitizedFilename =
-      typeof file.name === 'string'
-        ? file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-        : `profile-photo.${extension || 'img'}`;
-
     await updateResumeFields(resumeId, {
-      profilePhoto: [
-        {
-          url: blobUrl,
-          filename: sanitizedFilename,
-        },
-      ],
+      profilePhotoUrl: blobUrl,
+      profilePhoto: blobUrl,
     });
 
     return NextResponse.json({ ok: true, profilePhotoUrl: blobUrl });
-  } catch (error) {
-    console.error('Profile photo upload error:', { resumeId: resumeIdValue, error });
-    const errorMessage =
-      error instanceof Error && error.message.toLowerCase().includes('airtable')
-        ? 'Airtable update failed'
-        : 'INTERNAL_ERROR';
-    return NextResponse.json(
-      { ok: false, error: errorMessage },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Profile photo upload error:', { resumeId: resumeIdValue, message });
+    return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
