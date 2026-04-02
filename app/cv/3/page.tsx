@@ -7,6 +7,100 @@ import { PDFTrigger } from '@/components/pdf/PDFTrigger';
 import { JobHistoryTrigger } from '@/components/pdf/JobHistoryTrigger';
 import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
+const PROFILE_PHOTO_MAX_LONG_EDGE = 1400;
+const PROFILE_PHOTO_TARGET_MAX_BYTES = 900 * 1024;
+const PROFILE_PHOTO_ABSOLUTE_MAX_BYTES = 4.5 * 1024 * 1024;
+
+function loadImageElement(file: File) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('IMAGE_DECODE_FAILED'));
+    };
+    image.src = objectUrl;
+  });
+}
+
+async function drawToCanvas(file: File) {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('CANVAS_CONTEXT_UNAVAILABLE');
+
+  let sourceWidth = 0;
+  let sourceHeight = 0;
+
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    sourceWidth = bitmap.width;
+    sourceHeight = bitmap.height;
+
+    const longEdge = Math.max(sourceWidth, sourceHeight);
+    const scale = longEdge > PROFILE_PHOTO_MAX_LONG_EDGE ? PROFILE_PHOTO_MAX_LONG_EDGE / longEdge : 1;
+    canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+    canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    return canvas;
+  } catch {
+    const image = await loadImageElement(file);
+    sourceWidth = image.naturalWidth || image.width;
+    sourceHeight = image.naturalHeight || image.height;
+    const longEdge = Math.max(sourceWidth, sourceHeight);
+    const scale = longEdge > PROFILE_PHOTO_MAX_LONG_EDGE ? PROFILE_PHOTO_MAX_LONG_EDGE / longEdge : 1;
+    canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+    canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas;
+  }
+}
+
+function canvasToJpegFile(canvas: HTMLCanvasElement, fileName: string, quality: number) {
+  return new Promise<File>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error('IMAGE_COMPRESS_FAILED'));
+          return;
+        }
+        const baseName = fileName.replace(/\.[^.]+$/, '') || 'profile-photo';
+        resolve(new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' }));
+      },
+      'image/jpeg',
+      quality,
+    );
+  });
+}
+
+async function compressProfilePhoto(file: File) {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('INVALID_IMAGE_TYPE');
+  }
+
+  const canvas = await drawToCanvas(file);
+  const qualitySteps = [0.88, 0.8, 0.72, 0.64, 0.56, 0.48, 0.4];
+
+  let best = await canvasToJpegFile(canvas, file.name, qualitySteps[0]);
+  for (const quality of qualitySteps) {
+    const compressed = await canvasToJpegFile(canvas, file.name, quality);
+    best = compressed;
+    if (compressed.size <= PROFILE_PHOTO_TARGET_MAX_BYTES) {
+      break;
+    }
+  }
+
+  if (best.size > PROFILE_PHOTO_ABSOLUTE_MAX_BYTES) {
+    throw new Error('IMAGE_STILL_TOO_LARGE');
+  }
+
+  return best;
+}
+
 export default function CVStep3() {
   const router = useRouter();
   const [summary, setSummary] = useState('');
@@ -45,8 +139,8 @@ export default function CVStep3() {
   const handleProfilePhotoUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const file = event.target.files?.[0];
-    if (!file) {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) {
       setUploadMessage({ type: 'error', text: '画像ファイルが選択されていません' });
       return;
     }
@@ -57,14 +151,15 @@ export default function CVStep3() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('resumeId', resumeId);
-
     setUploadingPhoto(true);
     setUploadMessage(null);
 
     try {
+      const uploadFile = await compressProfilePhoto(selectedFile);
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      formData.append('resumeId', resumeId);
+
       const res = await fetch('/api/data/resume/profile-photo', {
         method: 'POST',
         body: formData,
@@ -83,11 +178,29 @@ export default function CVStep3() {
         setUploadMessage({ type: 'success', text: 'プロフィール画像を更新しました' });
         router.refresh();
       } else {
+        if (json?.error === 'FILE_TOO_LARGE') {
+          throw new Error('IMAGE_STILL_TOO_LARGE');
+        }
         throw new Error(json.error || 'Upload failed');
       }
     } catch (error) {
       console.error('Profile photo upload failed:', error);
-      setUploadMessage({ type: 'error', text: 'プロフィール画像のアップロードに失敗しました' });
+      if (error instanceof Error && error.message === 'IMAGE_STILL_TOO_LARGE') {
+        setUploadMessage({
+          type: 'error',
+          text: '画像サイズが大きすぎます。別の写真を選ぶか、トリミングして再度お試しください。',
+        });
+      } else if (error instanceof Error && error.message === 'INVALID_IMAGE_TYPE') {
+        setUploadMessage({
+          type: 'error',
+          text: '画像ファイル（JPEG / PNG など）を選択してください。',
+        });
+      } else {
+        setUploadMessage({
+          type: 'error',
+          text: 'プロフィール画像のアップロードに失敗しました。しばらくしてから再度お試しください。',
+        });
+      }
     } finally {
       setUploadingPhoto(false);
       event.target.value = '';
