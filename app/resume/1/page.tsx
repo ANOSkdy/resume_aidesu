@@ -12,9 +12,9 @@ import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/stor
 
 const formSchema = ResumeSchema.omit({ user_id: true });
 
-type FormData = z.infer<typeof formSchema>;
+type FormInput = z.input<typeof formSchema>;
 
-const defaultValues: Partial<FormData> = {
+const defaultValues: Partial<FormInput> = {
   dob_year: 1990,
   dob_month: 1,
   dob_day: 1,
@@ -58,7 +58,7 @@ export default function ResumeStep1() {
     reset,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({
+  } = useForm<FormInput>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
@@ -128,7 +128,7 @@ export default function ResumeStep1() {
     }
   };
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const onSubmit: SubmitHandler<FormInput> = async (data) => {
     try {
       const payload = {
         ...data,

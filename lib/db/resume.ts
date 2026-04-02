@@ -24,6 +24,16 @@ const toNullableUuid = (value: unknown) => {
   return isUuid(value) ? value : null;
 };
 
+const toNullableSmallint = (value: unknown) => {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'number') return Number.isFinite(value) ? Math.trunc(value) : null;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? Math.trunc(parsed) : null;
+  }
+  return null;
+};
+
 const toPaddedMonth = (value: number) => String(value).padStart(2, '0');
 const toPaddedDay = (value: number) => String(value).padStart(2, '0');
 
@@ -268,10 +278,10 @@ export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
         values.contact_address ?? null,
         values.contact_phone ?? null,
         values.contact_email ?? null,
-        values.dependents_count ?? null,
+        toNullableSmallint(values.dependents_count),
         values.has_spouse ?? null,
         values.spouse_is_dependent ?? null,
-        values.job_change_count ?? null,
+        toNullableSmallint(values.job_change_count),
         values.current_status ?? null,
         values.desired_joining_date ?? null,
         values.transferable_skills ?? null,
