@@ -1,40 +1,54 @@
 import 'server-only';
 
 type QueryResult<T> = { rows: T[] };
-
-const getConnectionString = () => {
-  const connectionString =
+const resolveDatabaseUrl = () => {
+  const raw =
     process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || process.env.NEON_DATABASE_URL;
 
+  if (!raw) {
+    throw new Error('Database connection is not configured');
+  }
+
+  const connectionString = raw.trim();
   if (!connectionString) {
-    throw new Error('DATABASE_URL_UNPOOLED or DATABASE_URL or NEON_DATABASE_URL is required');
+    throw new Error('Database connection is empty');
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(connectionString);
+  } catch {
+    throw new Error('Database connection is malformed');
+  }
+
+  if (parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:') {
+    throw new Error('Database connection must use postgres:// or postgresql://');
+  }
+
+  if (!parsed.hostname) {
+    throw new Error('Database connection hostname is missing');
   }
 
   return connectionString;
 };
 
-const getEndpoint = () => {
-  const explicit = process.env.NEON_SQL_HTTP_URL;
+const getSqlEndpoint = () => {
+  const explicit = process.env.NEON_SQL_HTTP_URL?.trim();
   if (explicit) return explicit;
 
-  const url = new URL(getConnectionString());
+  const url = new URL(resolveDatabaseUrl());
   return `https://${url.host}/sql`;
 };
 
-const getBasicAuth = () => {
-  const url = new URL(getConnectionString());
-  const username = decodeURIComponent(url.username);
-  const password = decodeURIComponent(url.password);
-  return `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
-};
+const buildNeonHeaders = () => ({
+  'Content-Type': 'application/json',
+  'Neon-Connection-String': resolveDatabaseUrl(),
+});
 
 export async function query<T>(text: string, params: unknown[] = []): Promise<QueryResult<T>> {
-  const response = await fetch(getEndpoint(), {
+  const response = await fetch(getSqlEndpoint(), {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: getBasicAuth(),
-    },
+    headers: buildNeonHeaders(),
     body: JSON.stringify({ query: text, params }),
     cache: 'no-store',
   });
@@ -46,10 +60,7 @@ export async function query<T>(text: string, params: unknown[] = []): Promise<Qu
 
   const payload = (await response.json()) as { rows?: T[]; results?: Array<{ rows?: T[] }> };
 
-  if (Array.isArray(payload.rows)) {
-    return { rows: payload.rows };
-  }
-
+  if (Array.isArray(payload.rows)) return { rows: payload.rows };
   if (Array.isArray(payload.results) && payload.results[0]?.rows) {
     return { rows: payload.results[0].rows ?? [] };
   }
