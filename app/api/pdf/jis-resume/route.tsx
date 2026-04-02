@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { pdf } from '@react-pdf/renderer';
 import { JisResumePdfDocument } from '@/components/pdf/JisResumePdfDocument';
-import { getDb } from '@/lib/db/airtable';
-import { mapAirtableResume } from '@/lib/db/resume';
+import { getResumeBundle } from '@/lib/db/resume';
+
+export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,37 +15,27 @@ export async function GET(request: Request) {
   }
 
   try {
-    const db = getDb();
-    const resumes = await db.resumes
-      .select({
-        filterByFormula: "{resume_id} = '" + resumeId + "'",
-        maxRecords: 1,
-      })
-      .firstPage();
+    const bundle = await getResumeBundle(resumeId);
 
-    if (resumes.length === 0) {
+    if (!bundle) {
       return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
     }
 
-    const resumeRecord = resumes[0];
-    const educations = await db.educations.select({ filterByFormula: "{resume_id} = '" + resumeId + "'" }).all();
-    const works = await db.works.select({ filterByFormula: "{resume_id} = '" + resumeId + "'" }).all();
-
     const data = {
-      resume: mapAirtableResume(resumeRecord),
-      educations: educations.map((r) => ({ id: r.id, ...r.fields })),
-      works: works.map((r) => ({ id: r.id, ...r.fields })),
-    } as any;
+      resume: bundle.resume,
+      educations: bundle.educations,
+      works: bundle.works,
+    };
 
-    const buffer = (await pdf(
+    const buffer = await pdf(
       <JisResumePdfDocument
         data={data}
-        profilePhotoUrl={data.resume?.profilePhotoUrl ?? null}
+        profilePhotoUrl={bundle.resume?.profilePhotoUrl ?? null}
         showProfilePhoto={showProfilePhoto}
       />
-    ).toBuffer()) as any;
+    ).toBuffer();
 
-    return new NextResponse(buffer, {
+    return new NextResponse(buffer as unknown as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
