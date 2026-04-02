@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
-import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 import { ensureResumeId, hasPendingResumeSave, retryPendingResumeSave, saveResumeInBackground } from '@/lib/storage/resume-save';
 
 type FormData = {
@@ -23,19 +22,17 @@ export default function ResumeStep2() {
     }
   });
 
-  const [hasUnsyncedChanges, setHasUnsyncedChanges] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
-    return !!resumeId && hasPendingResumeSave(resumeId);
-  });
+  const [isRetryingSave, setIsRetryingSave] = useState(false);
 
   useEffect(() => {
     const resumeId = ensureResumeId();
     if (!resumeId) return;
-
-    void retryPendingResumeSave(resumeId).then((synced) => {
-      if (synced) setHasUnsyncedChanges(false);
-    });
+    if (hasPendingResumeSave(resumeId)) {
+      queueMicrotask(() => setIsRetryingSave(true));
+      void retryPendingResumeSave(resumeId).finally(() => {
+        setIsRetryingSave(false);
+      });
+    }
   }, []);
 
   const onSubmit = (data: FormData) => {
@@ -51,7 +48,6 @@ export default function ResumeStep2() {
       ...data,
     };
 
-    setHasUnsyncedChanges(true);
     saveResumeInBackground('PATCH', payload);
     router.push('/resume/3');
   };
@@ -93,8 +89,11 @@ export default function ResumeStep2() {
           </select>
         </div>
 
-        {hasUnsyncedChanges && (
-          <p className="text-sm text-amber-700">保存中です。失敗時は次回自動で再試行します。</p>
+        {isRetryingSave && (
+          <p className="text-sm text-gray-600 inline-flex items-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+            保存中です
+          </p>
         )}
 
         <div className="flex justify-between pt-4">

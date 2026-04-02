@@ -66,19 +66,18 @@ export default function ResumeStep1() {
 
   const hasSpouse = watch('has_spouse');
   const [useSeparateContact, setUseSeparateContact] = useState(false);
-  const [hasUnsyncedChanges, setHasUnsyncedChanges] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
-    return !!resumeId && hasPendingResumeSave(resumeId);
-  });
+  const [isRetryingSave, setIsRetryingSave] = useState(false);
 
   useEffect(() => {
     const resumeId = ensureResumeId();
 
     if (!resumeId) return;
-    void retryPendingResumeSave(resumeId).then((synced) => {
-      if (synced) setHasUnsyncedChanges(false);
-    });
+    if (hasPendingResumeSave(resumeId)) {
+      setIsRetryingSave(true);
+      void retryPendingResumeSave(resumeId).finally(() => {
+        setIsRetryingSave(false);
+      });
+    }
 
     const loadResume = async () => {
       try {
@@ -147,7 +146,6 @@ export default function ResumeStep1() {
       title: `${data.last_name_kanji}さんの履歴書`,
     };
 
-    setHasUnsyncedChanges(true);
     saveResumeInBackground('POST', payload);
     router.push('/resume/2');
   };
@@ -362,8 +360,11 @@ export default function ResumeStep1() {
           </div>
         </div>
 
-        {hasUnsyncedChanges && (
-          <p className="text-sm text-amber-700">未保存の変更があります。次の操作時に再試行します。</p>
+        {isRetryingSave && (
+          <p className="text-sm text-gray-600 inline-flex items-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+            保存中です
+          </p>
         )}
 
         <div className="pt-4">
