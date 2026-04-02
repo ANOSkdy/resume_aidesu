@@ -1,3 +1,4 @@
+import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { updateResumeFields } from '@/lib/db/resume';
 
@@ -12,33 +13,13 @@ function getExtension(mimeType: string) {
   return '';
 }
 
-const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
-
-async function uploadToBlob(file: File, pathname: string) {
-  if (!blobToken) {
-    throw new Error('Blob token is missing');
-  }
-
-  const response = await fetch(`https://blob.vercel-storage.com/${pathname}`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${blobToken}`,
-      'Content-Type': file.type,
-    },
-    body: file,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Blob upload failed (${response.status}): ${errorText}`);
-  }
-
-  const result = (await response.json()) as { url: string };
-  return result.url;
+function toSafePathSegment(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 80) || 'resume';
 }
 
 export async function POST(request: Request) {
   let resumeIdValue: string | null = null;
+
   try {
     const formData = await request.formData();
     const file = formData.get('file');
@@ -49,37 +30,74 @@ export async function POST(request: Request) {
     }
 
     if (!resumeId || typeof resumeId !== 'string') {
+      console.warn('Profile photo validation failed: missing resumeId');
       return NextResponse.json({ ok: false, error: 'RESUME_ID_REQUIRED' }, { status: 400 });
     }
 
     if (!file || !(file instanceof File)) {
+      console.warn('Profile photo validation failed: missing file', { resumeId });
       return NextResponse.json({ ok: false, error: 'FILE_REQUIRED' }, { status: 400 });
     }
 
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      console.warn('Profile photo validation failed: invalid mime type', {
+        resumeId,
+        mimeType: file.type,
+      });
       return NextResponse.json({ ok: false, error: 'INVALID_FILE_TYPE' }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {
+      console.warn('Profile photo validation failed: file too large', {
+        resumeId,
+        fileSize: file.size,
+        maxFileSize: MAX_FILE_SIZE,
+      });
       return NextResponse.json({ ok: false, error: 'FILE_TOO_LARGE' }, { status: 400 });
     }
 
-    const extension = getExtension(file.type);
-    const pathname = `resume-profile-photos/${encodeURIComponent(resumeId)}-${Date.now()}.${
-      extension || 'img'
-    }`;
+    const extension = getExtension(file.type) || 'img';
+    const safeResumeId = toSafePathSegment(resumeId);
+    const pathname = `resume-profile-photos/${safeResumeId}-${Date.now()}.${extension}`;
 
-    const blobUrl = await uploadToBlob(file, pathname);
+    let blobUrl: string;
+    try {
+      const blob = await put(pathname, file, {
+        access: 'public',
+        contentType: file.type,
+        addRandomSuffix: false,
+      });
+      blobUrl = blob.url;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Profile photo blob upload failed', {
+        resumeId,
+        pathname,
+        mimeType: file.type,
+        fileSize: file.size,
+        message,
+      });
+      return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
+    }
 
-    await updateResumeFields(resumeId, {
-      profilePhotoUrl: blobUrl,
-      profilePhoto: blobUrl,
-    });
+    try {
+      await updateResumeFields(resumeId, {
+        profilePhotoUrl: blobUrl,
+        profilePhoto: blobUrl,
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Profile photo DB update failed', { resumeId, blobUrl, message });
+      return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
+    }
 
     return NextResponse.json({ ok: true, profilePhotoUrl: blobUrl });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error('Profile photo upload error:', { resumeId: resumeIdValue, message });
+    console.error('Profile photo upload route failed unexpectedly', {
+      resumeId: resumeIdValue,
+      message,
+    });
     return NextResponse.json({ ok: false, error: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
