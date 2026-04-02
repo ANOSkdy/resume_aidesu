@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
+import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
 // 学歴データの型
 type Education = {
@@ -29,7 +30,7 @@ export default function ResumeStep3() {
 
   // 初期データ読み込み
   useEffect(() => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if (!resumeId) {
       router.push('/resume/1');
       return;
@@ -48,7 +49,7 @@ export default function ResumeStep3() {
 
   // 学歴追加処理
   const onAdd = async (data: Education) => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if(!resumeId) return;
 
     try {

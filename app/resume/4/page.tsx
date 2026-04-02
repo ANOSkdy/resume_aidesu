@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
+import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
 type Work = {
   id?: string;
@@ -43,7 +44,7 @@ export default function ResumeStep4() {
   }, [isCurrent, setValue]);
 
   useEffect(() => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if (!resumeId) {
       router.push('/resume/1');
       return;
@@ -57,7 +58,7 @@ export default function ResumeStep4() {
   }, [router]);
 
   const onAdd = async (data: Work) => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if(!resumeId) return;
 
     try {

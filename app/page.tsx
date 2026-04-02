@@ -18,7 +18,7 @@ export default function Home() {
     <AppShell title="ホーム">
       <section className="space-y-6">
         <div className="space-y-3">
-          <h1 className="text-3xl font-extrabold leading-tight text-blue-700">Carrime</h1>
+          <h1 className="text-3xl font-extrabold leading-tight text-blue-700">Aidesu</h1>
           <p className="text-sm text-gray-700">
             AIでつくる、あなたのキャリア。
             いつでもどこでもモバイル端末から履歴書・職務経歴書を作成できます。
@@ -38,7 +38,7 @@ export default function Home() {
               </div>
               <div className="max-h-72 space-y-2 overflow-y-auto pr-2 leading-relaxed">
                 <p>
-                  株式会社ROBINSON（以下「当社」といいます。）は、当社が提供するAI履歴書・職務経歴書作成サービス「Carrime」（以下「本機能」といいます。）の利用にあたり、以下の事項を定めます。利用者は、本機能を利用した時点で、本規約および以下の注意事項・個人情報の取り扱いに同意したものとみなされます。
+                  株式会社ROBINSON（以下「当社」といいます。）は、当社が提供するAI履歴書・職務経歴書作成サービス「Aidesu」（以下「本機能」といいます。）の利用にあたり、以下の事項を定めます。利用者は、本機能を利用した時点で、本規約および以下の注意事項・個人情報の取り扱いに同意したものとみなされます。
                 </p>
                 <div className="space-y-1">
                   <p className="font-semibold text-gray-900">【第1章　注意事項】</p>
@@ -132,7 +132,7 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400">© Carrime Development Team</p>
+        <p className="text-center text-xs text-gray-400">© Aidesu Development Team</p>
       </section>
     </AppShell>
   );

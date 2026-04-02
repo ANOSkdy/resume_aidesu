@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { PDFTrigger } from '@/components/pdf/PDFTrigger';
 import { JobHistoryTrigger } from '@/components/pdf/JobHistoryTrigger';
+import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
 export default function CVStep3() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function CVStep3() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if (!resumeId) return;
 
     fetch('/api/data/resume?id=' + resumeId)
@@ -50,7 +51,7 @@ export default function CVStep3() {
       return;
     }
 
-    const resumeId = fullData?.resume?.id || localStorage.getItem('carrimy_resume_id');
+    const resumeId = fullData?.resume?.id || getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if (!resumeId) {
       setUploadMessage({ type: 'error', text: '履歴書IDが見つかりませんでした' });
       return;
@@ -179,8 +180,8 @@ export default function CVStep3() {
   const onSaveSummary = async () => {
     if (!fullData) return;
     try {
-      const resumeId = localStorage.getItem('carrimy_resume_id');
-      const userId = localStorage.getItem('carrimy_uid') || 'guest';
+      const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
+      const userId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy) || 'guest';
 
       const payload = {
         ...fullData.resume,
