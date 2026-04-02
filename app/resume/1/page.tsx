@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ResumeSchema } from '@/lib/validation/schemas';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/form/Input';
+import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
 const formSchema = ResumeSchema.omit({ user_id: true });
 
@@ -40,10 +41,10 @@ export default function ResumeStep1() {
 
   const getUserId = () => {
     if (typeof window !== 'undefined') {
-      let uid = localStorage.getItem('carrimy_uid');
+      let uid = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy);
       if (!uid) {
         uid = 'usr_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('carrimy_uid', uid);
+        localStorage.setItem('aidesu_uid', uid);
       }
       return uid;
     }
@@ -66,7 +67,7 @@ export default function ResumeStep1() {
   const [useSeparateContact, setUseSeparateContact] = useState(false);
 
   useEffect(() => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if (!resumeId) return;
 
     const loadResume = async () => {
@@ -149,7 +150,7 @@ export default function ResumeStep1() {
       const json = await res.json();
       console.log('Saved:', json);
 
-      localStorage.setItem('carrimy_resume_id', json.record.resume_id);
+      localStorage.setItem('aidesu_resume_id', json.record.resume_id);
       router.push('/resume/2');
     } catch (error: any) {
       alert(error.message);

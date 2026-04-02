@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
+import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
 export default function CVStep2() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function CVStep2() {
 
   useEffect(() => {
     // localStorageから最新の入力を取得
-    const saved = localStorage.getItem('carrimy_ai_inputs');
+    const saved = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.aiInputs.current, BRAND_STORAGE_KEYS.aiInputs.legacy);
     if (saved) {
       console.log("Loaded inputs from Storage:", saved); // デバッグ用
       setInputs(JSON.parse(saved));
@@ -22,7 +23,7 @@ export default function CVStep2() {
     }
 
     // 既存の自己PRがあればロード
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if (resumeId) {
       fetch('/api/data/resume?id=' + resumeId)
         .then(res => res.json())
@@ -78,8 +79,8 @@ export default function CVStep2() {
   };
 
   const onSave = async () => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
-    const userId = localStorage.getItem('carrimy_uid') || 'guest';
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
+    const userId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy) || 'guest';
     if (!resumeId) return;
 
     try {

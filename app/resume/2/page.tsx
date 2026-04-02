@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
+import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
 type FormData = {
   job_change_count: number;
@@ -24,7 +25,7 @@ export default function ResumeStep2() {
   // TODO: 既存データがあればロードする処理を入れると親切
 
   const onSubmit = async (data: FormData) => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if (!resumeId) {
       alert('履歴書IDが見つかりません。Step 1からやり直してください。');
       router.push('/resume/1');
@@ -37,7 +38,7 @@ export default function ResumeStep2() {
       // 既存データを取得してマージするか、必須チェックを緩める対応が必要です。
       // 今回は「必須フィールド(user_id等)を含めた更新」として送信します。
       
-      const userId = localStorage.getItem('carrimy_uid') || 'guest';
+      const userId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy) || 'guest';
 
       // Step 1の必須項目がバリデーションで弾かれないよう、API側が部分更新に対応しているか、
       // もしくはここで全データを送る必要があります。

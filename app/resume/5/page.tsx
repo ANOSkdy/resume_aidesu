@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
 import { TagSelector } from '@/components/ui/TagSelector';
+import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
 type FormData = {
   desired_occupations: string[];
@@ -25,7 +26,7 @@ export default function ResumeStep5() {
   });
 
   const onSubmit = async (data: FormData) => {
-    const resumeId = localStorage.getItem('carrimy_resume_id');
+    const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
     if (!resumeId) return;
 
     try {
@@ -56,7 +57,7 @@ export default function ResumeStep5() {
       
       // ★今回は「保存して次へ」の動作を優先し、POSTします。
       // user_id が必須なので、localStorage から取得
-      const userId = localStorage.getItem('carrimy_uid') || 'guest';
+      const userId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy) || 'guest';
       
       const finalPayload = {
         ...current.resume,

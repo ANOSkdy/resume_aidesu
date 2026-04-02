@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Carrime | モバイル履歴書ウィザード",
+  title: "Aidesu | モバイル履歴書ウィザード",
   description: "AIでつくるモバイル最適化された履歴書/職務経歴書ウィザード",
 };
 

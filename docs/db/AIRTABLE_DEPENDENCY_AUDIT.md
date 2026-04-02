@@ -44,7 +44,7 @@
 
 - `app/resume/*`, `app/cv/*`
   - `/api/data/resume` GET 結果を再 POST する前に `id`, `createdTime`, `fields` を削除。
-  - `localStorage.carrimy_resume_id` を永続IDとして各ステップで利用。
+  - `localStorage.aidesu_resume_id` を永続IDとして各ステップで利用。
 - `app/cv/3/page.tsx`
   - 写真アップロード API へ `resumeId` を送信し、結果の `profilePhotoUrl` を画面状態へ反映。
 - `components/ui/TagSelector.tsx`

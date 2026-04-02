@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
+import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
 // 新しい4つの質問に対応するデータ型
 type AiInputData = {
@@ -22,7 +23,7 @@ export default function CVStep1() {
 
   useEffect(() => {
     // 以前の入力があればロード
-    const saved = localStorage.getItem('carrimy_ai_inputs');
+    const saved = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.aiInputs.current, BRAND_STORAGE_KEYS.aiInputs.legacy);
     if (saved) {
       const parsed = JSON.parse(saved);
       // 旧データ形式との互換性チェック（念のため）
@@ -36,7 +37,7 @@ export default function CVStep1() {
   }, [setValue]);
 
   const onSubmit = (data: AiInputData) => {
-    localStorage.setItem('carrimy_ai_inputs', JSON.stringify(data));
+    localStorage.setItem('aidesu_ai_inputs', JSON.stringify(data));
     router.push('/cv/2');
   };
 
