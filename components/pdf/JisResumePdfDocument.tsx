@@ -189,7 +189,7 @@ type JisResumePdfDocumentProps = {
 const toStringSafe = (v: unknown): string =>
   typeof v === 'string' ? v : v == null ? '' : String(v);
 
-// 文字列 / 数値 / Airtable配列を安全に 1 つの文字列へ
+// 文字列 / 数値 / 配列値を安全に 1 つの文字列へ
 const normalizeOptionalString = (value: unknown): string | undefined => {
   if (value == null) return undefined;
 
