@@ -1,5 +1,7 @@
+import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
 import { createEducation, deleteEducation, getResumeEducations } from '@/lib/db/resume';
+import { resolveDatabaseConfigMeta } from '@/lib/db/postgres';
 import { EducationSchema } from '@/lib/validation/schemas';
 
 export const runtime = 'nodejs';
@@ -13,9 +15,29 @@ export async function GET(request: Request) {
     const educations = await getResumeEducations(resumeId);
     return NextResponse.json({ educations });
   } catch (error: unknown) {
+    const correlationId = randomUUID();
     const message = error instanceof Error ? error.message : 'Unexpected error';
-    console.error('Education fetch error', { message });
-    return NextResponse.json({ error: 'データ取得に失敗しました。時間をおいて再度お試しください。' }, { status: 500 });
+    const dbMeta = resolveDatabaseConfigMeta();
+
+    console.error('Education fetch error', {
+      correlationId,
+      message,
+      dbEnv: {
+        selectedKey: dbMeta.selectedKey,
+        selectedState: dbMeta.selectedState,
+        envStateByKey: dbMeta.envStateByKey,
+        sqlHttpUrlState: dbMeta.sqlHttpUrlState,
+        protocol: dbMeta.protocol,
+        hasHostname: dbMeta.hasHostname,
+        vercelEnv: dbMeta.vercelEnv,
+        nodeEnv: dbMeta.nodeEnv,
+      },
+    });
+
+    return NextResponse.json(
+      { error: 'データ取得に失敗しました。時間をおいて再度お試しください。', correlationId },
+      { status: 500 }
+    );
   }
 }
 
