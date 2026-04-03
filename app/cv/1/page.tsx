@@ -37,7 +37,7 @@ export default function CVStep1() {
   }, [setValue]);
 
   const onSubmit = (data: AiInputData) => {
-    localStorage.setItem('aidesu_ai_inputs', JSON.stringify(data));
+    localStorage.setItem(BRAND_STORAGE_KEYS.aiInputs.current, JSON.stringify(data));
     router.push('/cv/2');
   };
 

@@ -18,7 +18,7 @@ export const AppShell = ({ title, footer, children }: AppShellProps) => {
             href="/"
             className="text-lg font-semibold tracking-tight text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
           >
-            Aidesu
+            Carrime
           </Link>
           {title ? (
             <p className="ml-4 flex-1 truncate text-right text-sm font-medium text-gray-700">
