@@ -113,11 +113,12 @@ const mapDbResume = (row: Record<string, unknown>): Resume => {
   };
 };
 
-export function mapAirtableResume(record: Record<string, unknown>): Resume {
+export function mapStoredResume(record: Record<string, unknown>): Resume {
   return mapDbResume(record);
 }
 
-export function mapResumeToAirtableFields(fields: ResumeUpdateFields): Record<string, unknown> {
+
+export function mapResumeToDbFields(fields: ResumeUpdateFields): Record<string, unknown> {
   const mapped: Record<string, unknown> = {};
 
   Object.entries(fields).forEach(([key, value]) => {
@@ -136,6 +137,7 @@ export function mapResumeToAirtableFields(fields: ResumeUpdateFields): Record<st
 
   return mapped;
 }
+
 
 const replaceDesiredConditions = async (
   client: { query: typeof query },
@@ -202,7 +204,7 @@ const loadDesiredConditions = async (resumePk: string) => {
 };
 
 export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
-  const values = mapResumeToAirtableFields(payload);
+  const values = mapResumeToDbFields(payload);
   const resumeId =
     typeof payload.resume_id === 'string' && payload.resume_id.trim()
       ? payload.resume_id.trim()
@@ -312,7 +314,7 @@ export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
 
 export async function patchResumeDraft(payload: ResumePatchPayload): Promise<Resume> {
   const { resume_id, step5_complete, ...rest } = payload;
-  const values = mapResumeToAirtableFields(rest);
+  const values = mapResumeToDbFields(rest);
 
   const desiredPayload = {
     desired_occupations: payload.desired_occupations,
@@ -414,7 +416,7 @@ export async function patchResumeDraft(payload: ResumePatchPayload): Promise<Res
 }
 
 export async function updateResumeFields(resumeIdentifier: string, fields: ResumeUpdateFields): Promise<Resume> {
-  const values = mapResumeToAirtableFields(fields);
+  const values = mapResumeToDbFields(fields);
   const profileUrl =
     typeof values.profile_photo_url === 'string'
       ? values.profile_photo_url

@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
     if (!career_text || career_text.trim().length < 5) {
       console.warn("Warning: Career text is too short or empty.");
-      return NextResponse.json({ result: "【エラー】職歴データが正しく読み取れませんでした。Airtableの列名設定または入力データを確認してください。" });
+      return NextResponse.json({ result: "【エラー】職歴データが正しく読み取れませんでした。入力データの形式または職歴内容を確認してください。" });
     }
 
     const prompt = `
