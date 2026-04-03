@@ -122,7 +122,6 @@ export default function CVStep3() {
     fetch('/api/data/resume?id=' + resumeId)
       .then(res => res.json())
       .then(data => {
-        console.log("Full Data loaded:", data); // ブラウザコンソールで確認用
         setFullData(data);
         if (data.resume && data.resume.summary) {
           setSummary(data.resume.summary);
@@ -230,8 +229,6 @@ export default function CVStep3() {
     try {
       const careerText = buildCareerText();
 
-      console.log("Sending Career Text to AI:", careerText); // 送信内容を確認
-
       if (careerText.replace(/\s/g, '').length < 10) {
         alert("職歴データのテキスト化に失敗しました。データの中身が空のようです。");
         setLoadingAI(false);
@@ -291,29 +288,26 @@ export default function CVStep3() {
   };
 
   const onSaveSummary = async () => {
-    if (!fullData) return;
     try {
       const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
-      const userId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy) || 'guest';
+      if (!resumeId) return;
 
       const payload = {
-        ...fullData.resume,
-        resume_id: resumeId || fullData.resume?.resume_id,
-        user_id: userId,
-        summary: summary,
+        resume_id: resumeId,
+        summary,
         transferable_skills: transferableSkills,
       };
-      
-      delete payload.createdTime;
-      delete payload.fields;
 
-      await fetch('/api/data/resume', {
-        method: 'POST',
+      const res = await fetch('/api/data/resume', {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      if (!res.ok) throw new Error('保存失敗');
 
-      setFullData({ ...fullData, resume: { ...fullData.resume, summary, transferable_skills: transferableSkills } });
+      setFullData((prev: any) =>
+        prev ? { ...prev, resume: { ...prev.resume, summary, transferable_skills: transferableSkills } } : prev
+      );
       alert('保存しました！下のボタンからPDFをダウンロードできます。');
 
     } catch (error) {

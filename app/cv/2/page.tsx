@@ -15,7 +15,6 @@ export default function CVStep2() {
     // localStorageから最新の入力を取得
     const saved = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.aiInputs.current, BRAND_STORAGE_KEYS.aiInputs.legacy);
     if (saved) {
-      console.log("Loaded inputs from Storage:", saved); // デバッグ用
       setInputs(JSON.parse(saved));
     } else {
       alert("入力データが見つかりません。Step 1に戻ります。");
@@ -55,8 +54,6 @@ export default function CVStep2() {
         keywords: inputs.policy ? `大切にしている価値観: ${inputs.policy}` : ''
       };
 
-      console.log("Sending to AI:", payload); // デバッグ用
-
       const res = await fetch('/api/ai/selfpr', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,25 +77,16 @@ export default function CVStep2() {
 
   const onSave = async () => {
     const resumeId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.resumeId.current, BRAND_STORAGE_KEYS.resumeId.legacy);
-    const userId = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy) || 'guest';
     if (!resumeId) return;
 
     try {
-      // 最新状態を取得してマージ保存 (ID維持)
-      const getRes = await fetch('/api/data/resume?id=' + resumeId);
-      const current = await getRes.json();
-      
       const payload = {
-        ...current.resume,
-        user_id: userId,
+        resume_id: resumeId,
         self_pr: generatedPR
       };
 
-      delete payload.createdTime;
-      delete payload.fields;
-
       const res = await fetch('/api/data/resume', {
-        method: 'POST',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
