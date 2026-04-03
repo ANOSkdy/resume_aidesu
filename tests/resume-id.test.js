@@ -24,9 +24,16 @@ test('isValidResumeId accepts res_ ids with digits', () => {
   assert.equal(isValidResumeId('res_1234567890'), true);
 });
 
+test('isValidResumeId accepts res_ ids with uuid', () => {
+  assert.equal(isValidResumeId('res_f918fd50-a52b-4271-ac89-74814c091202'), true);
+  assert.equal(isValidResumeId('res_DB507DC9-F915-4EDA-9040-3BA593288B96'), true);
+});
+
 test('isValidResumeId rejects invalid ids', () => {
   assert.equal(isValidResumeId('rec_1234567890'), false);
   assert.equal(isValidResumeId('res-1234567890'), false);
+  assert.equal(isValidResumeId('res_f918fd50-a52b-6271-ac89-74814c091202'), false);
+  assert.equal(isValidResumeId('res_f918fd50-a52b-4271-6c89-74814c091202'), false);
   assert.equal(isValidResumeId(''), false);
 });
 
