@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
+import { createStep5NotificationRecord } from '@/lib/airtable/notification';
 import { query, withTransaction } from '@/lib/db/postgres';
 import { ResumePatchSchema, ResumeSchema } from '@/lib/validation/schemas';
 
@@ -14,6 +15,8 @@ export type Resume = BaseResume & {
   created_at?: string;
   updated_at?: string;
   step5_completed_at?: string | null;
+  admin_notified_at?: string | null;
+  admin_notification_error?: string | null;
   step5_completed?: boolean;
 };
 
@@ -109,6 +112,9 @@ const mapDbResume = (row: Record<string, unknown>): Resume => {
     created_at: typeof row.created_at === 'string' ? row.created_at : undefined,
     updated_at: typeof row.updated_at === 'string' ? row.updated_at : undefined,
     step5_completed_at: typeof row.step5_completed_at === 'string' ? row.step5_completed_at : null,
+    admin_notified_at: typeof row.admin_notified_at === 'string' ? row.admin_notified_at : null,
+    admin_notification_error:
+      typeof row.admin_notification_error === 'string' ? row.admin_notification_error : null,
     step5_completed: row.step5_completed_at != null,
   };
 };
@@ -315,6 +321,7 @@ export async function saveResumeDraft(payload: z.infer<typeof ResumeSchema>) {
 export async function patchResumeDraft(payload: ResumePatchPayload): Promise<Resume> {
   const { resume_id, step5_complete, ...rest } = payload;
   const values = mapResumeToDbFields(rest);
+  let shouldCreateStep5Notification = false;
 
   const desiredPayload = {
     desired_occupations: payload.desired_occupations,
@@ -384,6 +391,21 @@ export async function patchResumeDraft(payload: ResumePatchPayload): Promise<Res
   }
 
   const result = await withTransaction(async (client) => {
+    const { rows: existingRows } = await client.query<Record<string, unknown>>(
+      `select id, step5_completed_at from resume_drafts where resume_id = $1 limit 1 for update`,
+      [resume_id]
+    );
+
+    const existingRow = existingRows[0];
+    if (!existingRow || typeof existingRow.id !== 'string') {
+      throw new Error('Resume not found for patch');
+    }
+
+    const isFirstStep5Completion = Boolean(step5_complete) && existingRow.step5_completed_at == null;
+    if (isFirstStep5Completion) {
+      shouldCreateStep5Notification = true;
+    }
+
     let row: Record<string, unknown> | undefined;
 
     if (setClauses.length > 0) {
@@ -410,6 +432,35 @@ export async function patchResumeDraft(payload: ResumePatchPayload): Promise<Res
     await replaceDesiredConditions(client, row.id, desiredPayload);
     return row;
   });
+
+  if (shouldCreateStep5Notification) {
+    const correlationId = randomUUID();
+
+    try {
+      await createStep5NotificationRecord(resume_id);
+      await query(
+        `update resume_drafts
+         set admin_notified_at = coalesce(admin_notified_at, now()),
+             admin_notification_error = null,
+             updated_at = now()
+         where resume_id = $1`,
+        [resume_id]
+      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown Airtable notification error';
+      const safeError = message.slice(0, 500);
+
+      console.error('Step5 Airtable notification error', { correlationId, resumeId: resume_id, message: safeError });
+
+      await query(
+        `update resume_drafts
+         set admin_notification_error = $2,
+             updated_at = now()
+         where resume_id = $1`,
+        [resume_id, safeError]
+      );
+    }
+  }
 
   const desired = await loadDesiredConditions(String(result.id));
   return mapDbResume({ ...result, ...desired });
