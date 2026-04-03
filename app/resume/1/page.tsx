@@ -45,7 +45,7 @@ export default function ResumeStep1() {
       let uid = getStorageItemWithLegacyFallback(BRAND_STORAGE_KEYS.uid.current, BRAND_STORAGE_KEYS.uid.legacy);
       if (!uid) {
         uid = 'usr_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('aidesu_uid', uid);
+        localStorage.setItem(BRAND_STORAGE_KEYS.uid.current, uid);
       }
       return uid;
     }

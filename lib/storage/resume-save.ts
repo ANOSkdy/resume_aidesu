@@ -7,13 +7,29 @@ type PendingSave = {
   updatedAt: number;
 };
 
-const PENDING_SAVE_KEY = 'aidesu_resume_pending_save';
+const PENDING_SAVE_KEY = 'carrime_resume_pending_save';
+const LEGACY_PENDING_SAVE_KEYS = ['aidesu_resume_pending_save'] as const;
 
 function readPendingSave(): PendingSave | null {
   if (typeof window === 'undefined') return null;
 
   const raw = localStorage.getItem(PENDING_SAVE_KEY);
-  if (!raw) return null;
+  if (!raw) {
+    for (const legacyKey of LEGACY_PENDING_SAVE_KEYS) {
+      const legacyRaw = localStorage.getItem(legacyKey);
+      if (legacyRaw) {
+        localStorage.setItem(PENDING_SAVE_KEY, legacyRaw);
+        localStorage.removeItem(legacyKey);
+        try {
+          return JSON.parse(legacyRaw) as PendingSave;
+        } catch {
+          localStorage.removeItem(PENDING_SAVE_KEY);
+          return null;
+        }
+      }
+    }
+    return null;
+  }
 
   try {
     return JSON.parse(raw) as PendingSave;
@@ -33,12 +49,18 @@ function clearPendingSave(resumeId?: string) {
 
   if (!resumeId) {
     localStorage.removeItem(PENDING_SAVE_KEY);
+    for (const legacyKey of LEGACY_PENDING_SAVE_KEYS) {
+      localStorage.removeItem(legacyKey);
+    }
     return;
   }
 
   const pending = readPendingSave();
   if (pending?.resumeId === resumeId) {
     localStorage.removeItem(PENDING_SAVE_KEY);
+    for (const legacyKey of LEGACY_PENDING_SAVE_KEYS) {
+      localStorage.removeItem(legacyKey);
+    }
   }
 }
 
