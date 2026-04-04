@@ -105,6 +105,8 @@ export default function CVStep3() {
   const router = useRouter();
   const [summary, setSummary] = useState('');
   const [transferableSkills, setTransferableSkills] = useState('');
+  const [savedSummary, setSavedSummary] = useState('');
+  const [savedTransferableSkills, setSavedTransferableSkills] = useState('');
   const [fullData, setFullData] = useState<any>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [loadingExperienceAI, setLoadingExperienceAI] = useState(false);
@@ -123,17 +125,20 @@ export default function CVStep3() {
       .then(res => res.json())
       .then(data => {
         setFullData(data);
-        if (data.resume && data.resume.summary) {
-          setSummary(data.resume.summary);
-        }
-        if (data.resume && (data.resume.transferable_skills || data.resume.experience_knowledge)) {
-          setTransferableSkills(data.resume.transferable_skills || data.resume.experience_knowledge);
-        }
+        const initialSummary = data.resume?.summary || '';
+        const initialTransferableSkills = data.resume?.transferable_skills || data.resume?.experience_knowledge || '';
+        setSummary(initialSummary);
+        setSavedSummary(initialSummary);
+        setTransferableSkills(initialTransferableSkills);
+        setSavedTransferableSkills(initialTransferableSkills);
         if (data.resume && typeof data.resume.profilePhotoUrl === 'string') {
           setProfilePhotoUrl(data.resume.profilePhotoUrl || null);
         }
       });
   }, []);
+
+  const hasUnsavedChanges =
+    summary !== savedSummary || transferableSkills !== savedTransferableSkills;
 
   const handleProfilePhotoUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -308,6 +313,8 @@ export default function CVStep3() {
       setFullData((prev: any) =>
         prev ? { ...prev, resume: { ...prev.resume, summary, transferable_skills: transferableSkills } } : prev
       );
+      setSavedSummary(summary);
+      setSavedTransferableSkills(transferableSkills);
       alert('保存しました！下のボタンからPDFをダウンロードできます。');
 
     } catch (error) {
@@ -410,9 +417,24 @@ export default function CVStep3() {
           />
         </div>
         <div className="text-right mt-2">
-          <Button size="sm" variant="outline" onClick={onSaveSummary} disabled={!summary && !transferableSkills}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onSaveSummary}
+            disabled={!summary && !transferableSkills}
+            className={
+              hasUnsavedChanges
+                ? 'border-amber-400 bg-amber-50 text-amber-900 shadow-md ring-2 ring-amber-300 animate-pulse hover:bg-amber-100'
+                : undefined
+            }
+          >
             要約・活かせる経験を保存してPDFに反映
           </Button>
+          {hasUnsavedChanges ? (
+            <p className="mt-2 text-xs text-amber-700">
+              ※ PDF出力の前に、要約・活かせる経験の保存が必要です。
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -424,11 +446,11 @@ export default function CVStep3() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <div className="text-center">
               <p className="text-xs text-gray-500 mb-2">JIS規格フォーマット</p>
-              <PDFTrigger data={fullData} />
+              <PDFTrigger data={fullData} disabled={hasUnsavedChanges} />
             </div>
             <div className="text-center">
               <p className="text-xs text-gray-500 mb-2">標準ビジネスフォーマット</p>
-              <JobHistoryTrigger data={fullData} />
+              <JobHistoryTrigger data={fullData} disabled={hasUnsavedChanges} />
             </div>
           </div>
         ) : (
