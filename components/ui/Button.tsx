@@ -15,7 +15,7 @@ export const Button = ({
   disabled,
   ...props
 }: ButtonProps) => {
-  const baseStyles = 'inline-flex wa-lift w-full min-h-[44px] items-center justify-center rounded-md font-medium tracking-[0.01em] transition-colors focus-visible:wa-focus disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'inline-flex wa-lift w-full min-h-[44px] items-center justify-center rounded-md font-medium tracking-[0.01em] transition-[transform,box-shadow,background-color,border-color,color] wa-motion-ui focus-visible:wa-focus disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
     primary: 'border border-ai bg-ai text-kinari hover:bg-ai/92 active:bg-ai/85',

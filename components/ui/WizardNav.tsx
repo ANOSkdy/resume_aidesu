@@ -22,7 +22,7 @@ export const WizardNav = ({ currentStep, totalSteps, labels, className = '', var
           const isActive = stepNum <= currentStep;
           const isCurrent = stepNum === currentStep;
 
-          let circleClass = 'flex h-10 min-h-[44px] w-10 items-center justify-center rounded-full border text-sm font-bold transition-colors';
+          let circleClass = 'flex h-10 min-h-[44px] w-10 items-center justify-center rounded-full border text-sm font-bold transition-[transform,background-color,border-color,color] wa-motion-ui';
           circleClass += isActive
             ? ' border-ai bg-ai text-kinari'
             : ' border-[var(--border)] bg-white/85 text-nezumi';

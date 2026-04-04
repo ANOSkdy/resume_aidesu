@@ -73,7 +73,7 @@ export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }
             key={opt.id}
             type="button"
             onClick={() => toggle(opt.name)}
-            className={`min-h-[44px] rounded-full border px-4 py-2 text-sm transition-colors focus-visible:wa-focus ${
+            className={`min-h-[44px] rounded-full border px-4 py-2 text-sm transition-[transform,background-color,border-color,color] wa-motion-ui focus-visible:wa-focus ${
               isActive
                 ? 'bg-ai text-kinari border-ai'
                 : 'bg-white/85 text-nezumi border-[var(--border)] hover:bg-kinari active:bg-kinari/90'
