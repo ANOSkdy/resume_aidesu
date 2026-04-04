@@ -107,6 +107,7 @@ export default function CVStep3() {
   const [transferableSkills, setTransferableSkills] = useState('');
   const [savedSummary, setSavedSummary] = useState('');
   const [savedTransferableSkills, setSavedTransferableSkills] = useState('');
+  const [isSummarySavedForPdf, setIsSummarySavedForPdf] = useState(false);
   const [fullData, setFullData] = useState<any>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [loadingExperienceAI, setLoadingExperienceAI] = useState(false);
@@ -139,6 +140,7 @@ export default function CVStep3() {
 
   const hasUnsavedChanges =
     summary !== savedSummary || transferableSkills !== savedTransferableSkills;
+  const requiresSaveBeforePdf = !isSummarySavedForPdf || hasUnsavedChanges;
 
   const handleProfilePhotoUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -315,6 +317,7 @@ export default function CVStep3() {
       );
       setSavedSummary(summary);
       setSavedTransferableSkills(transferableSkills);
+      setIsSummarySavedForPdf(true);
       alert('保存しました！下のボタンからPDFをダウンロードできます。');
 
     } catch (error) {
@@ -423,14 +426,14 @@ export default function CVStep3() {
             onClick={onSaveSummary}
             disabled={!summary && !transferableSkills}
             className={
-              hasUnsavedChanges
+              requiresSaveBeforePdf
                 ? 'border-amber-400 bg-amber-50 text-amber-900 shadow-md ring-2 ring-amber-300 animate-pulse hover:bg-amber-100'
                 : undefined
             }
           >
             要約・活かせる経験を保存してPDFに反映
           </Button>
-          {hasUnsavedChanges ? (
+          {requiresSaveBeforePdf ? (
             <p className="mt-2 text-xs text-amber-700">
               ※ PDF出力の前に、要約・活かせる経験の保存が必要です。
             </p>
@@ -446,11 +449,11 @@ export default function CVStep3() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <div className="text-center">
               <p className="text-xs text-gray-500 mb-2">JIS規格フォーマット</p>
-              <PDFTrigger data={fullData} disabled={hasUnsavedChanges} />
+              <PDFTrigger data={fullData} disabled={requiresSaveBeforePdf} />
             </div>
             <div className="text-center">
               <p className="text-xs text-gray-500 mb-2">標準ビジネスフォーマット</p>
-              <JobHistoryTrigger data={fullData} disabled={hasUnsavedChanges} />
+              <JobHistoryTrigger data={fullData} disabled={requiresSaveBeforePdf} />
             </div>
           </div>
         ) : (
