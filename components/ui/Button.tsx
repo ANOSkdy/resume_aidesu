@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
@@ -15,14 +15,13 @@ export const Button = ({
   disabled,
   ...props
 }: ButtonProps) => {
-  
-  const baseStyles = 'inline-flex w-full min-h-[44px] items-center justify-center rounded-md font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+  const baseStyles = 'inline-flex wa-lift w-full min-h-[44px] items-center justify-center rounded-md font-medium tracking-[0.01em] transition-colors focus-visible:wa-focus disabled:opacity-50 disabled:cursor-not-allowed';
+
   const variants = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800',
-    secondary: 'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800',
-    outline: 'border border-gray-300 bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-700',
-    ghost: 'bg-transparent hover:bg-gray-100 active:bg-gray-200 text-gray-700',
+    primary: 'border border-ai bg-ai text-kinari hover:bg-ai/92 active:bg-ai/85',
+    secondary: 'border border-nezumi bg-nezumi text-white hover:bg-nezumi/90 active:bg-nezumi/80',
+    outline: 'border border-[var(--border)] bg-white/80 hover:bg-kinari active:bg-kinari/80 text-sumi',
+    ghost: 'bg-transparent hover:bg-white/65 active:bg-white/80 text-nezumi',
   };
 
   const sizes = {
@@ -40,7 +39,7 @@ export const Button = ({
       {...props}
     >
       {isLoading ? (
-        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+        <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
       ) : null}
       {children}
     </button>

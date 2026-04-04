@@ -16,23 +16,23 @@ export default function Home() {
 
   return (
     <AppShell title="ホーム">
-      <section className="space-y-6">
+      <section className="space-y-7 py-4">
         <div className="space-y-3">
-          <h1 className="text-3xl font-extrabold leading-tight text-blue-700">Aidesu</h1>
-          <p className="text-sm text-gray-700">
+          <h1 className="text-3xl font-extrabold leading-tight text-ai">Aidesu</h1>
+          <p className="max-w-xl text-sm text-nezumi">
             AIでつくる、あなたのキャリア。
             いつでもどこでもモバイル端末から履歴書・職務経歴書を作成できます。
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="wa-surface wa-accent-diagonal wa-lift p-4">
           <div className="space-y-3">
-            <p className="text-sm font-semibold text-gray-800">ご利用開始の前に</p>
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <div className="flex items-start justify-between gap-3"><p className="text-sm font-semibold text-sumi">ご利用開始の前に</p><span className="wa-vertical text-[10px] font-semibold text-ai/80">案内</span></div>
+            <p className="text-sm leading-relaxed text-nezumi">
               当サービスをご利用いただく前に、以下の利用規約を必ずご確認ください。利用規約に同意いただけない場合、履歴書・職務経歴書の作成を開始できません。
             </p>
-            <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
-              <div className="flex items-center gap-2 text-base font-semibold text-gray-900">
+            <div className="wa-panel space-y-3 p-4 text-sm text-nezumi">
+              <div className="flex items-center gap-2 text-base font-semibold text-sumi">
                 <span role="img" aria-label="document">📄</span>
                 利用規約
               </div>
@@ -41,7 +41,7 @@ export default function Home() {
                   株式会社Acoru（以下「当社」といいます。）は、当社が提供するAI履歴書・職務経歴書作成サービス「Aidesu」（以下「本機能」といいます。）の利用にあたり、以下の事項を定めます。利用者は、本機能を利用した時点で、本規約および以下の注意事項・個人情報の取り扱いに同意したものとみなされます。
                 </p>
                 <div className="space-y-1">
-                  <p className="font-semibold text-gray-900">【第1章　注意事項】</p>
+                  <p className="font-semibold text-sumi">【第1章　注意事項】</p>
                   <ul className="list-disc space-y-1 pl-5">
                     <li>本機能は、職務内容の記述を補助する機能であり、職務内容を完全に再現した自動生成を保証するものではありません。</li>
                     <li>AIの特性上、不適切な表現・事実と異なる記載・利用者の経験に含まれない内容が生成される場合があります。</li>
@@ -50,7 +50,7 @@ export default function Home() {
                   </ul>
                 </div>
                 <div className="space-y-1">
-                  <p className="font-semibold text-gray-900">【第2章　利用上の注意】</p>
+                  <p className="font-semibold text-sumi">【第2章　利用上の注意】</p>
                   <ol className="list-decimal space-y-1 pl-5">
                     <li>
                       （機能概要）本機能は、利用者が入力したプロフィール情報をもとに、AIにより職務内容を自動生成する機能（以下「AI職務経歴書」といいます。）を提供するものです。
@@ -82,7 +82,7 @@ export default function Home() {
                   </ol>
                 </div>
                 <div className="space-y-1">
-                  <p className="font-semibold text-gray-900">【第3章　個人情報の取り扱い（Acoru版・完全版）】</p>
+                  <p className="font-semibold text-sumi">【第3章　個人情報の取り扱い（Acoru版・完全版）】</p>
                   <ol className="list-decimal space-y-1 pl-5">
                     <li>
                       取得方法ごとの利用目的
@@ -110,10 +110,10 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <label className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+            <label className="flex items-start gap-3 rounded-lg border border-[var(--border)] bg-kinari/40 p-3 text-sm text-nezumi">
               <input
                 type="checkbox"
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-ai focus-visible:wa-focus"
                 checked={isAgreed}
                 onChange={(event) => setIsAgreed(event.target.checked)}
               />
@@ -132,7 +132,7 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400">© Acoru inc.</p>
+        <p className="text-center text-xs text-nezumi/70">© Acoru inc.</p>
       </section>
     </AppShell>
   );
