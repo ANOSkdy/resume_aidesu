@@ -19,7 +19,7 @@ export default function CVStep1() {
   const [openHint, setOpenHint] = useState<'pr_summary' | 'episode' | 'policy' | null>(null);
   const { register, handleSubmit, setValue } = useForm<AiInputData>();
   const hintButtonClass =
-    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
+    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
 
   useEffect(() => {
     // 以前の入力があればロード
@@ -134,17 +134,17 @@ export default function CVStep1() {
       </div>
       {openHint && (
         <div
-          className="fixed inset-0 z-40 flex items-start justify-center bg-black/30 px-4 py-6"
+          className="fixed inset-0 z-40 flex items-start justify-center bg-black/30 px-4 py-6 wa-enter"
           onClick={() => setOpenHint(null)}
         >
           <div
-            className="relative w-full max-w-[min(28rem,92vw)] max-h-[80vh] overflow-y-auto rounded-lg border border-gray-200 bg-white p-4 text-xs text-gray-800 shadow-xl"
+            className="relative w-full max-w-[min(28rem,92vw)] max-h-[80vh] overflow-y-auto rounded-lg border border-gray-200 bg-white p-4 text-xs text-gray-800 shadow-xl wa-enter"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               aria-label="ヒントを閉じる"
-              className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500 shadow-sm transition hover:bg-gray-200"
+              className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500 shadow-sm transition-colors wa-motion-ui hover:bg-gray-200"
               onClick={() => setOpenHint(null)}
             >
               ×

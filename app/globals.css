@@ -13,6 +13,13 @@
   --surface-muted: #f2ece4;
   --border: color-mix(in oklab, var(--nezumi-gray) 38%, white);
   --ring: color-mix(in oklab, var(--ai-blue) 70%, white);
+
+  --dur-fast: 140ms;
+  --dur-normal: 220ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-spring-ui: var(--ease-standard);
+  --ease-spring-enter: var(--ease-standard);
+  --ease-spring-exit: var(--ease-standard);
 }
 
 @theme inline {
@@ -132,9 +139,79 @@ textarea {
   }
 }
 
+/* Progressive enhancement: fallback easing above; linear() spring only when supported. */
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    --ease-spring-ui: linear(0, 0.52 38%, 1.04 68%, 1);
+    --ease-spring-enter: linear(0, 0.64 42%, 1.02 74%, 1);
+    --ease-spring-exit: linear(0, 0.4 35%, 0.92 76%, 1);
+  }
+}
+
+@layer utilities {
+  .wa-motion-ui {
+    transition-duration: var(--dur-fast);
+    transition-timing-function: var(--ease-spring-ui);
+  }
+
+  .wa-motion-enter {
+    transition-duration: var(--dur-normal);
+    transition-timing-function: var(--ease-spring-enter);
+  }
+
+  .wa-fade-enter {
+    opacity: 0;
+    transform: translateY(4px) scale(0.985);
+  }
+
+  .wa-fade-enter-active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .wa-enter {
+    animation: wa-enter var(--dur-normal) var(--ease-spring-enter);
+  }
+}
+
+@keyframes wa-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 80ms;
+    --dur-normal: 120ms;
+    --ease-spring-ui: linear;
+    --ease-spring-enter: linear;
+    --ease-spring-exit: linear;
+  }
+
+  .wa-lift:hover {
+    transform: none;
+  }
+
+  .wa-fade-enter,
+  .wa-fade-enter-active {
+    opacity: 1;
+    transform: none;
+  }
+
+  .wa-enter {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .wa-lift {
-    transition: box-shadow 180ms ease, transform 180ms ease, border-color 180ms ease;
+    transition: box-shadow var(--dur-fast) var(--ease-spring-ui), transform var(--dur-fast) var(--ease-spring-ui), border-color var(--dur-fast) var(--ease-spring-ui);
   }
 
   .wa-lift:hover {
