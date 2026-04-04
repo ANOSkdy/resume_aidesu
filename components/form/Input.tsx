@@ -1,4 +1,4 @@
-﻿import React, { forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label: string;
@@ -7,14 +7,13 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className = '', ...props }, ref) => {
-    // 文字列連結に変更してエラーを回避
-    const baseClass = "w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
-    const stateClass = error ? "border-red-500" : "border-gray-300";
-    const finalClass = baseClass + " " + stateClass + " " + className;
+    const baseClass = 'w-full rounded-md border bg-white px-3 py-2 shadow-sm transition-colors focus-visible:wa-focus';
+    const stateClass = error ? 'border-akane' : 'border-[var(--border)]';
+    const finalClass = `${baseClass} ${stateClass} ${className}`;
 
     return (
-      <div className="w-full mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="mb-4 w-full">
+        <label className="mb-1 block text-sm font-medium text-nezumi">
           {label}
         </label>
         <input
@@ -22,7 +21,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           className={finalClass}
           {...props}
         />
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-1 text-sm text-akane">{error}</p>}
       </div>
     );
   }

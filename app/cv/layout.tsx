@@ -17,14 +17,14 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <AppShell title="職務経歴書作成">
-      <div className="space-y-4">
+      <div className="space-y-5 py-4">
         <WizardNav
           currentStep={currentStep}
           totalSteps={3}
           basePath="/cv"
           labels={steps}
         />
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="wa-surface p-4">
           {children}
         </div>
       </div>

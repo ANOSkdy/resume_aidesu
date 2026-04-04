@@ -8,20 +8,20 @@ interface AppShellProps {
 }
 
 export const AppShell = ({ title, footer, children }: AppShellProps) => {
-  const mainPaddingBottom = footer ? 'pb-24' : 'pb-6';
+  const mainPaddingBottom = footer ? 'pb-24' : 'pb-8';
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 text-gray-900">
-      <header className="fixed inset-x-0 top-0 z-20 border-b bg-white/95 backdrop-blur">
-        <div className="flex h-14 w-full items-center justify-between px-4">
+    <div className="flex min-h-screen flex-col text-sumi">
+      <header className="wa-ink-divider fixed inset-x-0 top-0 z-20 bg-kinari/90 backdrop-blur-sm">
+        <div className="relative flex h-14 w-full items-center justify-between px-4">
           <Link
             href="/"
-            className="text-lg font-semibold tracking-tight text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="text-lg font-semibold tracking-[0.03em] text-ai focus-visible:wa-focus"
           >
             Aidesu
           </Link>
           {title ? (
-            <p className="ml-4 flex-1 truncate text-right text-sm font-medium text-gray-700">
+            <p className="ml-4 flex-1 truncate text-right text-sm font-medium text-nezumi">
               {title}
             </p>
           ) : null}
@@ -35,7 +35,7 @@ export const AppShell = ({ title, footer, children }: AppShellProps) => {
       </div>
 
       {footer ? (
-        <footer className="fixed inset-x-0 bottom-0 z-20 border-t bg-white/95 backdrop-blur">
+        <footer className="wa-ink-divider fixed inset-x-0 bottom-0 z-20 bg-kinari/90 backdrop-blur-sm">
           <div className="px-4 py-3">
             {footer}
           </div>

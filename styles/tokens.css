@@ -1,8 +1,7 @@
-﻿:root {
-  /* Colors */
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-  --primary-color: #0070f3;
-  --secondary-color: #666;
+:root {
+  --wa-sumi-black: #1a1a1a;
+  --wa-nezumi-gray: #707c80;
+  --wa-kinari-off-white: #f6f0e8;
+  --wa-akane-red: #b34d4d;
+  --wa-ai-blue: #224c5b;
 }

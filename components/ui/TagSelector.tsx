@@ -61,8 +61,8 @@ export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }
     }
   };
 
-  if (loading) return <div className="text-sm text-gray-400">Loading options...</div>;
-  if (options.length === 0) return <div className="text-sm text-gray-400">選択肢がありません (Lookupsデータ未登録)</div>;
+  if (loading) return <div className="text-sm text-nezumi/70">Loading options...</div>;
+  if (options.length === 0) return <div className="text-sm text-nezumi/70">選択肢がありません (Lookupsデータ未登録)</div>;
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -73,10 +73,10 @@ export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }
             key={opt.id}
             type="button"
             onClick={() => toggle(opt.name)}
-            className={`min-h-[44px] rounded-full border px-4 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${
+            className={`min-h-[44px] rounded-full border px-4 py-2 text-sm transition-colors focus-visible:wa-focus ${
               isActive
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50 active:bg-gray-100'
+                ? 'bg-ai text-kinari border-ai'
+                : 'bg-white/85 text-nezumi border-[var(--border)] hover:bg-kinari active:bg-kinari/90'
             }`}
           >
             {opt.name}

@@ -56,12 +56,6 @@ export default async function CrmPage({
   const cursorStack = cursorStackParam.split(',').filter(Boolean);
   const cursor = normalizeParam(resolvedSearchParams?.cursor) ?? null;
 
-  const baseQuery = buildQueryString({
-    q: q || undefined,
-    pageSize: String(pageSize),
-    cursor: cursor || undefined,
-    cursorStack: cursorStackParam || undefined,
-  });
   const returnQuery = buildQueryString({
     q: q || undefined,
     pageSize: String(pageSize),
@@ -72,7 +66,7 @@ export default async function CrmPage({
   if (accessError) {
     return (
       <AppShell title="CRM / 応募者一覧">
-        <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
+        <div className="wa-surface border-akane p-4 text-sm text-akane">
           {accessError}
         </div>
       </AppShell>
@@ -90,11 +84,11 @@ export default async function CrmPage({
     });
     data = result.data;
     nextCursor = result.nextCursor;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return (
       <AppShell title="CRM / 応募者一覧">
-        <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
-          データ取得中にエラーが発生しました。{error?.message ?? ''}
+        <div className="wa-surface border-akane p-4 text-sm text-akane">
+          データ取得中にエラーが発生しました。{error instanceof Error ? error.message : ''}
         </div>
       </AppShell>
     );
@@ -108,21 +102,21 @@ export default async function CrmPage({
   return (
     <AppShell title="CRM / 応募者一覧">
       <div className="space-y-4">
-        <form className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm" method="get">
+        <form className="wa-surface p-4" method="get">
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-gray-800">検索</label>
+            <label className="block text-sm font-semibold text-sumi">検索</label>
             <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 name="q"
                 defaultValue={q}
                 placeholder="氏名・メールで検索"
-                className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="flex-1 rounded-md border border-[var(--border)] px-3 py-2 text-sm text-sumi shadow-sm focus-visible:wa-focus"
               />
               <input type="hidden" name="pageSize" value={pageSize} />
               <button
                 type="submit"
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                className="rounded-md border border-ai bg-ai px-4 py-2 text-sm font-semibold text-kinari shadow-sm transition-colors hover:bg-ai/90 focus-visible:wa-focus"
               >
                 検索
               </button>
@@ -130,9 +124,9 @@ export default async function CrmPage({
           </div>
         </form>
 
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="wa-surface overflow-hidden">
           {data.length === 0 ? (
-            <div className="p-4 text-sm text-gray-600">該当する応募者が見つかりませんでした。</div>
+            <div className="p-4 text-sm text-nezumi">該当する応募者が見つかりませんでした。</div>
           ) : (
             <>
               <div className="divide-y divide-gray-200 md:hidden">
@@ -142,11 +136,11 @@ export default async function CrmPage({
                     <Link
                       key={item.resume_id}
                       href={href}
-                      className="block space-y-2 p-4 text-sm transition hover:bg-blue-50/40"
+                      className="block space-y-2 p-4 text-sm transition hover:bg-ai/10"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-gray-500">ID</span>
-                        <span className="text-xs font-semibold text-blue-600">{item.resume_id}</span>
+                        <span className="text-xs font-semibold text-ai">{item.resume_id}</span>
                       </div>
                       <div className="grid gap-2 text-sm text-gray-800">
                         <div>
@@ -180,7 +174,7 @@ export default async function CrmPage({
               </div>
               <div className="hidden overflow-x-auto md:block">
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
-                  <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <thead className="bg-kinari/70 text-left text-xs font-semibold uppercase tracking-wide text-nezumi">
                     <tr>
                       <th className="px-4 py-3">ID</th>
                       <th className="px-4 py-3">氏名</th>
@@ -195,7 +189,7 @@ export default async function CrmPage({
                     {data.map((item) => {
                       const href = { pathname: `/crm/${item.resume_id}`, query: { from: returnTo } };
                       return (
-                        <tr key={item.resume_id} className="hover:bg-blue-50/40">
+                        <tr key={item.resume_id} className="hover:bg-ai/10">
                           <td className="p-0 text-xs font-semibold text-gray-700">
                             <Link href={href} className="block px-4 py-3 text-blue-600 hover:text-blue-700">
                               {item.resume_id}
@@ -244,7 +238,7 @@ export default async function CrmPage({
         <div className="flex items-center justify-between">
           {hasPrev ? (
             <Link
-              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="text-sm font-medium text-ai hover:text-ai/85"
               href={buildQueryString({
                 q: q || undefined,
                 pageSize: String(pageSize),
@@ -255,11 +249,11 @@ export default async function CrmPage({
               ← 前へ
             </Link>
           ) : (
-            <span className="text-sm text-gray-400">← 前へ</span>
+            <span className="text-sm text-nezumi/70">← 前へ</span>
           )}
           {nextStack ? (
             <Link
-              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="text-sm font-medium text-ai hover:text-ai/85"
               href={buildQueryString({
                 q: q || undefined,
                 pageSize: String(pageSize),
@@ -270,7 +264,7 @@ export default async function CrmPage({
               次へ →
             </Link>
           ) : (
-            <span className="text-sm text-gray-400">次へ →</span>
+            <span className="text-sm text-nezumi/70">次へ →</span>
           )}
         </div>
       </div>

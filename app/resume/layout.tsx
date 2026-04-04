@@ -19,14 +19,14 @@ export default function ResumeLayout({ children }: { children: React.ReactNode }
 
   return (
     <AppShell title="履歴書作成">
-      <div className="space-y-4">
+      <div className="space-y-5 py-4">
         <WizardNav
           currentStep={currentStep}
           totalSteps={5}
           basePath="/resume"
           labels={steps}
         />
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="wa-surface p-4">
           {children}
         </div>
       </div>
