@@ -132,7 +132,7 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-nezumi/70">© Acoru inc.</p>
+        <p className="text-center text-xs text-nezumi/70">© Acoru合同会社</p>
       </section>
     </AppShell>
   );
