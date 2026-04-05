@@ -38,7 +38,7 @@ export default function Home() {
               </div>
               <div className="max-h-72 space-y-2 overflow-y-auto pr-2 leading-relaxed">
                 <p>
-                  株式会社Acoru（以下「当社」といいます。）は、当社が提供するAI履歴書・職務経歴書作成サービス「Aidesu」（以下「本機能」といいます。）の利用にあたり、以下の事項を定めます。利用者は、本機能を利用した時点で、本規約および以下の注意事項・個人情報の取り扱いに同意したものとみなされます。
+                  Acoru合同会社（以下「当社」といいます。）は、当社が提供するAI履歴書・職務経歴書作成サービス「Aidesu」（以下「本機能」といいます。）の利用にあたり、以下の事項を定めます。利用者は、本機能を利用した時点で、本規約および以下の注意事項・個人情報の取り扱いに同意したものとみなされます。
                 </p>
                 <div className="space-y-1">
                   <p className="font-semibold text-sumi">【第1章　注意事項】</p>
