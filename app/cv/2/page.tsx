@@ -5,11 +5,18 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
+type SelfPrInputs = {
+  pr_summary?: string;
+  episode?: string;
+  policy?: string;
+  occupation?: string;
+};
+
 export default function CVStep2() {
   const router = useRouter();
   const [generatedPR, setGeneratedPR] = useState('');
   const [loading, setLoading] = useState(false);
-  const [inputs, setInputs] = useState<any>(null);
+  const [inputs, setInputs] = useState<SelfPrInputs | null>(null);
 
   useEffect(() => {
     // localStorageから最新の入力を取得
@@ -42,16 +49,11 @@ export default function CVStep2() {
     setLoading(true);
     
     try {
-      // APIへ送るデータを構築
       const payload = {
-        strengths: [
-            inputs.pr_summary || "強み未入力", 
-            inputs.occupation ? `希望職種: ${inputs.occupation}` : ''
-        ].filter(Boolean),
-        
-        experience: inputs.episode || "エピソード未入力",
-        
-        keywords: inputs.policy ? `大切にしている価値観: ${inputs.policy}` : ''
+        pr_summary: inputs.pr_summary || '',
+        episode: inputs.episode || '',
+        policy: inputs.policy || '',
+        occupation: inputs.occupation || '',
       };
 
       const res = await fetch('/api/ai/selfpr', {
@@ -94,7 +96,7 @@ export default function CVStep2() {
       if (!res.ok) throw new Error('保存失敗');
       router.push('/cv/3');
 
-    } catch (error) {
+    } catch {
       alert('保存に失敗しました');
     }
   };

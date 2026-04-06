@@ -7,6 +7,44 @@ import { PDFTrigger } from '@/components/pdf/PDFTrigger';
 import { JobHistoryTrigger } from '@/components/pdf/JobHistoryTrigger';
 import { BRAND_STORAGE_KEYS, getStorageItemWithLegacyFallback } from '@/lib/storage/branding';
 
+type WorkItem = {
+  start_year?: number | string;
+  StartYear?: number | string;
+  Year?: number | string;
+  start_month?: number | string;
+  StartMonth?: number | string;
+  Month?: number | string;
+  end_year?: number | string;
+  EndYear?: number | string;
+  end_month?: number | string;
+  EndMonth?: number | string;
+  is_current?: boolean;
+  IsCurrent?: boolean;
+  current_employment?: boolean;
+  company_name?: string;
+  Name?: string;
+  Company?: string;
+  Title?: string;
+  department?: string;
+  Department?: string;
+  position?: string;
+  Position?: string;
+  description?: string;
+  Description?: string;
+  Notes?: string;
+};
+
+type CvStep3Data = {
+  works?: WorkItem[];
+  resume?: {
+    id?: string;
+    summary?: string;
+    transferable_skills?: string;
+    experience_knowledge?: string;
+    profilePhotoUrl?: string | null;
+  };
+};
+
 const PROFILE_PHOTO_MAX_LONG_EDGE = 1400;
 const PROFILE_PHOTO_TARGET_MAX_BYTES = 900 * 1024;
 const PROFILE_PHOTO_ABSOLUTE_MAX_BYTES = 4.5 * 1024 * 1024;
@@ -108,7 +146,7 @@ export default function CVStep3() {
   const [savedSummary, setSavedSummary] = useState('');
   const [savedTransferableSkills, setSavedTransferableSkills] = useState('');
   const [isSummarySavedForPdf, setIsSummarySavedForPdf] = useState(false);
-  const [fullData, setFullData] = useState<any>(null);
+  const [fullData, setFullData] = useState<CvStep3Data | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [loadingExperienceAI, setLoadingExperienceAI] = useState(false);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
@@ -176,7 +214,7 @@ export default function CVStep3() {
       if (res.ok && json.ok) {
         const newUrl = json.profilePhotoUrl || null;
         setProfilePhotoUrl(newUrl);
-        setFullData((prev: any) =>
+        setFullData((prev) =>
           prev
             ? { ...prev, resume: { ...prev.resume, profilePhotoUrl: newUrl } }
             : prev,
@@ -216,13 +254,34 @@ export default function CVStep3() {
   const buildCareerText = () => {
     if (!fullData || !fullData.works || fullData.works.length === 0) return '';
 
-    return fullData.works.map((w: any, index: number) => {
-      const year = w.start_year || w.Year || '';
-      const month = w.start_month || w.Month || '';
+    return fullData.works.map((w: WorkItem, index: number) => {
+      const startYear = w.start_year || w.StartYear || w.Year || '';
+      const startMonth = w.start_month || w.StartMonth || w.Month || '';
+      const endYear = w.end_year || w.EndYear || '';
+      const endMonth = w.end_month || w.EndMonth || '';
+      const isCurrent = Boolean(w.is_current ?? w.IsCurrent ?? w.current_employment);
       const company = w.company_name || w.Name || w.Company || w.Title || '会社名不明';
+      const department = w.department || w.Department || '';
+      const position = w.position || w.Position || '';
       const desc = w.description || w.Description || w.Notes || '';
+      const startDate = startYear ? `${startYear}年${startMonth || ''}月` : '開始時期不明';
+      const endDate = isCurrent
+        ? '現在'
+        : endYear
+          ? `${endYear}年${endMonth || ''}月`
+          : '終了時期不明';
 
-      return `【${index + 1}社目】${year}年${month}月入社 ${company} ${desc}`;
+      return [
+        `【${index + 1}社目】`,
+        `会社名: ${company}`,
+        department ? `部署: ${department}` : '',
+        position ? `役職: ${position}` : '',
+        `期間: ${startDate}〜${endDate}`,
+        `在籍状況: ${isCurrent ? '在籍中' : '退職'}`,
+        desc ? `業務内容: ${desc}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
     }).join('\n');
   };
 
@@ -254,7 +313,7 @@ export default function CVStep3() {
       } else {
         alert('AI生成エラー: ' + (json.error || '不明なエラー'));
       }
-    } catch (error) {
+    } catch {
       alert('通信エラーが発生しました');
     } finally {
       setLoadingAI(false);
@@ -287,7 +346,7 @@ export default function CVStep3() {
       } else {
         alert('AI生成エラー: ' + (json.error || '不明なエラー'));
       }
-    } catch (error) {
+    } catch {
       alert('通信エラーが発生しました');
     } finally {
       setLoadingExperienceAI(false);
@@ -312,7 +371,7 @@ export default function CVStep3() {
       });
       if (!res.ok) throw new Error('保存失敗');
 
-      setFullData((prev: any) =>
+      setFullData((prev) =>
         prev ? { ...prev, resume: { ...prev.resume, summary, transferable_skills: transferableSkills } } : prev
       );
       setSavedSummary(summary);
@@ -320,7 +379,7 @@ export default function CVStep3() {
       setIsSummarySavedForPdf(true);
       alert('保存しました！下のボタンからPDFをダウンロードできます。');
 
-    } catch (error) {
+    } catch {
       alert('保存失敗');
     }
   };
