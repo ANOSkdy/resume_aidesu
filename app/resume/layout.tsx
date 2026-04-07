@@ -11,7 +11,7 @@ export default function ResumeLayout({ children }: { children: React.ReactNode }
 
   const steps = [
     '基本情報',
-    '状況確認',
+    '確認',
     '学歴',
     '職歴',
     '希望条件'
