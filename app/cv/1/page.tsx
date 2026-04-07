@@ -44,9 +44,13 @@ export default function CVStep1() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">自己PR作成のためのヒアリング</h2>
+      <div className="mb-4 rounded border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900">
+        <p className="font-semibold">この回答をもとに次の画面で自己PRをAI生成します。</p>
+        <p className="mt-1">箇条書きや短い文章でも大丈夫です。生成後に編集して整えられます。</p>
+      </div>
       <p className="text-sm text-gray-500 mb-6">
-        以下の質問にお答えください。<br/>
-        AIが回答内容を分析し、あなたの魅力が伝わる自己PRを作成します。
+        まずは思いつく範囲で入力してください。<br/>
+        完成度よりも「あなたらしさ」が伝わる材料を集めるステップです。
       </p>
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">

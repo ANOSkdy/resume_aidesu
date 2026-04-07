@@ -388,7 +388,19 @@ export default function CVStep3() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">職務要約</h2>
+      <h2 className="text-xl font-bold mb-4">職務経歴書の仕上げ</h2>
+      <p className="mb-4 text-xs text-gray-500">
+        写真・要約・活かせる経験を整えて保存すると、PDFに最新内容が反映されます。
+      </p>
+
+      <div className="mb-6 rounded border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
+        <p className="font-semibold text-gray-800">保存ステータス</p>
+        <p className="mt-1">
+          {requiresSaveBeforePdf
+            ? '未保存の変更があります。PDF出力の前に「要約・活かせる経験を保存してPDFに反映」を押してください。'
+            : '保存済みです。この内容でPDFを出力できます。'}
+        </p>
+      </div>
 
       <div className="mb-8 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -444,7 +456,7 @@ export default function CVStep3() {
       </div>
       
       <div className="bg-green-50 p-4 rounded mb-6">
-        <h3 className="font-bold text-sm mb-2 text-green-800">職務要約の自動生成</h3>
+        <h3 className="font-bold text-sm mb-2 text-green-800">1. 職務要約を作成・編集</h3>
         <div className="text-xs text-green-700 mb-3">
            <p>登録されている職歴データ数: <strong>{worksCount}件</strong></p>
         </div>
@@ -484,17 +496,13 @@ export default function CVStep3() {
             variant="outline"
             onClick={onSaveSummary}
             disabled={!summary && !transferableSkills}
-            className={
-              requiresSaveBeforePdf
-                ? 'border-amber-400 bg-amber-50 text-amber-900 shadow-md ring-2 ring-amber-300 animate-pulse hover:bg-amber-100'
-                : undefined
-            }
+            className={requiresSaveBeforePdf ? 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100' : undefined}
           >
-            要約・活かせる経験を保存してPDFに反映
+            2. 要約・活かせる経験を保存してPDFに反映
           </Button>
           {requiresSaveBeforePdf ? (
             <p className="mt-2 text-xs text-amber-700">
-              ※ PDF出力の前に、要約・活かせる経験の保存が必要です。
+              保存後にPDFボタンが有効になります。
             </p>
           ) : null}
         </div>
@@ -503,7 +511,8 @@ export default function CVStep3() {
       <hr className="my-8" />
 
       <div className="text-center p-8 border-2 border-dashed rounded-lg bg-gray-50">
-        <h3 className="text-lg font-bold mb-6">🎉 応募書類の準備ができました</h3>
+        <h3 className="text-lg font-bold mb-2">3. PDFを出力</h3>
+        <p className="mb-6 text-xs text-gray-500">PDFには保存済みの内容のみ反映されます。</p>
         {fullData ? (
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <div className="text-center">
