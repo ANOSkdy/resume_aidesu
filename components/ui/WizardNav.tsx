@@ -14,7 +14,10 @@ export const WizardNav = ({ currentStep, totalSteps, labels, className = '', var
 
   return (
     <div className={`w-full ${padding} ${className}`}>
-      <div className="relative flex items-start justify-between gap-2">
+      <p className="mb-2 text-xs font-semibold tracking-wide text-nezumi" aria-live="polite">
+        ステップ {currentStep} / {totalSteps}
+      </p>
+      <div className="relative flex items-start justify-between gap-2 sm:gap-3">
         <div className="absolute left-0 right-0 top-4 -z-10 h-px bg-[color:var(--border)]"></div>
 
         {Array.from({ length: totalSteps }).map((_, i) => {
@@ -27,7 +30,7 @@ export const WizardNav = ({ currentStep, totalSteps, labels, className = '', var
             ? ' border-ai bg-ai text-kinari'
             : ' border-[var(--border)] bg-white/85 text-nezumi';
 
-          const labelClass = `mt-2 break-words text-center text-[0.75rem] leading-4 font-medium ${
+          const labelClass = `mt-2 break-words text-center text-[0.7rem] leading-4 font-medium sm:text-[0.75rem] ${
             isCurrent ? 'text-ai' : 'text-nezumi'
           }`;
 
