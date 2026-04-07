@@ -10,13 +10,13 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
   const currentStep = parseInt(pathname?.split('/').pop() || '1');
 
   const steps = [
-    '詳細入力',
-    '自己PR',
-    '職務要約'
+    '自己PRの材料入力',
+    '自己PRを生成・編集',
+    '要約を保存してPDF出力'
   ];
 
   return (
-    <AppShell title="職務経歴書作成">
+    <AppShell title="職務経歴書の仕上げ">
       <div className="space-y-5 py-4">
         <WizardNav
           currentStep={currentStep}
@@ -24,6 +24,9 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
           basePath="/cv"
           labels={steps}
         />
+        <p className="text-xs text-gray-500">
+          履歴書入力の続きとして、ここで職務経歴書の仕上げを行います。
+        </p>
         <div className="wa-surface p-4">
           {children}
         </div>
