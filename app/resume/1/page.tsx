@@ -155,210 +155,223 @@ export default function ResumeStep1() {
       <h2 className="text-xl font-bold mb-6">基本情報の入力</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Input
-            label="姓 (漢字)"
-            {...register('last_name_kanji')}
-            error={errors.last_name_kanji?.message}
-            placeholder="山田"
-          />
-          <Input
-            label="名 (漢字)"
-            {...register('first_name_kanji')}
-            error={errors.first_name_kanji?.message}
-            placeholder="太郎"
-          />
-        </div>
+        <section className="space-y-4">
+          <h3 className="text-base font-bold text-gray-800">本人情報</h3>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Input
-            label="姓 (カナ)"
-            {...register('last_name_kana')}
-            error={errors.last_name_kana?.message}
-            placeholder="ヤマダ"
-          />
-          <Input
-            label="名 (カナ)"
-            {...register('first_name_kana')}
-            error={errors.first_name_kana?.message}
-            placeholder="タロウ"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">生年月日</label>
-          <div className="flex flex-wrap gap-3">
-            <div className="w-28 flex-1 min-w-[5rem] max-w-[7rem]">
-              <input
-                type="number"
-                {...register('dob_year', { valueAsNumber: true })}
-                className="w-full rounded border px-3 py-2"
-              />
-              <span className="text-xs text-gray-500">年</span>
-            </div>
-            <div className="w-24 flex-1 min-w-[4.5rem] max-w-[6rem]">
-              <input
-                type="number"
-                {...register('dob_month', { valueAsNumber: true })}
-                className="w-full rounded border px-3 py-2"
-              />
-              <span className="text-xs text-gray-500">月</span>
-            </div>
-            <div className="w-24 flex-1 min-w-[4.5rem] max-w-[6rem]">
-              <input
-                type="number"
-                {...register('dob_day', { valueAsNumber: true })}
-                className="w-full rounded border px-3 py-2"
-              />
-              <span className="text-xs text-gray-500">日</span>
-            </div>
-          </div>
-          {errors.dob_year && <p className="mt-1 text-sm text-red-500">正しい日付を入力してください</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">性別</label>
-          <select {...register('gender')} className="w-full px-3 py-2 border rounded bg-white">
-            <option value="男性">男性</option>
-            <option value="女性">女性</option>
-            <option value="その他">その他</option>
-          </select>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Input
-            label="郵便番号"
-            {...register('postal_code')}
-            error={errors.postal_code?.message}
-            placeholder="0600001"
-          />
-          <Input
-            label="都道府県"
-            {...register('address_prefecture')}
-            error={errors.address_prefecture?.message}
-            placeholder="北海道"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Input
-            label="市区町村"
-            {...register('address_city')}
-            error={errors.address_city?.message}
-            placeholder="札幌市中央区"
-          />
-          <Input
-            label="番地・建物名"
-            {...register('address_line1')}
-            error={errors.address_line1?.message}
-            placeholder="北1条西3丁目 ○○ビル 5F"
-          />
-        </div>
-
-        <Input
-          label="建物名・部屋番号など（任意）"
-          {...register('address_line2')}
-          error={errors.address_line2?.message}
-          placeholder="101号室"
-        />
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Input
-            label="メールアドレス"
-            {...register('email')}
-            error={errors.email?.message}
-            placeholder="example@mail.com"
-            type="email"
-          />
-          <Input
-            label="電話番号"
-            {...register('phone_number')}
-            error={errors.phone_number?.message}
-            placeholder="09012345678"
-          />
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="use_separate_contact"
-              checked={useSeparateContact}
-              onChange={handleSeparateContactChange}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="姓 (漢字)"
+              {...register('last_name_kanji')}
+              error={errors.last_name_kanji?.message}
+              placeholder="山田"
             />
-            <label htmlFor="use_separate_contact" className="text-sm font-medium text-gray-700">
-              現住所と異なる連絡先を登録する
-            </label>
+            <Input
+              label="名 (漢字)"
+              {...register('first_name_kanji')}
+              error={errors.first_name_kanji?.message}
+              placeholder="太郎"
+            />
           </div>
 
-          {useSeparateContact && (
-            <div className="space-y-3 rounded-md border border-gray-200 bg-gray-50 p-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">連絡先住所</label>
-                <textarea
-                  {...register('contactAddress')}
-                  className="w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="姓 (カナ)"
+              {...register('last_name_kana')}
+              error={errors.last_name_kana?.message}
+              placeholder="ヤマダ"
+            />
+            <Input
+              label="名 (カナ)"
+              {...register('first_name_kana')}
+              error={errors.first_name_kana?.message}
+              placeholder="タロウ"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">生年月日</label>
+            <div className="flex flex-wrap gap-3">
+              <div className="w-28 flex-1 min-w-[5rem] max-w-[7rem]">
+                <input
+                  type="number"
+                  {...register('dob_year', { valueAsNumber: true })}
+                  className="w-full rounded border px-3 py-2"
                 />
-                {errors.contactAddress?.message && (
-                  <p className="mt-1 text-sm text-red-600">{errors.contactAddress.message}</p>
-                )}
+                <span className="text-xs text-gray-500">年</span>
               </div>
-
-              <Input
-                label="連絡先電話番号"
-                {...register('contactPhone')}
-                error={errors.contactPhone?.message}
-                placeholder="0312345678"
-              />
-
-              <Input
-                label="連絡先メールアドレス"
-                {...register('contactEmail')}
-                error={errors.contactEmail?.message}
-                placeholder="contact@example.com"
-                type="email"
-              />
+              <div className="w-24 flex-1 min-w-[4.5rem] max-w-[6rem]">
+                <input
+                  type="number"
+                  {...register('dob_month', { valueAsNumber: true })}
+                  className="w-full rounded border px-3 py-2"
+                />
+                <span className="text-xs text-gray-500">月</span>
+              </div>
+              <div className="w-24 flex-1 min-w-[4.5rem] max-w-[6rem]">
+                <input
+                  type="number"
+                  {...register('dob_day', { valueAsNumber: true })}
+                  className="w-full rounded border px-3 py-2"
+                />
+                <span className="text-xs text-gray-500">日</span>
+              </div>
             </div>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">扶養家族数（配偶者を除く）</label>
-          <select {...register('dependents_count')} className="w-full px-3 py-2 border rounded bg-white">
-            <option value="">選択してください</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5+">5+</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">家族・扶養</label>
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="has_spouse" {...register('has_spouse')} />
-            <label htmlFor="has_spouse" className="text-sm">
-              配偶者の有無
-            </label>
+            {errors.dob_year && <p className="mt-1 text-sm text-red-500">正しい日付を入力してください</p>}
           </div>
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="spouse_is_dependent"
-              {...register('spouse_is_dependent')}
-              disabled={!hasSpouse}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">性別</label>
+            <select {...register('gender')} className="w-full px-3 py-2 border rounded bg-white">
+              <option value="男性">男性</option>
+              <option value="女性">女性</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-base font-bold text-gray-800">連絡先</h3>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="郵便番号"
+              {...register('postal_code')}
+              error={errors.postal_code?.message}
+              placeholder="0600001"
             />
-            <label
-              htmlFor="spouse_is_dependent"
-              className={`text-sm ${!hasSpouse ? 'text-gray-400' : ''}`}
-            >
-              配偶者を扶養に入れている
-            </label>
+            <Input
+              label="都道府県"
+              {...register('address_prefecture')}
+              error={errors.address_prefecture?.message}
+              placeholder="北海道"
+            />
           </div>
-        </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="市区町村"
+              {...register('address_city')}
+              error={errors.address_city?.message}
+              placeholder="札幌市中央区"
+            />
+            <Input
+              label="番地・建物名"
+              {...register('address_line1')}
+              error={errors.address_line1?.message}
+              placeholder="北1条西3丁目 ○○ビル 5F"
+            />
+          </div>
+
+          <Input
+            label="建物名・部屋番号など（任意）"
+            {...register('address_line2')}
+            error={errors.address_line2?.message}
+            placeholder="101号室"
+          />
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="メールアドレス"
+              {...register('email')}
+              error={errors.email?.message}
+              placeholder="example@mail.com"
+              type="email"
+            />
+            <Input
+              label="電話番号"
+              {...register('phone_number')}
+              error={errors.phone_number?.message}
+              placeholder="09012345678"
+            />
+          </div>
+
+          <div className="rounded-md border border-dashed border-gray-300 p-3 space-y-3">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="use_separate_contact"
+                checked={useSeparateContact}
+                onChange={handleSeparateContactChange}
+              />
+              <label htmlFor="use_separate_contact" className="text-sm font-medium text-gray-700">
+                別の連絡先を登録する（任意）
+              </label>
+            </div>
+
+            {useSeparateContact && (
+              <div className="space-y-3 rounded-md border border-gray-200 bg-gray-50 p-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">連絡先住所</label>
+                  <textarea
+                    {...register('contactAddress')}
+                    className="w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                  />
+                  {errors.contactAddress?.message && (
+                    <p className="mt-1 text-sm text-red-600">{errors.contactAddress.message}</p>
+                  )}
+                </div>
+
+                <Input
+                  label="連絡先電話番号"
+                  {...register('contactPhone')}
+                  error={errors.contactPhone?.message}
+                  placeholder="0312345678"
+                />
+
+                <Input
+                  label="連絡先メールアドレス"
+                  {...register('contactEmail')}
+                  error={errors.contactEmail?.message}
+                  placeholder="contact@example.com"
+                  type="email"
+                />
+              </div>
+            )}
+          </div>
+        </section>
+
+        <details className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          <summary className="cursor-pointer text-sm font-bold text-gray-700">任意項目（家族・扶養）</summary>
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">扶養家族数（配偶者を除く）</label>
+              <select {...register('dependents_count')} className="w-full px-3 py-2 border rounded bg-white">
+                <option value="">選択してください</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5+">5+</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">家族・扶養</label>
+              <div className="flex items-center space-x-2">
+                <input type="checkbox" id="has_spouse" {...register('has_spouse')} />
+                <label htmlFor="has_spouse" className="text-sm">
+                  配偶者の有無
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="spouse_is_dependent"
+                  {...register('spouse_is_dependent')}
+                  disabled={!hasSpouse}
+                />
+                <label
+                  htmlFor="spouse_is_dependent"
+                  className={`text-sm ${!hasSpouse ? 'text-gray-400' : ''}`}
+                >
+                  配偶者を扶養に入れている
+                </label>
+              </div>
+            </div>
+          </div>
+        </details>
 
         {isRetryingSave && (
           <p className="text-sm text-gray-600 inline-flex items-center gap-2">

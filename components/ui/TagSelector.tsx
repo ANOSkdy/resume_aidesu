@@ -40,6 +40,7 @@ const loadLookupOptions = async (): Promise<Option[]> => {
 export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }: Props) => {
   const [options, setOptions] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true);
+  const [limitMessage, setLimitMessage] = useState('');
 
   useEffect(() => {
     loadLookupOptions()
@@ -54,9 +55,14 @@ export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }
 
   const toggle = (name: string) => {
     if (selected.includes(name)) {
-      onChange(selected.filter(s => s !== name));
+      setLimitMessage('');
+      onChange(selected.filter((s) => s !== name));
     } else {
-      if (selected.length >= maxSelect) return;
+      if (selected.length >= maxSelect) {
+        setLimitMessage(`最大${maxSelect}つまで選択できます`);
+        return;
+      }
+      setLimitMessage('');
       onChange([...selected, name]);
     }
   };
@@ -65,7 +71,8 @@ export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }
   if (options.length === 0) return <div className="text-sm text-nezumi/70">選択肢がありません (Lookupsデータ未登録)</div>;
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
       {options.map((opt) => {
         const isActive = selected.includes(opt.name);
         return (
@@ -83,6 +90,8 @@ export const TagSelector = ({ category, selected = [], onChange, maxSelect = 3 }
           </button>
         );
       })}
+      </div>
+      {limitMessage && <p className="text-xs text-akane">{limitMessage}</p>}
     </div>
   );
 };
