@@ -22,6 +22,7 @@ export default function ResumeStep3() {
   const router = useRouter();
   const [educations, setEducations] = useState<Education[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addSuccessMessage, setAddSuccessMessage] = useState('');
 
   // フォーム管理 (新規追加用)
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Education>({
@@ -67,8 +68,9 @@ export default function ResumeStep3() {
       const saved = await res.json();
       setEducations([...educations, { ...data, id: saved.id }]);
       reset(); // フォームクリア
+      setAddSuccessMessage('学歴を追加しました。必要な分だけ入力したら次へ進めます。');
 
-    } catch (error) {
+    } catch {
       alert('追加に失敗しました');
     }
   };
@@ -79,7 +81,7 @@ export default function ResumeStep3() {
     try {
       await fetch('/api/data/education?id=' + id, { method: 'DELETE' });
       setEducations(educations.filter(e => e.id !== id));
-    } catch (error) {
+    } catch {
       alert('削除失敗');
     }
   };
@@ -91,11 +93,19 @@ export default function ResumeStep3() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">学歴の入力</h2>
+      <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900 space-y-1">
+        <p>まずは最低1件の入力で次へ進めます。</p>
+        <p>迷う場合は最新の学歴から入力してください。追加・削除はこの画面でいつでもできます。</p>
+      </div>
       
       {/* 登録済みリスト */}
       <div className="mb-8 space-y-3">
         {loading && <p className="text-sm text-gray-400">学歴を読み込み中...</p>}
-        {!loading && educations.length === 0 && <p className="text-gray-500">学歴はまだ登録されていません。</p>}
+        {!loading && educations.length === 0 && (
+          <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+            まだ学歴が登録されていません。下のフォームから最初の1件を追加しましょう。
+          </div>
+        )}
         
         {educations.map((edu) => (
           <div key={edu.id} className="p-4 border rounded bg-gray-50 space-y-3">
@@ -125,8 +135,9 @@ export default function ResumeStep3() {
 
       {/* 新規追加フォーム */}
       <div className="bg-blue-50 p-4 rounded-md mb-6">
-        <h3 className="font-bold text-sm text-blue-800 mb-1">学歴を追加する</h3>
+        <h3 className="font-bold text-sm text-blue-800 mb-1">次に、学歴を1件追加しましょう</h3>
         <p className="text-xs text-gray-500 mb-4">
+          入力は学校名と在籍期間が中心でOKです。詳細は任意です。<br />
           ※最終学歴が〜高卒までは中学から、専門卒〜院卒は高校から記入<br />
           ※中途退学の場合は中途退学した学校まで記入
         </p>
@@ -167,6 +178,9 @@ export default function ResumeStep3() {
           <div className="flex justify-end">
             <Button type="submit" size="sm" variant="primary">学歴を追加</Button>
           </div>
+          {addSuccessMessage && (
+            <p role="status" className="text-xs text-green-700">{addSuccessMessage}</p>
+          )}
         </form>
       </div>
 

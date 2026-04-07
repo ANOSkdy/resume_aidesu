@@ -24,8 +24,16 @@ export default function ResumeStep4() {
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
   const [showHint, setShowHint] = useState(false);
+  const [addSuccessMessage, setAddSuccessMessage] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const hintButtonClass =
     'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
+  const descriptionTemplates: Record<string, string> = {
+    営業: '法人営業を担当。新規顧客への提案と既存顧客フォローを行い、見積作成から受注後対応まで担当。',
+    事務: '一般事務として、データ入力・書類作成・電話メール対応を中心に、社内業務の進行を支援。',
+    接客: '接客販売を担当。商品案内、レジ対応、売場づくりを通じて、お客様対応と店舗運営を支援。',
+    製造: '製造ラインで機械操作・検品・梱包を担当。安全と品質を意識し、安定した生産に対応。',
+  };
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<Work>({
     defaultValues: {
@@ -82,8 +90,10 @@ export default function ResumeStep4() {
       const saved = await res.json();
       setWorks([...works, { ...data, end_year: sanitizedEndYear, end_month: sanitizedEndMonth, id: saved.id }]);
       reset();
+      setAddSuccessMessage('職歴を追加しました。まずは簡単な内容で問題ありません。');
+      setSelectedTemplate(null);
 
-    } catch (error) {
+    } catch {
       alert('追加に失敗しました');
     }
   };
@@ -93,7 +103,7 @@ export default function ResumeStep4() {
     try {
       await fetch('/api/data/work?id=' + id, { method: 'DELETE' });
       setWorks(works.filter(w => w.id !== id));
-    } catch (error) {
+    } catch {
       alert('削除失敗');
     }
   };
@@ -101,15 +111,31 @@ export default function ResumeStep4() {
   const onNext = () => {
     router.push('/resume/5');
   };
+  const onSelectTemplate = (roleType: string) => {
+    const template = descriptionTemplates[roleType];
+    if (!template) return;
+    const currentDescription = watch('description')?.trim();
+    const nextDescription = currentDescription ? `${currentDescription}\n${template}` : template;
+    setValue('description', nextDescription, { shouldDirty: true });
+    setSelectedTemplate(roleType);
+  };
 
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">職歴の入力</h2>
+      <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900 space-y-1">
+        <p>最低1件の職歴があれば次へ進めます。まずは最新・関連性の高い職歴から入力しましょう。</p>
+        <p>業務内容詳細は短い下書きで大丈夫です。あとで追記する前提で気軽に入力してください。</p>
+      </div>
       
       {/* 登録済みリスト */}
       <div className="mb-8 space-y-4">
         {loading && <p className="text-sm text-gray-400">職歴を読み込み中...</p>}
-        {!loading && works.length === 0 && <p className="text-gray-500">職歴はまだ登録されていません。</p>}
+        {!loading && works.length === 0 && (
+          <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+            まだ職歴が登録されていません。直近の職歴を1件追加すると次へ進めます。
+          </div>
+        )}
         
         {works.map((work) => (
           <div key={work.id} className="p-4 border rounded bg-gray-50 space-y-3">
@@ -150,7 +176,8 @@ export default function ResumeStep4() {
 
       {/* 新規追加フォーム */}
       <div className="bg-blue-50 p-5 rounded-md mb-6">
-        <h3 className="font-bold text-sm mb-4 text-blue-800">職歴を追加する</h3>
+        <h3 className="font-bold text-sm mb-1 text-blue-800">次に、職歴を1件追加しましょう</h3>
+        <p className="text-xs text-gray-500 mb-4">最初は簡潔でOKです。企業名・期間・業務概要だけでも十分です。</p>
         <form onSubmit={handleSubmit(onAdd)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -205,7 +232,7 @@ export default function ResumeStep4() {
 
           <div>
               <div className="flex items-center gap-2 mb-1">
-                <label className="text-xs font-bold text-gray-600">業務内容詳細</label>
+                <label className="text-xs font-bold text-gray-600">業務内容詳細（短くてOK）</label>
                 <div className="relative flex-shrink-0">
                   <button
                     type="button"
@@ -291,12 +318,32 @@ export default function ResumeStep4() {
                 )}
               </div>
             </div>
-            <textarea {...register('description')} className="w-full p-2 border rounded text-sm h-24" placeholder="法人営業を担当。新規開拓を中心に..." />
+            <p className="text-xs text-gray-500 mb-2">「担当業務を1〜2文」で十分です。下のテンプレートを選んで編集もできます。</p>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {Object.keys(descriptionTemplates).map((roleType) => (
+                <button
+                  key={roleType}
+                  type="button"
+                  onClick={() => onSelectTemplate(roleType)}
+                  className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                    selectedTemplate === roleType
+                      ? 'border-blue-500 bg-blue-100 text-blue-800'
+                      : 'border-gray-300 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-700'
+                  }`}
+                >
+                  {roleType}テンプレ
+                </button>
+              ))}
+            </div>
+            <textarea {...register('description')} className="w-full p-2 border rounded text-sm h-24" placeholder="例）営業部で法人営業を担当。新規提案と既存顧客フォローを中心に対応。" />
           </div>
 
           <div className="flex justify-end">
             <Button type="submit" size="sm" variant="primary">職歴を追加</Button>
           </div>
+          {addSuccessMessage && (
+            <p role="status" className="text-xs text-green-700">{addSuccessMessage}</p>
+          )}
         </form>
       </div>
 
