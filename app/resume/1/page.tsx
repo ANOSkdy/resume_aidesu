@@ -278,7 +278,7 @@ export default function ResumeStep1() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">連絡先住所</label>
                   <textarea
                     {...register('contactAddress')}
-                    className="w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus-visible:wa-focus"
                     rows={3}
                   />
                   {errors.contactAddress?.message && (

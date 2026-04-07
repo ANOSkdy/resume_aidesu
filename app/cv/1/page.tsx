@@ -13,13 +13,69 @@ type AiInputData = {
   policy: string;     // 3. 大切にしていること(価値観)
   occupation: string; // 4. 希望職種
 };
+type RoleType = '営業' | '事務' | '接客' | '製造';
 
 export default function CVStep1() {
   const router = useRouter();
   const [openHint, setOpenHint] = useState<'pr_summary' | 'episode' | 'policy' | null>(null);
   const { register, handleSubmit, setValue } = useForm<AiInputData>();
+  const hintTemplates: Record<'pr_summary' | 'episode' | 'policy', Record<RoleType, string>> = {
+    pr_summary: {
+      営業: '私の強みは「ヒアリング力と課題解決型の提案力」です。顧客の本質的な課題をつかみ、最適な解決策に導けます。',
+      事務: '私の強みは「正確でミスの少ない事務処理能力」と「サポート力」です。周囲を支えながら効率的に業務を進められます。',
+      接客: '私の強みは「相手の気持ちをくみ取るコミュニケーション能力」です。お客様に信頼される接客ができます。',
+      製造: '私の強みは「集中力と丁寧さ」です。ミスを防ぎながらコツコツ作業を続けることが得意です。',
+    },
+    episode: {
+      営業: [
+        '私は、顧客の課題を深く理解した上で最適な提案ができる点に強みがあります。課題を正しく捉えた提案は、顧客満足と売上の双方に直結すると考えているためです。',
+        '実際に、既存顧客の売上が伸び悩んでいた際、業務フローを詳細にヒアリングし「非効率な作業工程」が課題であることを発見しました。そこで、既存プランの改善と新しいサービスの組み合わせを提案したところ、年間売上が〇〇万円増加し、部署表彰をいただきました。',
+        'この経験から、顧客の状況を的確に捉え提案につなげる力が私の強みだと自信を持っています。'
+      ].join('\n'),
+      事務: [
+        '私は、正確性を保ちながら業務改善につなげる力が強みです。事務は正確な処理だけでなく、全体の効率を上げる工夫が求められると考えているからです。',
+        '繁忙期に大量のデータ入力が発生した際、入力ルールがバラバラなことでミスや時間ロスが多い状況でした。そこで私は、入力ルールを統一したフォーマットを作成しチームに共有。結果、処理速度が20％向上し、ミスも大幅に減少しました。',
+        '業務の正確性を守りながら改善を進められる点が、私の強みであり価値だと考えています。'
+      ].join('\n'),
+      接客: [
+        '私は、お客様のニーズを正確に把握し、満足度の高い接客につなげる力があります。接客において、お客様が本当に求めていることを理解することが、信頼につながるためです。',
+        '購入を迷っていたお客様に対し、使用シーンを丁寧にヒアリングした上で複数の商品を比較しながら説明したところ、「丁寧で安心できた」と評価いただき、その場で購入につながりました。その後、指名をいただくことも増えました。',
+        'お客様の気持ちを汲み取った接客ができることが私の大きな強みです。'
+      ].join('\n'),
+      製造: [
+        '私は、正確な作業と改善提案により品質向上に貢献できる点が強みです。製造現場では、小さな改善が大きな生産性向上につながると理解しているためです。',
+        '不良品が増えていたラインで、作業工程ごとの手順を洗い出し、問題箇所を可視化しました。そこで改善案を提案し実施した結果、不良率が〇〇％削減され、班長から表彰をいただきました。',
+        '確実な作業に加えて改善に取り組める点が、現場で発揮できる私の強みです。'
+      ].join('\n'),
+    },
+    policy: {
+      営業: [
+        '私が最も大切にしているのは「信頼関係の構築」です。営業は単なる商品説明ではなく、信頼があるからこそ価値で選ばれる仕事だと考えているためです。',
+        '実際に、顧客と定期的にコミュニケーションを取りながら課題を聞き出し、丁寧に改善提案を行ったことで「あなたから買いたい」という言葉をいただき、継続契約にもつながりました。',
+        'だからこそ、私は信頼を積み重ねる営業スタイルを最も大切にしています。'
+      ].join('\n'),
+      事務: [
+        '私は「正確性と期日遵守」を最も大切にしています。事務のミスは会社全体の信用や業務に影響するため、最も重要だと考えているからです。',
+        '提出期限が重なった繁忙期でも、優先順位を整理し、全業務を期限内にミスなく完了させたことで部署全体の進行がスムーズになり、上司から評価をいただきました。',
+        'この経験から、正確で期限を守る姿勢を今後も徹底していきます。'
+      ].join('\n'),
+      接客: [
+        '私が大切にしているのは「相手目線で行動すること」です。お客様が快適に過ごせるかどうかは、相手の立場を理解できるかに左右されるためです。',
+        '混雑時にもお客様一人ひとりの状況を確認し、声がけや案内を工夫したことで、クレームが減少し、店舗評価が向上しました。',
+        '相手目線で考え続ける姿勢が、質の高い接客につながると確信しています。'
+      ].join('\n'),
+      製造: [
+        '私は「安全第一」を最も大切にしています。安全が守られてこそ、高品質な製品づくりや効率向上につながるためです。',
+        '作業手順が複雑な工程で危険が潜んでいたため、危険箇所の見える化や手順改善を提案し、事故ゼロを維持できました。上司からも「現場の安全意識が高まった」と評価されました。',
+        '安全意識を高く持ち続けることが、安定した生産に欠かせないと考えています。'
+      ].join('\n'),
+    }
+  };
   const hintButtonClass =
-    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
+    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-ai text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-ai/90 focus-visible:wa-focus';
+  const onQuickFillHint = (field: 'pr_summary' | 'episode' | 'policy', role: RoleType) => {
+    setValue(field, hintTemplates[field][role], { shouldDirty: true });
+  };
 
   useEffect(() => {
     // 以前の入力があればロード
@@ -44,7 +100,7 @@ export default function CVStep1() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">自己PR作成のためのヒアリング</h2>
-      <div className="mb-4 rounded border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900">
+      <div className="mb-4 rounded border border-ai/20 bg-ai/8 p-3 text-xs text-sumi">
         <p className="font-semibold">この回答をもとに次の画面で自己PRをAI生成します。</p>
         <p className="mt-1">箇条書きや短い文章でも大丈夫です。生成後に編集して整えられます。</p>
       </div>
@@ -75,6 +131,18 @@ export default function CVStep1() {
             className="w-full px-3 py-2 border rounded h-24"
             placeholder="例: 私の強みは「粘り強さ」と「チームワーク」です。困難な課題でも諦めず..."
           />
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(Object.keys(hintTemplates.pr_summary) as RoleType[]).map((role) => (
+              <button
+                key={`pr_summary-${role}`}
+                type="button"
+                onClick={() => onQuickFillHint('pr_summary', role)}
+                className="rounded-full border border-ai/35 bg-white px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
+              >
+                {role}の例文を入力
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Q2 */}
@@ -97,6 +165,18 @@ export default function CVStep1() {
             className="w-full px-3 py-2 border rounded h-32"
             placeholder="例: 前職のプロジェクトでトラブルが発生した際、関係各所と調整を行い..."
           />
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(Object.keys(hintTemplates.episode) as RoleType[]).map((role) => (
+              <button
+                key={`episode-${role}`}
+                type="button"
+                onClick={() => onQuickFillHint('episode', role)}
+                className="rounded-full border border-ai/35 bg-white px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
+              >
+                {role}の例文を入力
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Q3 */}
@@ -119,6 +199,18 @@ export default function CVStep1() {
             className="w-full px-3 py-2 border rounded h-24"
             placeholder="例: 「相手の期待を少し超えること」を大切にしています。なぜなら..."
           />
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(Object.keys(hintTemplates.policy) as RoleType[]).map((role) => (
+              <button
+                key={`policy-${role}`}
+                type="button"
+                onClick={() => onQuickFillHint('policy', role)}
+                className="rounded-full border border-ai/35 bg-white px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
+              >
+                {role}の例文を入力
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Q4 */}

@@ -112,8 +112,8 @@ export default function CVStep2() {
         1) 生成 → 2) 編集 → 3) 保存して次へ、の順で進めます。
       </p>
       
-      <div className="bg-blue-50 p-4 rounded mb-6">
-        <h3 className="font-bold text-sm mb-2 text-blue-800">1. AIで自己PRを生成</h3>
+      <div className="bg-kinari p-4 rounded mb-6 border border-[var(--border)]">
+        <h3 className="font-bold text-sm mb-2 text-ai">1. AIで自己PRを生成</h3>
         <div className="text-xs mb-2 text-gray-500">
           認識されているエピソード文字数: {inputs?.episode?.length || 0}文字
         </div>

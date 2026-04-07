@@ -27,12 +27,48 @@ export default function ResumeStep4() {
   const [addSuccessMessage, setAddSuccessMessage] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const hintButtonClass =
-    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
+    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-ai text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-ai/90 focus-visible:wa-focus';
   const descriptionTemplates: Record<string, string> = {
-    営業: '法人営業を担当。新規顧客への提案と既存顧客フォローを行い、見積作成から受注後対応まで担当。',
-    事務: '一般事務として、データ入力・書類作成・電話メール対応を中心に、社内業務の進行を支援。',
-    接客: '接客販売を担当。商品案内、レジ対応、売場づくりを通じて、お客様対応と店舗運営を支援。',
-    製造: '製造ラインで機械操作・検品・梱包を担当。安全と品質を意識し、安定した生産に対応。',
+    営業: [
+      '前職では法人営業として以下の業務を担当していました。',
+      '・新規開拓（架電・訪問・メール）',
+      '・既存顧客フォロー、追加提案',
+      '・見積・契約業務、請求管理',
+      '・商談準備、提案資料作成',
+      '・売上・KPI分析、営業戦略立案',
+      '・導入後フォロー、トラブル対応',
+      '顧客課題を把握し、最適な提案につなげる営業活動を行っていました。'
+    ].join('\n'),
+    事務: [
+      '前職では一般事務として以下の業務を担当していました。',
+      '・データ入力、管理',
+      '・電話・メール対応',
+      '・契約書・請求書作成',
+      '・各種書類のファイリング・管理',
+      '・スケジュール調整、備品管理',
+      '・来客対応',
+      '正確性とスピードを意識し、サポート全般を担当していました。'
+    ].join('\n'),
+    接客: [
+      '前職では接客販売として以下の業務を担当していました。',
+      '・お客様への商品案内・販売',
+      '・レジ対応、会計処理',
+      '・売場づくり、商品陳列・補充',
+      '・在庫管理・棚卸し',
+      '・クレーム対応、問い合わせ対応',
+      '・POP作成、SNS投稿補助',
+      '常にお客様視点を意識し、満足度の高い接客を心がけていました。'
+    ].join('\n'),
+    製造: [
+      '前職では製造オペレーターとして以下の業務を担当しました。',
+      '・製造ラインの機械操作',
+      '・製品の検査・品質チェック',
+      '・梱包、出荷業務',
+      '・不良品の仕分け',
+      '・日報記録、在庫管理',
+      '・5S活動、安全管理',
+      '安全と品質を徹底して、安定したライン稼働に努めていました。'
+    ].join('\n'),
   };
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<Work>({
@@ -123,7 +159,7 @@ export default function ResumeStep4() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">職歴の入力</h2>
-      <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900 space-y-1">
+      <div className="mb-4 rounded-md border border-ai/20 bg-ai/8 p-3 text-xs text-sumi space-y-1">
         <p>最低1件の職歴があれば次へ進めます。まずは最新・関連性の高い職歴から入力しましょう。</p>
         <p>業務内容詳細は短い下書きで大丈夫です。あとで追記する前提で気軽に入力してください。</p>
       </div>
@@ -175,8 +211,8 @@ export default function ResumeStep4() {
       <hr className="my-6" />
 
       {/* 新規追加フォーム */}
-      <div className="bg-blue-50 p-5 rounded-md mb-6">
-        <h3 className="font-bold text-sm mb-1 text-blue-800">次に、職歴を1件追加しましょう</h3>
+      <div className="bg-kinari p-5 rounded-md mb-6 border border-[var(--border)]">
+        <h3 className="font-bold text-sm mb-1 text-ai">次に、職歴を1件追加しましょう</h3>
         <p className="text-xs text-gray-500 mb-4">最初は簡潔でOKです。企業名・期間・業務概要だけでも十分です。</p>
         <form onSubmit={handleSubmit(onAdd)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,7 +254,7 @@ export default function ResumeStep4() {
                     <span className="self-center text-xs">月</span>
                    </>
                  ) : (
-                   <span className="text-sm font-bold text-green-600 px-2">現在在籍中</span>
+                   <span className="text-sm font-bold text-ai px-2">現在在籍中</span>
                  )}
               </div>
             </div>
@@ -327,8 +363,8 @@ export default function ResumeStep4() {
                   onClick={() => onSelectTemplate(roleType)}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                     selectedTemplate === roleType
-                      ? 'border-blue-500 bg-blue-100 text-blue-800'
-                      : 'border-gray-300 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-700'
+                      ? 'border-ai/60 bg-ai/10 text-ai'
+                      : 'border-[var(--border)] bg-white text-nezumi hover:border-ai/45 hover:text-ai'
                   }`}
                 >
                   {roleType}テンプレ
@@ -342,7 +378,7 @@ export default function ResumeStep4() {
             <Button type="submit" size="sm" variant="primary">職歴を追加</Button>
           </div>
           {addSuccessMessage && (
-            <p role="status" className="text-xs text-green-700">{addSuccessMessage}</p>
+            <p role="status" className="text-xs text-akane">{addSuccessMessage}</p>
           )}
         </form>
       </div>

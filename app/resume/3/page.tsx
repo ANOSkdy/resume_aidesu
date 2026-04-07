@@ -93,7 +93,7 @@ export default function ResumeStep3() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">学歴の入力</h2>
-      <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900 space-y-1">
+      <div className="mb-4 rounded-md border border-ai/20 bg-ai/8 p-3 text-xs text-sumi space-y-1">
         <p>まずは最低1件の入力で次へ進めます。</p>
         <p>迷う場合は最新の学歴から入力してください。追加・削除はこの画面でいつでもできます。</p>
       </div>
@@ -134,8 +134,8 @@ export default function ResumeStep3() {
       <hr className="my-6" />
 
       {/* 新規追加フォーム */}
-      <div className="bg-blue-50 p-4 rounded-md mb-6">
-        <h3 className="font-bold text-sm text-blue-800 mb-1">次に、学歴を1件追加しましょう</h3>
+      <div className="bg-kinari p-4 rounded-md mb-6 border border-[var(--border)]">
+        <h3 className="font-bold text-sm text-ai mb-1">次に、学歴を1件追加しましょう</h3>
         <p className="text-xs text-gray-500 mb-4">
           入力は学校名と在籍期間が中心でOKです。詳細は任意です。<br />
           ※最終学歴が〜高卒までは中学から、専門卒〜院卒は高校から記入<br />
@@ -179,7 +179,7 @@ export default function ResumeStep3() {
             <Button type="submit" size="sm" variant="primary">学歴を追加</Button>
           </div>
           {addSuccessMessage && (
-            <p role="status" className="text-xs text-green-700">{addSuccessMessage}</p>
+            <p role="status" className="text-xs text-akane">{addSuccessMessage}</p>
           )}
         </form>
       </div>
