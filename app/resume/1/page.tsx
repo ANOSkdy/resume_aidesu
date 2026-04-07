@@ -285,55 +285,56 @@ export default function ResumeStep1() {
             />
           </div>
 
-          <div className="rounded-md border border-dashed border-gray-300 p-3 space-y-3">
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="use_separate_contact"
-                checked={useSeparateContact}
-                onChange={handleSeparateContactChange}
-              />
-              <label htmlFor="use_separate_contact" className="text-sm font-medium text-gray-700">
-                別の連絡先を登録する
-              </label>
-            </div>
-
-            {useSeparateContact && (
-              <div className="space-y-3 rounded-md border border-gray-200 bg-gray-50 p-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">連絡先住所</label>
-                  <textarea
-                    {...register('contactAddress')}
-                    className="w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                  />
-                  {errors.contactAddress?.message && (
-                    <p className="mt-1 text-sm text-red-600">{errors.contactAddress.message}</p>
-                  )}
-                </div>
-
-                <Input
-                  label="連絡先電話番号"
-                  {...register('contactPhone')}
-                  error={errors.contactPhone?.message}
-                  placeholder="0312345678"
-                />
-
-                <Input
-                  label="連絡先メールアドレス"
-                  {...register('contactEmail')}
-                  error={errors.contactEmail?.message}
-                  placeholder="contact@example.com"
-                  type="email"
-                />
-              </div>
-            )}
-          </div>
         </section>
 
         <details className="rounded-md border border-gray-200 bg-gray-50 p-4">
           <summary className="cursor-pointer text-sm font-bold text-gray-700">任意項目（連絡先・家族・扶養）</summary>
           <div className="mt-4 space-y-4">
+            <div className="rounded-md border border-dashed border-gray-300 p-3 space-y-3">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="use_separate_contact"
+                  checked={useSeparateContact}
+                  onChange={handleSeparateContactChange}
+                />
+                <label htmlFor="use_separate_contact" className="text-sm font-medium text-gray-700">
+                  別の連絡先を登録する
+                </label>
+              </div>
+
+              {useSeparateContact && (
+                <div className="space-y-3 rounded-md border border-gray-200 bg-gray-50 p-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">連絡先住所</label>
+                    <textarea
+                      {...register('contactAddress')}
+                      className="w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      rows={3}
+                    />
+                    {errors.contactAddress?.message && (
+                      <p className="mt-1 text-sm text-red-600">{errors.contactAddress.message}</p>
+                    )}
+                  </div>
+
+                  <Input
+                    label="連絡先電話番号"
+                    {...register('contactPhone')}
+                    error={errors.contactPhone?.message}
+                    placeholder="0312345678"
+                  />
+
+                  <Input
+                    label="連絡先メールアドレス"
+                    {...register('contactEmail')}
+                    error={errors.contactEmail?.message}
+                    placeholder="contact@example.com"
+                    type="email"
+                  />
+                </div>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">扶養家族数（配偶者を除く）</label>
               <select {...register('dependents_count')} className="w-full px-3 py-2 border rounded bg-white">
