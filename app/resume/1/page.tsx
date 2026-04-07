@@ -294,7 +294,7 @@ export default function ResumeStep1() {
                 onChange={handleSeparateContactChange}
               />
               <label htmlFor="use_separate_contact" className="text-sm font-medium text-gray-700">
-                別の連絡先を登録する（任意）
+                別の連絡先を登録する
               </label>
             </div>
 
@@ -332,7 +332,7 @@ export default function ResumeStep1() {
         </section>
 
         <details className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          <summary className="cursor-pointer text-sm font-bold text-gray-700">任意項目（家族・扶養）</summary>
+          <summary className="cursor-pointer text-sm font-bold text-gray-700">任意項目（連絡先・家族・扶養）</summary>
           <div className="mt-4 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">扶養家族数（配偶者を除く）</label>
