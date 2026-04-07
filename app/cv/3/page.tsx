@@ -445,7 +445,7 @@ export default function CVStep3() {
             {uploadMessage ? (
               <p
                 className={`text-xs ${
-                  uploadMessage.type === 'success' ? 'text-green-600' : 'text-red-600'
+                  uploadMessage.type === 'success' ? 'text-ai' : 'text-akane'
                 }`}
               >
                 {uploadMessage.text}
@@ -455,12 +455,12 @@ export default function CVStep3() {
         </div>
       </div>
       
-      <div className="bg-green-50 p-4 rounded mb-6">
-        <h3 className="font-bold text-sm mb-2 text-green-800">1. 職務要約を作成・編集</h3>
-        <div className="text-xs text-green-700 mb-3">
+      <div className="bg-kinari p-4 rounded mb-6 border border-[var(--border)]">
+        <h3 className="font-bold text-sm mb-2 text-ai">1. 職務要約を作成・編集</h3>
+        <div className="text-xs text-nezumi mb-3">
            <p>登録されている職歴データ数: <strong>{worksCount}件</strong></p>
         </div>
-        <Button onClick={generateSummary} isLoading={loadingAI} size="sm" className="bg-green-600 hover:bg-green-700">
+        <Button onClick={generateSummary} isLoading={loadingAI} size="sm" className="bg-ai hover:bg-ai/90">
           🤖 AIで職務要約を書く
         </Button>
       </div>
@@ -472,13 +472,13 @@ export default function CVStep3() {
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
         />
-        <div className="bg-blue-50 p-4 rounded">
+        <div className="bg-ai/8 p-4 rounded border border-ai/20">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-blue-800 mb-1">活かせる経験・知識</p>
-              <p className="text-xs text-blue-700 mb-2">入力した職歴情報を元にAIが自動で生成します。</p>
+              <p className="text-sm font-bold text-ai mb-1">活かせる経験・知識</p>
+              <p className="text-xs text-nezumi mb-2">入力した職歴情報を元にAIが自動で生成します。</p>
             </div>
-            <Button onClick={generateExperienceKnowledge} isLoading={loadingExperienceAI} size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={generateExperienceKnowledge} isLoading={loadingExperienceAI} size="sm" className="bg-ai hover:bg-ai/90">
               💡 AIで生成する
             </Button>
           </div>
@@ -496,12 +496,12 @@ export default function CVStep3() {
             variant="outline"
             onClick={onSaveSummary}
             disabled={!summary && !transferableSkills}
-            className={requiresSaveBeforePdf ? 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100' : undefined}
+            className={requiresSaveBeforePdf ? 'border-akane/40 bg-akane/10 text-akane hover:bg-akane/15' : undefined}
           >
             2. 要約・活かせる経験を保存してPDFに反映
           </Button>
           {requiresSaveBeforePdf ? (
-            <p className="mt-2 text-xs text-amber-700">
+            <p className="mt-2 text-xs text-akane">
               保存後にPDFボタンが有効になります。
             </p>
           ) : null}

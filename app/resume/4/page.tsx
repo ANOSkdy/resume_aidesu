@@ -27,7 +27,7 @@ export default function ResumeStep4() {
   const [addSuccessMessage, setAddSuccessMessage] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const hintButtonClass =
-    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
+    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-ai text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-ai/90 focus-visible:wa-focus';
   const descriptionTemplates: Record<string, string> = {
     営業: '法人営業を担当。新規顧客への提案と既存顧客フォローを行い、見積作成から受注後対応まで担当。',
     事務: '一般事務として、データ入力・書類作成・電話メール対応を中心に、社内業務の進行を支援。',
@@ -123,7 +123,7 @@ export default function ResumeStep4() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">職歴の入力</h2>
-      <div className="mb-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900 space-y-1">
+      <div className="mb-4 rounded-md border border-ai/20 bg-ai/8 p-3 text-xs text-sumi space-y-1">
         <p>最低1件の職歴があれば次へ進めます。まずは最新・関連性の高い職歴から入力しましょう。</p>
         <p>業務内容詳細は短い下書きで大丈夫です。あとで追記する前提で気軽に入力してください。</p>
       </div>
@@ -175,8 +175,8 @@ export default function ResumeStep4() {
       <hr className="my-6" />
 
       {/* 新規追加フォーム */}
-      <div className="bg-blue-50 p-5 rounded-md mb-6">
-        <h3 className="font-bold text-sm mb-1 text-blue-800">次に、職歴を1件追加しましょう</h3>
+      <div className="bg-kinari p-5 rounded-md mb-6 border border-[var(--border)]">
+        <h3 className="font-bold text-sm mb-1 text-ai">次に、職歴を1件追加しましょう</h3>
         <p className="text-xs text-gray-500 mb-4">最初は簡潔でOKです。企業名・期間・業務概要だけでも十分です。</p>
         <form onSubmit={handleSubmit(onAdd)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,7 +218,7 @@ export default function ResumeStep4() {
                     <span className="self-center text-xs">月</span>
                    </>
                  ) : (
-                   <span className="text-sm font-bold text-green-600 px-2">現在在籍中</span>
+                   <span className="text-sm font-bold text-ai px-2">現在在籍中</span>
                  )}
               </div>
             </div>
@@ -327,8 +327,8 @@ export default function ResumeStep4() {
                   onClick={() => onSelectTemplate(roleType)}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                     selectedTemplate === roleType
-                      ? 'border-blue-500 bg-blue-100 text-blue-800'
-                      : 'border-gray-300 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-700'
+                      ? 'border-ai/60 bg-ai/10 text-ai'
+                      : 'border-[var(--border)] bg-white text-nezumi hover:border-ai/45 hover:text-ai'
                   }`}
                 >
                   {roleType}テンプレ
@@ -342,7 +342,7 @@ export default function ResumeStep4() {
             <Button type="submit" size="sm" variant="primary">職歴を追加</Button>
           </div>
           {addSuccessMessage && (
-            <p role="status" className="text-xs text-green-700">{addSuccessMessage}</p>
+            <p role="status" className="text-xs text-akane">{addSuccessMessage}</p>
           )}
         </form>
       </div>

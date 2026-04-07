@@ -19,7 +19,7 @@ export default function CVStep1() {
   const [openHint, setOpenHint] = useState<'pr_summary' | 'episode' | 'policy' | null>(null);
   const { register, handleSubmit, setValue } = useForm<AiInputData>();
   const hintButtonClass =
-    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300';
+    'inline-flex h-6 w-6 items-center justify-center rounded-full bg-ai text-xs font-bold text-white shadow transition-colors wa-motion-ui hover:bg-ai/90 focus-visible:wa-focus';
 
   useEffect(() => {
     // 以前の入力があればロード
@@ -44,7 +44,7 @@ export default function CVStep1() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">自己PR作成のためのヒアリング</h2>
-      <div className="mb-4 rounded border border-blue-100 bg-blue-50 p-3 text-xs text-blue-900">
+      <div className="mb-4 rounded border border-ai/20 bg-ai/8 p-3 text-xs text-sumi">
         <p className="font-semibold">この回答をもとに次の画面で自己PRをAI生成します。</p>
         <p className="mt-1">箇条書きや短い文章でも大丈夫です。生成後に編集して整えられます。</p>
       </div>
