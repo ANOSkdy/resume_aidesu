@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aidesu | モバイル履歴書ウィザード",
-  description: "AIでつくるモバイル最適化された履歴書/職務経歴書ウィザード",
+  title: "Aidesu | AI履歴書作成",
+  description: "AIで履歴書・職務経歴書をスマホから簡単に作成できます。",
 };
 
 export const viewport: Viewport = {
