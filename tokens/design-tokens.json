@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "name": "resume_aidesu-design-tokens",
+    "version": "1.0.0"
+  },
+  "colors": {
+    "sumi-black": "#1a1a1a",
+    "nezumi-gray": "#707c80",
+    "kinari-off-white": "#f6f0e8",
+    "akane-red": "#b34d4d",
+    "ai-blue": "#224c5b",
+    "background": "var(--wa-colors-kinari-off-white)",
+    "foreground": "var(--wa-colors-sumi-black)",
+    "surface": "#fffdf8",
+    "surface-muted": "#f2ece4",
+    "border": "color-mix(in oklab, var(--wa-colors-nezumi-gray) 38%, white)",
+    "ring": "color-mix(in oklab, var(--wa-colors-ai-blue) 70%, white)"
+  },
+  "spacing": {
+    "xs": "0.25rem",
+    "sm": "0.5rem",
+    "md": "0.75rem",
+    "lg": "1rem",
+    "xl": "1.5rem"
+  },
+  "radii": {
+    "sm": "0.5rem",
+    "md": "0.75rem",
+    "lg": "0.9rem"
+  },
+  "typography": {
+    "size-sm": "0.875rem",
+    "size-base": "1rem",
+    "size-lg": "1.125rem",
+    "line-tight": "1.4",
+    "line-normal": "1.65"
+  },
+  "elevation": {
+    "surface": "0 5px 14px rgba(26, 26, 26, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.45)",
+    "lift": "0 10px 24px rgba(26, 26, 26, 0.08)"
+  },
+  "motion": {
+    "dur-fast": "140ms",
+    "dur-normal": "220ms",
+    "dur-reduced-fast": "80ms",
+    "dur-reduced-normal": "120ms",
+    "ease-standard": "cubic-bezier(0.2, 0, 0, 1)",
+    "ease-spring-ui": "var(--wa-motion-ease-standard)",
+    "ease-spring-enter": "var(--wa-motion-ease-standard)",
+    "ease-spring-exit": "var(--wa-motion-ease-standard)"
+  }
+}
