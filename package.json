@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test"
+    "test": "node --test",
+    "tokens:build": "node scripts/build-tokens.mjs",
+    "tokens:check": "pnpm tokens:build && git diff --exit-code -- styles/tokens.css docs/DESIGN.md"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

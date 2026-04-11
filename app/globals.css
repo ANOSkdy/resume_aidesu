@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --sumi-black: #1a1a1a;
-  --nezumi-gray: #707c80;
-  --kinari-off-white: #f6f0e8;
-  --akane-red: #b34d4d;
-  --ai-blue: #224c5b;
+  --sumi-black: var(--wa-colors-sumi-black);
+  --nezumi-gray: var(--wa-colors-nezumi-gray);
+  --kinari-off-white: var(--wa-colors-kinari-off-white);
+  --akane-red: var(--wa-colors-akane-red);
+  --ai-blue: var(--wa-colors-ai-blue);
 
-  --background: var(--kinari-off-white);
-  --foreground: var(--sumi-black);
-  --surface: #fffdf8;
-  --surface-muted: #f2ece4;
-  --border: color-mix(in oklab, var(--nezumi-gray) 38%, white);
-  --ring: color-mix(in oklab, var(--ai-blue) 70%, white);
+  --background: var(--wa-colors-background);
+  --foreground: var(--wa-colors-foreground);
+  --surface: var(--wa-colors-surface);
+  --surface-muted: var(--wa-colors-surface-muted);
+  --border: var(--wa-colors-border);
+  --ring: var(--wa-colors-ring);
 
-  --dur-fast: 140ms;
-  --dur-normal: 220ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-spring-ui: var(--ease-standard);
-  --ease-spring-enter: var(--ease-standard);
-  --ease-spring-exit: var(--ease-standard);
+  --dur-fast: var(--wa-motion-dur-fast);
+  --dur-normal: var(--wa-motion-dur-normal);
+  --ease-standard: var(--wa-motion-ease-standard);
+  --ease-spring-ui: var(--wa-motion-ease-spring-ui);
+  --ease-spring-enter: var(--wa-motion-ease-spring-enter);
+  --ease-spring-exit: var(--wa-motion-ease-spring-exit);
 }
 
 @theme inline {
@@ -48,8 +48,8 @@ body {
     linear-gradient(150deg, color-mix(in oklab, var(--kinari-off-white) 91%, white) 0%, var(--kinari-off-white) 52%, color-mix(in oklab, var(--kinari-off-white) 90%, var(--nezumi-gray)) 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 16px;
-  line-height: 1.65;
+  font-size: var(--wa-typography-size-base);
+  line-height: var(--wa-typography-line-normal);
   overflow-x: hidden;
 }
 
@@ -89,15 +89,22 @@ textarea {
 }
 
 @layer components {
+  .wa-hero-title {
+    background: linear-gradient(110deg, color-mix(in oklab, var(--ai-blue) 92%, black) 0%, color-mix(in oklab, var(--ai-blue) 65%, var(--akane-red)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .wa-surface {
-    border-radius: 0.9rem;
+    border-radius: var(--wa-radii-lg);
     border: 1px solid var(--border);
     background: color-mix(in oklab, var(--surface) 93%, white);
-    box-shadow: 0 5px 14px rgba(26, 26, 26, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    box-shadow: var(--wa-elevation-surface);
   }
 
   .wa-panel {
-    border-radius: 0.75rem;
+    border-radius: var(--wa-radii-md);
     border: 1px solid color-mix(in oklab, var(--border) 90%, white);
     background: color-mix(in oklab, var(--surface-muted) 89%, white);
   }
@@ -136,6 +143,12 @@ textarea {
     transform: rotate(19deg);
     background: linear-gradient(90deg, rgba(34, 76, 91, 0.08), rgba(34, 76, 91, 0));
     pointer-events: none;
+  }
+
+  .wa-step-chip {
+    border-radius: var(--wa-radii-md);
+    border: 1px solid color-mix(in oklab, var(--border) 85%, white);
+    background: color-mix(in oklab, var(--surface) 88%, white);
   }
 }
 
@@ -187,8 +200,8 @@ textarea {
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --dur-fast: 80ms;
-    --dur-normal: 120ms;
+    --dur-fast: var(--wa-motion-dur-reduced-fast);
+    --dur-normal: var(--wa-motion-dur-reduced-normal);
     --ease-spring-ui: linear;
     --ease-spring-enter: linear;
     --ease-spring-exit: linear;
@@ -216,6 +229,6 @@ textarea {
 
   .wa-lift:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(26, 26, 26, 0.08);
+    box-shadow: var(--wa-elevation-lift);
   }
 }
