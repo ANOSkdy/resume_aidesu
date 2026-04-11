@@ -89,6 +89,13 @@ textarea {
 }
 
 @layer components {
+  .wa-hero-title {
+    background: linear-gradient(110deg, color-mix(in oklab, var(--ai-blue) 92%, black) 0%, color-mix(in oklab, var(--ai-blue) 65%, var(--akane-red)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   .wa-surface {
     border-radius: var(--wa-radii-lg);
     border: 1px solid var(--border);
@@ -136,6 +143,12 @@ textarea {
     transform: rotate(19deg);
     background: linear-gradient(90deg, rgba(34, 76, 91, 0.08), rgba(34, 76, 91, 0));
     pointer-events: none;
+  }
+
+  .wa-step-chip {
+    border-radius: var(--wa-radii-md);
+    border: 1px solid color-mix(in oklab, var(--border) 85%, white);
+    background: color-mix(in oklab, var(--surface) 88%, white);
   }
 }
 

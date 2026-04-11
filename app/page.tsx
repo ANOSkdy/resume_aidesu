@@ -18,9 +18,10 @@ export default function Home() {
   return (
     <AppShell title="ホーム">
       <section className="space-y-7 py-4">
-        <div className="space-y-3">
-          <h1 className="text-3xl font-extrabold leading-tight text-ai">Aidesu</h1>
-          <p className="max-w-xl text-sm text-nezumi">
+        <div className="wa-surface wa-accent-diagonal space-y-3 p-5">
+          <p className="text-xs font-semibold tracking-[0.08em] text-nezumi">スマホで、落ち着いて作れる履歴書体験</p>
+          <h1 className="wa-hero-title text-3xl font-extrabold leading-tight">Aidesu</h1>
+          <p className="max-w-xl text-sm leading-relaxed text-nezumi">
             AIでつくる、あなたのキャリア。
             いつでもどこでもモバイル端末から履歴書・職務経歴書を作成できます。
           </p>
@@ -29,9 +30,18 @@ export default function Home() {
         <div className="wa-panel space-y-3 p-4">
           <p className="text-sm font-semibold text-sumi">かんたん3ステップ</p>
           <ol className="grid gap-2 text-sm text-nezumi sm:grid-cols-3">
-            <li className="rounded-lg border border-[var(--border)] bg-white/70 px-3 py-2">1. 履歴書入力</li>
-            <li className="rounded-lg border border-[var(--border)] bg-white/70 px-3 py-2">2. AI仕上げ</li>
-            <li className="rounded-lg border border-[var(--border)] bg-white/70 px-3 py-2">3. PDF出力</li>
+            <li className="wa-step-chip px-3 py-2">
+              <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-ai/12 text-[11px] font-bold text-ai">1</span>
+              履歴書入力
+            </li>
+            <li className="wa-step-chip px-3 py-2">
+              <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-ai/12 text-[11px] font-bold text-ai">2</span>
+              AI仕上げ
+            </li>
+            <li className="wa-step-chip px-3 py-2">
+              <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-ai/12 text-[11px] font-bold text-ai">3</span>
+              PDF出力
+            </li>
           </ol>
         </div>
 
