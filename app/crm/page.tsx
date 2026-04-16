@@ -66,7 +66,7 @@ export default async function CrmPage({
   if (accessError) {
     return (
       <AppShell title="CRM / 応募者一覧">
-        <div className="wa-surface border-akane p-4 text-sm text-akane">
+        <div className="wa-surface border-akane/45 bg-[color-mix(in_oklab,var(--surface)_92%,white)] p-4 text-sm text-akane">
           {accessError}
         </div>
       </AppShell>
@@ -87,7 +87,7 @@ export default async function CrmPage({
   } catch (error: unknown) {
     return (
       <AppShell title="CRM / 応募者一覧">
-        <div className="wa-surface border-akane p-4 text-sm text-akane">
+        <div className="wa-surface border-akane/45 bg-[color-mix(in_oklab,var(--surface)_92%,white)] p-4 text-sm text-akane">
           データ取得中にエラーが発生しました。{error instanceof Error ? error.message : ''}
         </div>
       </AppShell>
@@ -101,8 +101,8 @@ export default async function CrmPage({
 
   return (
     <AppShell title="CRM / 応募者一覧">
-      <div className="space-y-4">
-        <form className="wa-surface p-4" method="get">
+      <div className="space-y-4 py-4">
+        <form className="wa-surface wa-accent-diagonal wa-form p-4" method="get">
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-sumi">検索</label>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -111,12 +111,12 @@ export default async function CrmPage({
                 name="q"
                 defaultValue={q}
                 placeholder="氏名・メールで検索"
-                className="flex-1 rounded-md border border-[var(--border)] px-3 py-2 text-sm text-sumi shadow-sm focus-visible:wa-focus"
+                className="wa-motion-ui flex-1 text-sm"
               />
               <input type="hidden" name="pageSize" value={pageSize} />
               <button
                 type="submit"
-                className="rounded-md border border-ai bg-ai px-4 py-2 text-sm font-semibold text-kinari shadow-sm transition-colors hover:bg-ai/90 focus-visible:wa-focus"
+                className="wa-motion-ui rounded-md border border-ai/60 bg-ai px-4 py-2 text-sm font-semibold text-kinari shadow-sm hover:bg-[color-mix(in_oklab,var(--ai-blue)_85%,black)] focus-visible:wa-focus"
               >
                 検索
               </button>
@@ -126,46 +126,48 @@ export default async function CrmPage({
 
         <div className="wa-surface overflow-hidden">
           {data.length === 0 ? (
-            <div className="p-4 text-sm text-nezumi">該当する応募者が見つかりませんでした。</div>
+            <div className="wa-panel m-3 p-4 text-sm text-[color-mix(in_oklab,var(--foreground)_72%,var(--nezumi-gray))]">
+              該当する応募者が見つかりませんでした。
+            </div>
           ) : (
             <>
-              <div className="divide-y divide-gray-200 md:hidden">
+              <div className="divide-y divide-[color-mix(in_oklab,var(--border)_88%,white)] md:hidden">
                 {data.map((item) => {
                   const href = { pathname: `/crm/${item.resume_id}`, query: { from: returnTo } };
                   return (
                     <Link
                       key={item.resume_id}
                       href={href}
-                      className="block space-y-2 p-4 text-sm transition hover:bg-ai/10"
+                      className="wa-motion-ui block space-y-2 p-4 text-sm hover:bg-[color-mix(in_oklab,var(--ai-blue)_12%,white)] focus-visible:wa-focus"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-gray-500">ID</span>
+                        <span className="text-xs font-semibold text-[color-mix(in_oklab,var(--foreground)_48%,var(--nezumi-gray))]">ID</span>
                         <span className="text-xs font-semibold text-ai">{item.resume_id}</span>
                       </div>
-                      <div className="grid gap-2 text-sm text-gray-800">
+                      <div className="grid gap-2 text-sm text-[color-mix(in_oklab,var(--foreground)_86%,var(--nezumi-gray))]">
                         <div>
-                          <p className="text-xs font-semibold text-gray-500">氏名</p>
-                          <p className="text-gray-900">{item.nameKanji}</p>
+                          <p className="text-xs font-semibold text-[color-mix(in_oklab,var(--foreground)_48%,var(--nezumi-gray))]">氏名</p>
+                          <p className="text-sumi">{item.nameKanji}</p>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-gray-500">フリガナ</p>
-                          <p className="text-gray-700">{item.furigana || '-'}</p>
+                          <p className="text-xs font-semibold text-[color-mix(in_oklab,var(--foreground)_48%,var(--nezumi-gray))]">フリガナ</p>
+                          <p>{item.furigana || '-'}</p>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-gray-500">メール</p>
-                          <p className="text-gray-700">{item.contactEmail ?? ''}</p>
+                          <p className="text-xs font-semibold text-[color-mix(in_oklab,var(--foreground)_48%,var(--nezumi-gray))]">メール</p>
+                          <p>{item.contactEmail ?? ''}</p>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-gray-500">電話</p>
-                          <p className="text-gray-700">{item.contactPhone ?? ''}</p>
+                          <p className="text-xs font-semibold text-[color-mix(in_oklab,var(--foreground)_48%,var(--nezumi-gray))]">電話</p>
+                          <p>{item.contactPhone ?? ''}</p>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-gray-500">現在</p>
-                          <p className="text-gray-700">{item.currentStatus ?? ''}</p>
+                          <p className="text-xs font-semibold text-[color-mix(in_oklab,var(--foreground)_48%,var(--nezumi-gray))]">現在</p>
+                          <p>{item.currentStatus ?? ''}</p>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-gray-500">住所</p>
-                          <p className="text-gray-500">{item.addressCity ?? ''}</p>
+                          <p className="text-xs font-semibold text-[color-mix(in_oklab,var(--foreground)_48%,var(--nezumi-gray))]">住所</p>
+                          <p className="wa-muted">{item.addressCity ?? ''}</p>
                         </div>
                       </div>
                     </Link>
@@ -173,8 +175,8 @@ export default async function CrmPage({
                 })}
               </div>
               <div className="hidden overflow-x-auto md:block">
-                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                  <thead className="bg-kinari/70 text-left text-xs font-semibold uppercase tracking-wide text-nezumi">
+                <table className="min-w-full divide-y divide-[color-mix(in_oklab,var(--border)_88%,white)] text-sm">
+                  <thead className="bg-[color-mix(in_oklab,var(--surface-muted)_84%,white)] text-left text-xs font-semibold uppercase tracking-wide text-[color-mix(in_oklab,var(--foreground)_52%,var(--nezumi-gray))]">
                     <tr>
                       <th className="px-4 py-3">ID</th>
                       <th className="px-4 py-3">氏名</th>
@@ -185,43 +187,43 @@ export default async function CrmPage({
                       <th className="px-4 py-3">住所</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-[color-mix(in_oklab,var(--border)_88%,white)]">
                     {data.map((item) => {
                       const href = { pathname: `/crm/${item.resume_id}`, query: { from: returnTo } };
                       return (
-                        <tr key={item.resume_id} className="hover:bg-ai/10">
-                          <td className="p-0 text-xs font-semibold text-gray-700">
-                            <Link href={href} className="block px-4 py-3 text-blue-600 hover:text-blue-700">
+                        <tr key={item.resume_id} className="wa-motion-ui hover:bg-[color-mix(in_oklab,var(--ai-blue)_10%,white)]">
+                          <td className="p-0 text-xs font-semibold text-[color-mix(in_oklab,var(--foreground)_74%,var(--nezumi-gray))]">
+                            <Link href={href} className="block px-4 py-3 text-ai hover:text-[color-mix(in_oklab,var(--ai-blue)_80%,black)] focus-visible:wa-focus">
                               {item.resume_id}
                             </Link>
                           </td>
-                          <td className="p-0 text-gray-900">
-                            <Link href={href} className="block px-4 py-3">
+                          <td className="p-0 text-sumi">
+                            <Link href={href} className="block px-4 py-3 focus-visible:wa-focus">
                               {item.nameKanji}
                             </Link>
                           </td>
-                          <td className="p-0 text-gray-700">
-                            <Link href={href} className="block px-4 py-3">
+                          <td className="p-0 text-[color-mix(in_oklab,var(--foreground)_78%,var(--nezumi-gray))]">
+                            <Link href={href} className="block px-4 py-3 focus-visible:wa-focus">
                               {item.furigana || '-'}
                             </Link>
                           </td>
-                          <td className="p-0 text-gray-700">
-                            <Link href={href} className="block px-4 py-3">
+                          <td className="p-0 text-[color-mix(in_oklab,var(--foreground)_78%,var(--nezumi-gray))]">
+                            <Link href={href} className="block px-4 py-3 focus-visible:wa-focus">
                               {item.contactEmail ?? ''}
                             </Link>
                           </td>
-                          <td className="p-0 text-gray-700">
-                            <Link href={href} className="block px-4 py-3">
+                          <td className="p-0 text-[color-mix(in_oklab,var(--foreground)_78%,var(--nezumi-gray))]">
+                            <Link href={href} className="block px-4 py-3 focus-visible:wa-focus">
                               {item.contactPhone ?? ''}
                             </Link>
                           </td>
-                          <td className="p-0 text-gray-700">
-                            <Link href={href} className="block px-4 py-3">
+                          <td className="p-0 text-[color-mix(in_oklab,var(--foreground)_78%,var(--nezumi-gray))]">
+                            <Link href={href} className="block px-4 py-3 focus-visible:wa-focus">
                               {item.currentStatus ?? ''}
                             </Link>
                           </td>
-                          <td className="p-0 text-gray-500">
-                            <Link href={href} className="block px-4 py-3">
+                          <td className="p-0 text-[color-mix(in_oklab,var(--foreground)_56%,var(--nezumi-gray))]">
+                            <Link href={href} className="block px-4 py-3 focus-visible:wa-focus">
                               {item.addressCity ?? ''}
                             </Link>
                           </td>
@@ -238,7 +240,7 @@ export default async function CrmPage({
         <div className="flex items-center justify-between">
           {hasPrev ? (
             <Link
-              className="text-sm font-medium text-ai hover:text-ai/85"
+              className="wa-motion-ui text-sm font-medium text-ai hover:text-[color-mix(in_oklab,var(--ai-blue)_80%,black)] focus-visible:wa-focus"
               href={buildQueryString({
                 q: q || undefined,
                 pageSize: String(pageSize),
@@ -253,7 +255,7 @@ export default async function CrmPage({
           )}
           {nextStack ? (
             <Link
-              className="text-sm font-medium text-ai hover:text-ai/85"
+              className="wa-motion-ui text-sm font-medium text-ai hover:text-[color-mix(in_oklab,var(--ai-blue)_80%,black)] focus-visible:wa-focus"
               href={buildQueryString({
                 q: q || undefined,
                 pageSize: String(pageSize),

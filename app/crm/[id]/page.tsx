@@ -32,7 +32,9 @@ const toNumber = (value: unknown) => {
 };
 
 const Tag = ({ children }: { children: React.ReactNode }) => (
-  <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700">{children}</span>
+  <span className="rounded-full border border-[color-mix(in_oklab,var(--border)_88%,white)] bg-[color-mix(in_oklab,var(--surface-muted)_88%,white)] px-2 py-1 text-xs text-[color-mix(in_oklab,var(--foreground)_74%,var(--nezumi-gray))]">
+    {children}
+  </span>
 );
 
 const toText = (value: unknown, fallback: string) =>
@@ -50,14 +52,15 @@ export default async function CrmDetailPage({
 }) {
   const accessError = await getAccessError();
   const resolvedParams = params ? await Promise.resolve(params) : {};
+  const paramsRecord = (resolvedParams ?? {}) as Record<string, unknown>;
   const paramKeys = Object.keys(resolvedParams ?? {});
   const fallbackValue =
-    paramKeys.length === 1 ? (resolvedParams as Record<string, unknown>)[paramKeys[0]] : undefined;
+    paramKeys.length === 1 ? paramsRecord[paramKeys[0]] : undefined;
   const rawParam =
-    (resolvedParams as any)?.id ??
-    (resolvedParams as any)?.resumeId ??
-    (resolvedParams as any)?.resume_id ??
-    (resolvedParams as any)?.slug ??
+    paramsRecord.id ??
+    paramsRecord.resumeId ??
+    paramsRecord.resume_id ??
+    paramsRecord.slug ??
     fallbackValue;
   const rawValue = Array.isArray(rawParam) ? rawParam[0] : rawParam;
   const resumeIdInfo = normalizeResumeId(rawValue);
@@ -76,7 +79,7 @@ export default async function CrmDetailPage({
     });
     return (
       <AppShell title="CRM / 応募者詳細">
-        <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
+        <div className="wa-surface border-akane/45 p-4 text-sm text-akane">
           <p>不正なIDが指定されました。</p>
           <p>resume_id (raw): {resumeIdInfo.raw ?? 'undefined'}</p>
           <p>resume_id (normalized): {resumeIdInfo.normalized ?? 'undefined'}</p>
@@ -89,7 +92,7 @@ export default async function CrmDetailPage({
   if (accessError) {
     return (
       <AppShell title="CRM / 応募者詳細">
-        <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
+        <div className="wa-surface border-akane/45 p-4 text-sm text-akane">
           {accessError}
         </div>
       </AppShell>
@@ -99,17 +102,19 @@ export default async function CrmDetailPage({
   let bundle;
   try {
     bundle = await getResumeBundle(resumeId);
-  } catch (error: any) {
+  } catch (error: unknown) {
     const correlationId = randomUUID();
+    const message = error instanceof Error ? error.message : '';
+    const stack = error instanceof Error ? error.stack : undefined;
     console.error('CRM resume detail error', {
       correlationId,
-      message: error?.message,
-      stack: error?.stack,
+      message,
+      stack,
     });
     return (
       <AppShell title="CRM / 応募者詳細">
-        <div className="rounded-xl border border-red-200 bg-white p-4 text-sm text-red-600 shadow-sm">
-          データ取得中にエラーが発生しました。{error?.message ?? ''} (Trace ID: {correlationId})
+        <div className="wa-surface border-akane/45 p-4 text-sm text-akane">
+          データ取得中にエラーが発生しました。{message} (Trace ID: {correlationId})
         </div>
       </AppShell>
     );
@@ -121,12 +126,12 @@ export default async function CrmDetailPage({
     return (
       <AppShell title="CRM / 応募者詳細">
         <div className="space-y-3">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm">
+          <div className="wa-surface p-4 text-sm text-[color-mix(in_oklab,var(--foreground)_74%,var(--nezumi-gray))]">
             <p>応募者が見つかりませんでした。</p>
             <p>resume_id: {resumeId}</p>
             <p>Trace ID: {correlationId}</p>
           </div>
-          <Link className="text-sm font-medium text-blue-600 hover:text-blue-700" href={returnTo}>
+          <Link className="wa-motion-ui text-sm font-medium text-ai hover:text-[color-mix(in_oklab,var(--ai-blue)_80%,black)] focus-visible:wa-focus" href={returnTo}>
             ← 一覧へ戻る
           </Link>
         </div>
@@ -162,16 +167,16 @@ export default async function CrmDetailPage({
 
   return (
     <AppShell title="CRM / 応募者詳細">
-      <div className="space-y-4">
-        <Link className="text-sm font-medium text-blue-600 hover:text-blue-700" href={returnTo}>
+      <div className="space-y-4 py-4">
+        <Link className="wa-motion-ui text-sm font-medium text-ai hover:text-[color-mix(in_oklab,var(--ai-blue)_80%,black)] focus-visible:wa-focus" href={returnTo}>
           ← 一覧へ戻る
         </Link>
 
-        <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <section className="wa-surface wa-accent-diagonal p-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
-              <h1 className="text-xl font-semibold text-gray-900">{nameKanji || '未入力'}</h1>
-              <div className="text-sm text-gray-600">
+              <h1 className="text-xl font-semibold text-sumi">{nameKanji || '未入力'}</h1>
+              <div className="text-sm text-[color-mix(in_oklab,var(--foreground)_72%,var(--nezumi-gray))]">
                 {resume.contactEmail ?? resume.email ? (
                   <div>メール: {resume.contactEmail ?? resume.email}</div>
                 ) : null}
@@ -180,13 +185,13 @@ export default async function CrmDetailPage({
                 ) : null}
                 {resume.contactAddress ? <div>住所: {resume.contactAddress}</div> : null}
               </div>
-              {updatedAt ? <p className="text-xs text-gray-400">更新日: {updatedAt}</p> : null}
+              {updatedAt ? <p className="text-xs text-[color-mix(in_oklab,var(--foreground)_50%,var(--nezumi-gray))]">更新日: {updatedAt}</p> : null}
             </div>
             {resume.profilePhotoUrl ? (
               <img
                 src={resume.profilePhotoUrl}
                 alt={`${nameKanji}のプロフィール写真`}
-                className="h-24 w-24 rounded-md border border-gray-200 object-cover"
+                className="h-24 w-24 rounded-md border border-[color-mix(in_oklab,var(--border)_90%,white)] object-cover"
               />
             ) : null}
           </div>
@@ -201,19 +206,19 @@ export default async function CrmDetailPage({
           </div>
         </section>
 
-        <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-semibold text-gray-900">応募者情報</h2>
-          <div className="mt-3 grid gap-4 text-sm text-gray-700 md:grid-cols-2">
+        <section className="wa-surface p-4">
+          <h2 className="text-base font-semibold text-sumi">応募者情報</h2>
+          <div className="mt-3 grid gap-4 text-sm text-[color-mix(in_oklab,var(--foreground)_78%,var(--nezumi-gray))] md:grid-cols-2">
             <div>
-              <div className="text-sm font-bold text-gray-700">転職回数</div>
+              <div className="text-sm font-bold text-[color-mix(in_oklab,var(--foreground)_72%,var(--nezumi-gray))]">転職回数</div>
               <div>{toDisplayNumber(resume.job_change_count, '未入力')}</div>
             </div>
             <div>
-              <div className="text-sm font-bold text-gray-700">入社希望時期</div>
+              <div className="text-sm font-bold text-[color-mix(in_oklab,var(--foreground)_72%,var(--nezumi-gray))]">入社希望時期</div>
               <div>{toText(resume.desired_joining_date, '未入力')}</div>
             </div>
             <div className="md:col-span-2">
-              <div className="text-sm font-bold text-gray-700">資格・免許</div>
+              <div className="text-sm font-bold text-[color-mix(in_oklab,var(--foreground)_72%,var(--nezumi-gray))]">資格・免許</div>
               {resume.licenses_qualifications && resume.licenses_qualifications.length > 0 ? (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {resume.licenses_qualifications.map((license) => (
@@ -225,29 +230,29 @@ export default async function CrmDetailPage({
               )}
             </div>
             <div className="md:col-span-2">
-              <div className="text-sm font-bold text-gray-700">活かせる経験・スキル</div>
+              <div className="text-sm font-bold text-[color-mix(in_oklab,var(--foreground)_72%,var(--nezumi-gray))]">活かせる経験・スキル</div>
               <p className="whitespace-pre-wrap">
                 {toText(resume.transferable_skills, '未入力')}
               </p>
             </div>
             <div className="md:col-span-2">
-              <div className="text-sm font-bold text-gray-700">自己PR</div>
+              <div className="text-sm font-bold text-[color-mix(in_oklab,var(--foreground)_72%,var(--nezumi-gray))]">自己PR</div>
               <p className="whitespace-pre-wrap">{toText(resume.self_pr, '未入力')}</p>
             </div>
             <div className="md:col-span-2">
-              <div className="text-sm font-bold text-gray-700">要約</div>
+              <div className="text-sm font-bold text-[color-mix(in_oklab,var(--foreground)_72%,var(--nezumi-gray))]">要約</div>
               <p className="whitespace-pre-wrap">{toText(resume.summary, '未入力')}</p>
             </div>
           </div>
         </section>
 
-        <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-semibold text-gray-900">
+        <section className="wa-surface p-4">
+          <h2 className="text-base font-semibold text-sumi">
             学歴: {sortedEducations.length}件
           </h2>
-          <div className="mt-3 space-y-3 text-sm text-gray-700">
+          <div className="mt-3 space-y-3 text-sm text-[color-mix(in_oklab,var(--foreground)_78%,var(--nezumi-gray))]">
             {sortedEducations.length === 0 ? (
-              <p className="text-gray-500">学歴情報は登録されていません。</p>
+              <p className="wa-muted">学歴情報は登録されていません。</p>
             ) : (
               sortedEducations.map((edu) => {
                 const start = formatYm(toNumber(edu.start_year), toNumber(edu.start_month));
@@ -255,14 +260,14 @@ export default async function CrmDetailPage({
                   ? '在学中'
                   : formatYm(toNumber(edu.end_year), toNumber(edu.end_month));
                 return (
-                  <div key={edu.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
-                    <div className="font-medium text-gray-900">
+                  <div key={edu.id} className="wa-panel p-3">
+                    <div className="font-medium text-sumi">
                       {toText(edu.school_name, '学校名未入力')}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs wa-muted">
                       {toText(edu.department, '学部/学科未入力')}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs wa-muted">
                       {start || '入学時期未入力'} {end ? `〜 ${end}` : ''}
                     </div>
                   </div>
@@ -272,13 +277,13 @@ export default async function CrmDetailPage({
           </div>
         </section>
 
-        <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="text-base font-semibold text-gray-900">
+        <section className="wa-surface p-4">
+          <h2 className="text-base font-semibold text-sumi">
             職歴: {sortedWorks.length}件
           </h2>
-          <div className="mt-3 space-y-3 text-sm text-gray-700">
+          <div className="mt-3 space-y-3 text-sm text-[color-mix(in_oklab,var(--foreground)_78%,var(--nezumi-gray))]">
             {sortedWorks.length === 0 ? (
-              <p className="text-gray-500">職歴情報は登録されていません。</p>
+              <p className="wa-muted">職歴情報は登録されていません。</p>
             ) : (
               sortedWorks.map((work) => {
                 const start = formatYm(toNumber(work.start_year), toNumber(work.start_month));
@@ -290,14 +295,14 @@ export default async function CrmDetailPage({
                   ...(Array.isArray(work.industries) ? work.industries : []),
                 ];
                 return (
-                  <div key={work.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
-                    <div className="font-medium text-gray-900">
+                  <div key={work.id} className="wa-panel p-3">
+                    <div className="font-medium text-sumi">
                       {toText(work.company_name, '企業名未入力')}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs wa-muted">
                       {toText(work.department, '部署未入力')} / {toText(work.position, '役職未入力')}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs wa-muted">
                       {start || '開始時期未入力'} {end ? `〜 ${end}` : ''}
                     </div>
                     {tags.length > 0 ? (
