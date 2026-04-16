@@ -4,19 +4,19 @@
     "version": "1.0.0"
   },
   "colors": {
-    "sumi-black": "#1f2933",
-    "nezumi-gray": "#62707a",
-    "kinari-off-white": "#f4f2ed",
-    "akane-red": "#b54a4a",
-    "ai-blue": "#24546a",
+    "sumi-black": "#111827",
+    "nezumi-gray": "#4b5563",
+    "kinari-off-white": "#f7f7f4",
+    "akane-red": "#d14343",
+    "ai-blue": "#06c755",
     "background": "var(--wa-colors-kinari-off-white)",
     "foreground": "var(--wa-colors-sumi-black)",
-    "surface": "#fdfcf9",
-    "surface-muted": "#f7f4ee",
-    "border": "color-mix(in oklab, var(--wa-colors-nezumi-gray) 34%, white)",
-    "ring": "color-mix(in oklab, var(--wa-colors-ai-blue) 72%, white)",
-    "success": "#2f7a52",
-    "danger": "#b54a4a",
+    "surface": "#ffffff",
+    "surface-muted": "#f3f7f3",
+    "border": "color-mix(in oklab, var(--wa-colors-nezumi-gray) 24%, white)",
+    "ring": "color-mix(in oklab, var(--wa-colors-ai-blue) 78%, white)",
+    "success": "#16a34a",
+    "danger": "#d14343",
     "muted-foreground": "color-mix(in oklab, var(--wa-colors-nezumi-gray) 88%, white)"
   },
   "spacing": {
@@ -39,8 +39,8 @@
     "line-normal": "1.65"
   },
   "elevation": {
-    "surface": "0 3px 12px rgba(18, 29, 38, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.55)",
-    "lift": "0 8px 22px rgba(18, 29, 38, 0.095)"
+    "surface": "0 6px 18px rgba(17, 24, 39, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.8)",
+    "lift": "0 12px 30px rgba(17, 24, 39, 0.14)"
   },
   "motion": {
     "dur-fast": "140ms",

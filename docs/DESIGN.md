@@ -10,14 +10,14 @@
 
 ## 1. プロダクトの見た目方針（Theme & Atmosphere）
 
-- キーワード: **trustworthy / clean / calm / modern / form-centric**
+- キーワード: **trustworthy / clean / calm / modern / form-centric / LINE-primary**
 - 体験目標:
   1. 入力時の迷いを減らす
   2. ステップ進行の安心感を高める
   3. AI補助やPDF出力を“過剰演出”せず自然に導く
 - 雰囲気:
   - 背景は紙面に近い落ち着いた明度
-  - アクセントは青系を主軸（行動誘導）
+  - アクセントは **LINE Primary Green (#06C755)** を主軸（行動誘導）
   - 警告/エラーは強すぎない赤で明確に示す
 
 ---
@@ -51,7 +51,7 @@
 - `muted-foreground`: 補助テキスト
 - `border`: 標準境界
 - `ring`: フォーカスリング
-- `ai-blue`: 主CTA・進行中・リンク系アクセント
+- `ai-blue`: 主CTA・進行中・リンク系アクセント（値は LINE Primary Green）
 - `success`: 成功メッセージ
 - `danger` / `akane-red`: バリデーション・警告・破壊的操作
 

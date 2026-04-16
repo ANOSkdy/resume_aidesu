@@ -12,16 +12,17 @@ export const AppShell = ({ title, footer, children }: AppShellProps) => {
 
   return (
     <div className="flex min-h-screen flex-col text-sumi">
-      <header className="wa-ink-divider fixed inset-x-0 top-0 z-20 bg-kinari/90 backdrop-blur-sm">
+      <header className="wa-ink-divider fixed inset-x-0 top-0 z-20 bg-white/92 shadow-[0_4px_14px_rgba(6,199,85,0.12)] backdrop-blur-sm">
         <div className="relative flex h-14 w-full items-center justify-between px-4">
           <Link
             href="/"
-            className="text-lg font-semibold tracking-[0.03em] text-ai focus-visible:wa-focus"
+            className="inline-flex items-center gap-2 rounded-full bg-ai px-3 py-1 text-sm font-bold tracking-[0.04em] text-white focus-visible:wa-focus"
           >
+            <span className="inline-block h-2 w-2 rounded-full bg-white/90" />
             Aidesu
           </Link>
           {title ? (
-            <p className="ml-4 flex-1 truncate text-right text-sm font-medium text-nezumi">
+            <p className="ml-4 flex-1 truncate text-right text-sm font-semibold text-sumi">
               {title}
             </p>
           ) : null}
@@ -35,7 +36,7 @@ export const AppShell = ({ title, footer, children }: AppShellProps) => {
       </div>
 
       {footer ? (
-        <footer className="wa-ink-divider fixed inset-x-0 bottom-0 z-20 bg-kinari/90 backdrop-blur-sm">
+        <footer className="wa-ink-divider fixed inset-x-0 bottom-0 z-20 bg-white/94 shadow-[0_-6px_16px_rgba(6,199,85,0.12)] backdrop-blur-sm">
           <div className="px-4 py-3">
             {footer}
           </div>

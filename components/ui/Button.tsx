@@ -18,9 +18,9 @@ export const Button = ({
   const baseStyles = 'inline-flex wa-lift w-full min-h-[44px] items-center justify-center rounded-[var(--wa-radii-md)] font-medium tracking-[0.01em] transition-[transform,box-shadow,background-color,border-color,color] wa-motion-ui focus-visible:wa-focus disabled:cursor-not-allowed disabled:opacity-50';
 
   const variants = {
-    primary: 'border border-ai bg-ai text-kinari hover:bg-ai/92 active:bg-ai/85',
-    secondary: 'border border-nezumi bg-nezumi text-white hover:bg-nezumi/90 active:bg-nezumi/82',
-    outline: 'border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] text-sumi hover:bg-kinari active:bg-kinari/80',
+    primary: 'border border-ai bg-ai text-white shadow-[0_8px_20px_rgba(6,199,85,0.28)] hover:bg-ai/92 active:bg-ai/84',
+    secondary: 'border border-sumi bg-sumi text-white hover:bg-sumi/90 active:bg-sumi/82',
+    outline: 'border border-ai/35 bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] text-sumi hover:bg-ai/8 active:bg-ai/12',
     ghost: 'bg-transparent text-nezumi hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_82%,white)] active:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,white)]',
   };
 
