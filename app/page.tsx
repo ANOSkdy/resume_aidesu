@@ -58,7 +58,7 @@ export default function Home() {
                 利用規約
               </div>
 
-              <div className="rounded-lg border border-[var(--border)] bg-kinari/40 p-3 text-xs leading-relaxed text-nezumi">
+              <div className="rounded-lg border border-[var(--border)] bg-kinari/40 p-3 text-xs leading-relaxed wa-muted">
                 <p className="font-semibold text-sumi">要点（ご確認ください）</p>
                 <ul className="mt-1 list-disc space-y-1 pl-5">
                   <li>AI生成内容には不正確な情報が含まれる場合があります。</li>
@@ -153,10 +153,10 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <label className="flex items-start gap-3 rounded-lg border border-[var(--border)] bg-kinari/40 p-3 text-sm text-nezumi">
+            <label className="flex items-start gap-3 rounded-lg border border-[var(--border)] bg-kinari/40 p-3 text-sm wa-muted">
               <input
                 type="checkbox"
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-ai focus-visible:wa-focus"
+                className="mt-1 h-4 w-4 rounded border-[var(--border)] text-ai focus-visible:wa-focus"
                 checked={isAgreed}
                 onChange={(event) => setIsAgreed(event.target.checked)}
               />

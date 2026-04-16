@@ -4,17 +4,20 @@
     "version": "1.0.0"
   },
   "colors": {
-    "sumi-black": "#1a1a1a",
-    "nezumi-gray": "#707c80",
-    "kinari-off-white": "#f6f0e8",
-    "akane-red": "#b34d4d",
-    "ai-blue": "#224c5b",
+    "sumi-black": "#1f2933",
+    "nezumi-gray": "#62707a",
+    "kinari-off-white": "#f4f2ed",
+    "akane-red": "#b54a4a",
+    "ai-blue": "#24546a",
     "background": "var(--wa-colors-kinari-off-white)",
     "foreground": "var(--wa-colors-sumi-black)",
-    "surface": "#fffdf8",
-    "surface-muted": "#f2ece4",
-    "border": "color-mix(in oklab, var(--wa-colors-nezumi-gray) 38%, white)",
-    "ring": "color-mix(in oklab, var(--wa-colors-ai-blue) 70%, white)"
+    "surface": "#fdfcf9",
+    "surface-muted": "#f7f4ee",
+    "border": "color-mix(in oklab, var(--wa-colors-nezumi-gray) 34%, white)",
+    "ring": "color-mix(in oklab, var(--wa-colors-ai-blue) 72%, white)",
+    "success": "#2f7a52",
+    "danger": "#b54a4a",
+    "muted-foreground": "color-mix(in oklab, var(--wa-colors-nezumi-gray) 88%, white)"
   },
   "spacing": {
     "xs": "0.25rem",
@@ -26,7 +29,7 @@
   "radii": {
     "sm": "0.5rem",
     "md": "0.75rem",
-    "lg": "0.9rem"
+    "lg": "1rem"
   },
   "typography": {
     "size-sm": "0.875rem",
@@ -36,8 +39,8 @@
     "line-normal": "1.65"
   },
   "elevation": {
-    "surface": "0 5px 14px rgba(26, 26, 26, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.45)",
-    "lift": "0 10px 24px rgba(26, 26, 26, 0.08)"
+    "surface": "0 3px 12px rgba(18, 29, 38, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.55)",
+    "lift": "0 8px 22px rgba(18, 29, 38, 0.095)"
   },
   "motion": {
     "dur-fast": "140ms",

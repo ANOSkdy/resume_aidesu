@@ -13,6 +13,9 @@
   --surface-muted: var(--wa-colors-surface-muted);
   --border: var(--wa-colors-border);
   --ring: var(--wa-colors-ring);
+  --success: var(--wa-colors-success);
+  --danger: var(--wa-colors-danger);
+  --muted-foreground: var(--wa-colors-muted-foreground);
 
   --dur-fast: var(--wa-motion-dur-fast);
   --dur-normal: var(--wa-motion-dur-normal);
@@ -109,6 +112,23 @@ textarea {
     background: color-mix(in oklab, var(--surface-muted) 89%, white);
   }
 
+  .wa-card {
+    border-radius: var(--wa-radii-md);
+    border: 1px solid var(--border);
+    background: color-mix(in oklab, var(--surface-muted) 90%, white);
+    padding: var(--wa-spacing-lg);
+  }
+
+  .wa-callout {
+    border-radius: var(--wa-radii-md);
+    border: 1px solid color-mix(in oklab, var(--ai-blue) 22%, var(--border));
+    background: color-mix(in oklab, var(--surface-muted) 87%, white);
+    padding: var(--wa-spacing-md) var(--wa-spacing-lg);
+    color: var(--foreground);
+    font-size: var(--wa-typography-size-sm);
+    line-height: var(--wa-typography-line-normal);
+  }
+
   .wa-ink-divider {
     border-bottom: 1px solid transparent;
     background-image: linear-gradient(90deg, color-mix(in oklab, var(--ai-blue) 45%, var(--nezumi-gray)) 0%, color-mix(in oklab, var(--nezumi-gray) 65%, white) 70%, transparent 100%);
@@ -149,6 +169,47 @@ textarea {
     border-radius: var(--wa-radii-md);
     border: 1px solid color-mix(in oklab, var(--border) 85%, white);
     background: color-mix(in oklab, var(--surface) 88%, white);
+  }
+
+  .wa-form label {
+    color: color-mix(in oklab, var(--foreground) 68%, var(--nezumi-gray));
+  }
+
+  .wa-form input:not([type="checkbox"]):not([type="radio"]),
+  .wa-form select,
+  .wa-form textarea {
+    width: 100%;
+    min-height: 44px;
+    border-radius: var(--wa-radii-sm);
+    border: 1px solid var(--border);
+    background: color-mix(in oklab, var(--surface) 92%, white);
+    color: var(--foreground);
+    padding: 0.5rem 0.75rem;
+    transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
+  }
+
+  .wa-form textarea {
+    min-height: 96px;
+  }
+
+  .wa-form input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+  .wa-form select:focus-visible,
+  .wa-form textarea:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 22%, transparent);
+    border-color: color-mix(in oklab, var(--ring) 56%, white);
+  }
+
+  .wa-muted {
+    color: var(--muted-foreground);
+  }
+
+  .wa-danger {
+    color: var(--danger);
+  }
+
+  .wa-success {
+    color: var(--success);
   }
 }
 

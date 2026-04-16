@@ -15,13 +15,13 @@ export const Button = ({
   disabled,
   ...props
 }: ButtonProps) => {
-  const baseStyles = 'inline-flex wa-lift w-full min-h-[44px] items-center justify-center rounded-md font-medium tracking-[0.01em] transition-[transform,box-shadow,background-color,border-color,color] wa-motion-ui focus-visible:wa-focus disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'inline-flex wa-lift w-full min-h-[44px] items-center justify-center rounded-[var(--wa-radii-md)] font-medium tracking-[0.01em] transition-[transform,box-shadow,background-color,border-color,color] wa-motion-ui focus-visible:wa-focus disabled:cursor-not-allowed disabled:opacity-50';
 
   const variants = {
     primary: 'border border-ai bg-ai text-kinari hover:bg-ai/92 active:bg-ai/85',
-    secondary: 'border border-nezumi bg-nezumi text-white hover:bg-nezumi/90 active:bg-nezumi/80',
-    outline: 'border border-[var(--border)] bg-white/80 hover:bg-kinari active:bg-kinari/80 text-sumi',
-    ghost: 'bg-transparent hover:bg-white/65 active:bg-white/80 text-nezumi',
+    secondary: 'border border-nezumi bg-nezumi text-white hover:bg-nezumi/90 active:bg-nezumi/82',
+    outline: 'border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] text-sumi hover:bg-kinari active:bg-kinari/80',
+    ghost: 'bg-transparent text-nezumi hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_82%,white)] active:bg-[color:color-mix(in_oklab,var(--surface-muted)_72%,white)]',
   };
 
   const sizes = {

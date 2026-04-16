@@ -93,28 +93,28 @@ export default function ResumeStep3() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">学歴の入力</h2>
-      <div className="mb-4 rounded-md border border-ai/20 bg-ai/8 p-3 text-xs text-sumi space-y-1">
+      <div className="wa-callout mb-4 space-y-1">
         <p>まずは最低1件の入力で次へ進めます。</p>
         <p>迷う場合は最新の学歴から入力してください。追加・削除はこの画面でいつでもできます。</p>
       </div>
       
       {/* 登録済みリスト */}
       <div className="mb-8 space-y-3">
-        {loading && <p className="text-sm text-gray-400">学歴を読み込み中...</p>}
+        {loading && <p className="text-sm wa-muted">学歴を読み込み中...</p>}
         {!loading && educations.length === 0 && (
-          <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+          <div className="rounded-md border border-dashed border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] p-4 text-sm wa-muted">
             まだ学歴が登録されていません。下のフォームから最初の1件を追加しましょう。
           </div>
         )}
         
         {educations.map((edu) => (
-          <div key={edu.id} className="p-4 border rounded bg-gray-50 space-y-3">
+          <div key={edu.id} className="p-4 border rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] space-y-3">
             <div className="min-w-0 space-y-1">
               <div className="font-bold text-lg break-words">{edu.school_name}</div>
-              <div className="text-sm text-gray-600 leading-tight break-words">
+              <div className="text-sm wa-muted leading-tight break-words">
                 {edu.department} {edu.degree ? `(${edu.degree})` : ''}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs wa-muted">
                 {edu.start_year}年{edu.start_month}月 〜 {edu.end_year ? `${edu.end_year}年${edu.end_month}月` : '現在'}
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function ResumeStep3() {
               <Button
                 variant="outline"
                 onClick={() => edu.id && onDelete(edu.id)}
-                className="w-auto min-h-[32px] h-auto px-2 py-1 text-xs text-red-600 border-red-200"
+                className="w-auto min-h-[32px] h-auto border-akane/25 px-2 py-1 text-xs wa-danger"
               >
                 削除
               </Button>
@@ -136,7 +136,7 @@ export default function ResumeStep3() {
       {/* 新規追加フォーム */}
       <div className="bg-kinari p-4 rounded-md mb-6 border border-[var(--border)]">
         <h3 className="font-bold text-sm text-ai mb-1">次に、学歴を1件追加しましょう</h3>
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs wa-muted mb-4">
           入力は学校名と在籍期間が中心でOKです。詳細は任意です。<br />
           ※最終学歴が〜高卒までは中学から、専門卒〜院卒は高校から記入<br />
           ※中途退学の場合は中途退学した学校まで記入
@@ -144,19 +144,19 @@ export default function ResumeStep3() {
         <form onSubmit={handleSubmit(onAdd)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1">学校名</label>
+              <label className="block text-xs font-bold wa-muted mb-1">学校名</label>
               <input {...register('school_name', { required: true })} className="w-full p-2 border rounded text-sm" placeholder="〇〇大学" />
-              {errors.school_name && <span className="text-red-500 text-xs">必須です</span>}
+              {errors.school_name && <span className="wa-danger text-xs">必須です</span>}
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1">学部・学科</label>
+              <label className="block text-xs font-bold wa-muted mb-1">学部・学科</label>
               <input {...register('department')} className="w-full p-2 border rounded text-sm" placeholder="経済学部" />
             </div>
           </div>
           
           <div className="flex flex-wrap gap-4 items-end">
             <div className="flex-1 min-w-[180px]">
-              <label className="block text-xs font-bold text-gray-600 mb-1">入学</label>
+              <label className="block text-xs font-bold wa-muted mb-1">入学</label>
               <div className="flex gap-1">
                 <input type="number" {...register('start_year', { valueAsNumber: true })} className="w-16 p-2 border rounded text-sm" />
                 <span className="self-center text-xs">年</span>
@@ -166,7 +166,7 @@ export default function ResumeStep3() {
             </div>
             <span className="mb-3">〜</span>
             <div className="flex-1 min-w-[180px]">
-              <label className="block text-xs font-bold text-gray-600 mb-1">卒業</label>
+              <label className="block text-xs font-bold wa-muted mb-1">卒業</label>
               <div className="flex gap-1">
                 <input type="number" {...register('end_year', { valueAsNumber: true })} className="w-16 p-2 border rounded text-sm" />
                 <span className="self-center text-xs">年</span>

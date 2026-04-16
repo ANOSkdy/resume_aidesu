@@ -26,7 +26,7 @@ export default function ResumeLayout({ children }: { children: React.ReactNode }
           basePath="/resume"
           labels={steps}
         />
-        <div className="wa-surface p-4">
+        <div className="wa-surface wa-form p-4">
           {children}
         </div>
       </div>

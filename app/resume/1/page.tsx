@@ -138,7 +138,7 @@ export default function ResumeStep1() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <section className="space-y-4">
-          <h3 className="text-base font-bold text-gray-800">本人情報</h3>
+          <h3 className="text-base font-bold text-sumi">本人情報</h3>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input
@@ -171,7 +171,7 @@ export default function ResumeStep1() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">生年月日</label>
+            <label className="mb-1 block text-sm font-medium wa-muted">生年月日</label>
             <div className="flex flex-wrap gap-3">
               <div className="w-28 flex-1 min-w-[5rem] max-w-[7rem]">
                 <input
@@ -179,7 +179,7 @@ export default function ResumeStep1() {
                   {...register('dob_year', { valueAsNumber: true })}
                   className="w-full rounded border px-3 py-2"
                 />
-                <span className="text-xs text-gray-500">年</span>
+                <span className="text-xs wa-muted">年</span>
               </div>
               <div className="w-24 flex-1 min-w-[4.5rem] max-w-[6rem]">
                 <input
@@ -187,7 +187,7 @@ export default function ResumeStep1() {
                   {...register('dob_month', { valueAsNumber: true })}
                   className="w-full rounded border px-3 py-2"
                 />
-                <span className="text-xs text-gray-500">月</span>
+                <span className="text-xs wa-muted">月</span>
               </div>
               <div className="w-24 flex-1 min-w-[4.5rem] max-w-[6rem]">
                 <input
@@ -195,15 +195,15 @@ export default function ResumeStep1() {
                   {...register('dob_day', { valueAsNumber: true })}
                   className="w-full rounded border px-3 py-2"
                 />
-                <span className="text-xs text-gray-500">日</span>
+                <span className="text-xs wa-muted">日</span>
               </div>
             </div>
-            {errors.dob_year && <p className="mt-1 text-sm text-red-500">正しい日付を入力してください</p>}
+            {errors.dob_year && <p className="mt-1 text-sm wa-danger">正しい日付を入力してください</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">性別</label>
-            <select {...register('gender')} className="w-full px-3 py-2 border rounded bg-white">
+            <label className="block text-sm font-medium wa-muted mb-1">性別</label>
+            <select {...register('gender')} className="w-full px-3 py-2 border rounded-[var(--wa-radii-sm)] bg-white">
               <option value="男性">男性</option>
               <option value="女性">女性</option>
               <option value="その他">その他</option>
@@ -212,7 +212,7 @@ export default function ResumeStep1() {
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-base font-bold text-gray-800">連絡先</h3>
+          <h3 className="text-base font-bold text-sumi">連絡先</h3>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input
@@ -269,20 +269,20 @@ export default function ResumeStep1() {
 
         </section>
 
-        <details className="rounded-md border border-gray-200 bg-gray-50 p-4">
-          <summary className="cursor-pointer text-sm font-bold text-gray-700">任意項目（連絡先・家族・扶養）</summary>
+        <details className="wa-card">
+          <summary className="cursor-pointer text-sm font-bold wa-muted">任意項目（連絡先・家族・扶養）</summary>
           <div className="mt-4 space-y-4">
-            <div className="rounded-md border border-dashed border-gray-300 p-3 space-y-3">
-              <div className="space-y-3 rounded-md border border-gray-200 bg-gray-50 p-4">
+            <div className="rounded-[var(--wa-radii-sm)] border border-dashed border-[var(--border)] p-3 space-y-3">
+              <div className="space-y-3 rounded-md border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] p-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">連絡先住所</label>
+                  <label className="block text-sm font-medium wa-muted mb-1">連絡先住所</label>
                   <textarea
                     {...register('contactAddress')}
-                    className="w-full rounded border border-gray-300 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus-visible:wa-focus"
+                    className="w-full rounded-[var(--wa-radii-sm)] border border-[var(--border)] px-3 py-2 shadow-sm focus:outline-none focus-visible:wa-focus"
                     rows={3}
                   />
                   {errors.contactAddress?.message && (
-                    <p className="mt-1 text-sm text-red-600">{errors.contactAddress.message}</p>
+                    <p className="mt-1 text-sm wa-danger">{errors.contactAddress.message}</p>
                   )}
                 </div>
 
@@ -304,8 +304,8 @@ export default function ResumeStep1() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">扶養家族数（配偶者を除く）</label>
-              <select {...register('dependents_count')} className="w-full px-3 py-2 border rounded bg-white">
+              <label className="block text-sm font-medium wa-muted mb-1">扶養家族数（配偶者を除く）</label>
+              <select {...register('dependents_count')} className="w-full px-3 py-2 border rounded-[var(--wa-radii-sm)] bg-white">
                 <option value="">選択してください</option>
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -317,7 +317,7 @@ export default function ResumeStep1() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">家族・扶養</label>
+              <label className="block text-sm font-medium wa-muted">家族・扶養</label>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="has_spouse" {...register('has_spouse')} />
                 <label htmlFor="has_spouse" className="text-sm">
@@ -333,7 +333,7 @@ export default function ResumeStep1() {
                 />
                 <label
                   htmlFor="spouse_is_dependent"
-                  className={`text-sm ${!hasSpouse ? 'text-gray-400' : ''}`}
+                  className={`text-sm ${!hasSpouse ? 'wa-muted' : ''}`}
                 >
                   配偶者を扶養に入れている
                 </label>
@@ -343,8 +343,8 @@ export default function ResumeStep1() {
         </details>
 
         {isRetryingSave && (
-          <p className="text-sm text-gray-600 inline-flex items-center gap-2">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+          <p className="text-sm wa-muted inline-flex items-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-nezumi/60 border-t-transparent" />
             保存中です
           </p>
         )}
