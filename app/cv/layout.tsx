@@ -24,10 +24,10 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
           basePath="/cv"
           labels={steps}
         />
-        <p className="text-xs text-gray-500">
+        <p className="wa-muted text-xs">
           履歴書入力の続きとして、ここで職務経歴書の仕上げを行います。
         </p>
-        <div className="wa-surface p-4">
+        <div className="wa-surface wa-form p-4">
           {children}
         </div>
       </div>

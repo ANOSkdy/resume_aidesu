@@ -52,11 +52,11 @@ export default function ResumeStep5() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-3">現在の状況・希望条件</h2>
-      <p className="text-sm text-gray-500 mb-6">先に現在の状況を入力し、そのあと希望条件を選択してください。</p>
+      <p className="text-sm wa-muted mb-6">先に現在の状況を入力し、そのあと希望条件を選択してください。</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <section className="space-y-4">
-          <h3 className="text-base font-bold text-gray-800">現在の状況</h3>
+          <h3 className="text-base font-bold text-sumi">現在の状況</h3>
           <div>
             <label className="block text-sm font-medium mb-2">これまでの転職回数</label>
             <input
@@ -70,7 +70,7 @@ export default function ResumeStep5() {
 
           <div>
             <label className="block text-sm font-medium mb-2">現在の就業状況</label>
-            <select {...register('current_status')} className="w-full px-3 py-2 border rounded bg-white">
+            <select {...register('current_status')} className="w-full px-3 py-2 border rounded bg-[color:color-mix(in_oklab,var(--surface)_92%,white)]">
               <option value="在職中">在職中 (現職で働いている)</option>
               <option value="離職中">離職中 (仕事はしていない)</option>
               <option value="学生">学生</option>
@@ -79,7 +79,7 @@ export default function ResumeStep5() {
 
           <div>
             <label className="block text-sm font-medium mb-2">入社希望時期</label>
-            <select {...register('desired_joining_date')} className="w-full px-3 py-2 border rounded bg-white">
+            <select {...register('desired_joining_date')} className="w-full px-3 py-2 border rounded bg-[color:color-mix(in_oklab,var(--surface)_92%,white)]">
               <option value="すぐにでも">すぐにでも</option>
               <option value="3ヶ月以内">3ヶ月以内</option>
               <option value="半年以内">半年以内</option>
@@ -90,13 +90,13 @@ export default function ResumeStep5() {
 
         <section className="space-y-6">
           <div>
-            <h3 className="text-base font-bold text-gray-800">希望条件</h3>
-            <p className="text-xs text-gray-500 mt-1">希望職種・勤務地を優先して入力してください（各項目 最大3つ）。</p>
+            <h3 className="text-base font-bold text-sumi">希望条件</h3>
+            <p className="text-xs wa-muted mt-1">希望職種・勤務地を優先して入力してください（各項目 最大3つ）。</p>
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">希望職種（優先）</label>
-            <div className="bg-gray-50 p-4 rounded border">
+            <label className="block text-sm font-bold wa-muted mb-2">希望職種（優先）</label>
+            <div className="bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] p-4 rounded-[var(--wa-radii-sm)] border">
               <Controller
                 name="desired_occupations"
                 control={control}
@@ -108,8 +108,8 @@ export default function ResumeStep5() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">希望勤務地（優先）</label>
-            <div className="bg-gray-50 p-4 rounded border">
+            <label className="block text-sm font-bold wa-muted mb-2">希望勤務地（優先）</label>
+            <div className="bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] p-4 rounded-[var(--wa-radii-sm)] border">
               <Controller
                 name="desired_locations"
                 control={control}
@@ -119,8 +119,8 @@ export default function ResumeStep5() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">希望業界（任意）</label>
-            <div className="bg-gray-50 p-4 rounded border">
+            <label className="block text-sm font-bold wa-muted mb-2">希望業界（任意）</label>
+            <div className="bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] p-4 rounded-[var(--wa-radii-sm)] border">
               <Controller
                 name="desired_industries"
                 control={control}
@@ -130,8 +130,8 @@ export default function ResumeStep5() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">資格・免許（任意）</label>
-            <div className="bg-gray-50 p-4 rounded border">
+            <label className="block text-sm font-bold wa-muted mb-2">資格・免許（任意）</label>
+            <div className="bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] p-4 rounded-[var(--wa-radii-sm)] border">
               <Controller
                 name="licenses_qualifications"
                 control={control}

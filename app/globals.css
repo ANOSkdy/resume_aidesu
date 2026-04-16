@@ -13,6 +13,9 @@
   --surface-muted: var(--wa-colors-surface-muted);
   --border: var(--wa-colors-border);
   --ring: var(--wa-colors-ring);
+  --success: var(--wa-colors-success);
+  --danger: var(--wa-colors-danger);
+  --muted-foreground: var(--wa-colors-muted-foreground);
 
   --dur-fast: var(--wa-motion-dur-fast);
   --dur-normal: var(--wa-motion-dur-normal);
@@ -45,7 +48,7 @@ body {
   width: 100%;
   min-height: 100%;
   background:
-    linear-gradient(150deg, color-mix(in oklab, var(--kinari-off-white) 91%, white) 0%, var(--kinari-off-white) 52%, color-mix(in oklab, var(--kinari-off-white) 90%, var(--nezumi-gray)) 100%);
+    linear-gradient(160deg, color-mix(in oklab, var(--kinari-off-white) 96%, white) 0%, var(--kinari-off-white) 48%, color-mix(in oklab, var(--kinari-off-white) 88%, #dcfce7) 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: var(--wa-typography-size-base);
@@ -59,11 +62,11 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: -1;
-  opacity: 0.28;
+  opacity: 0.38;
   background-image:
-    radial-gradient(circle at 22% 14%, rgba(34, 76, 91, 0.06), transparent 36%),
-    radial-gradient(circle at 76% 82%, rgba(179, 77, 77, 0.04), transparent 34%),
-    repeating-linear-gradient(32deg, rgba(112, 124, 128, 0.045) 0 1px, transparent 1px 17px);
+    radial-gradient(circle at 22% 14%, color-mix(in oklab, var(--ai-blue) 16%, transparent), transparent 38%),
+    radial-gradient(circle at 76% 82%, color-mix(in oklab, var(--ai-blue) 8%, transparent), transparent 34%),
+    repeating-linear-gradient(32deg, rgba(75, 85, 99, 0.04) 0 1px, transparent 1px 17px);
 }
 
 main {
@@ -90,7 +93,7 @@ textarea {
 
 @layer components {
   .wa-hero-title {
-    background: linear-gradient(110deg, color-mix(in oklab, var(--ai-blue) 92%, black) 0%, color-mix(in oklab, var(--ai-blue) 65%, var(--akane-red)) 100%);
+    background: linear-gradient(110deg, color-mix(in oklab, var(--ai-blue) 88%, #005f2f) 0%, color-mix(in oklab, var(--ai-blue) 96%, #84cc16) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -109,9 +112,26 @@ textarea {
     background: color-mix(in oklab, var(--surface-muted) 89%, white);
   }
 
+  .wa-card {
+    border-radius: var(--wa-radii-md);
+    border: 1px solid var(--border);
+    background: color-mix(in oklab, var(--surface-muted) 90%, white);
+    padding: var(--wa-spacing-lg);
+  }
+
+  .wa-callout {
+    border-radius: var(--wa-radii-md);
+    border: 1px solid color-mix(in oklab, var(--ai-blue) 28%, var(--border));
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-muted) 92%, white), color-mix(in oklab, var(--surface-muted) 80%, #dcfce7));
+    padding: var(--wa-spacing-md) var(--wa-spacing-lg);
+    color: var(--foreground);
+    font-size: var(--wa-typography-size-sm);
+    line-height: var(--wa-typography-line-normal);
+  }
+
   .wa-ink-divider {
     border-bottom: 1px solid transparent;
-    background-image: linear-gradient(90deg, color-mix(in oklab, var(--ai-blue) 45%, var(--nezumi-gray)) 0%, color-mix(in oklab, var(--nezumi-gray) 65%, white) 70%, transparent 100%);
+    background-image: linear-gradient(90deg, color-mix(in oklab, var(--ai-blue) 68%, #0f172a) 0%, color-mix(in oklab, var(--ai-blue) 22%, white) 72%, transparent 100%);
     background-size: 100% 1px;
     background-repeat: no-repeat;
     background-position: bottom;
@@ -147,8 +167,49 @@ textarea {
 
   .wa-step-chip {
     border-radius: var(--wa-radii-md);
-    border: 1px solid color-mix(in oklab, var(--border) 85%, white);
-    background: color-mix(in oklab, var(--surface) 88%, white);
+    border: 1px solid color-mix(in oklab, var(--ai-blue) 24%, var(--border));
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 94%, white), color-mix(in oklab, var(--surface-muted) 88%, white));
+  }
+
+  .wa-form label {
+    color: color-mix(in oklab, var(--foreground) 68%, var(--nezumi-gray));
+  }
+
+  .wa-form input:not([type="checkbox"]):not([type="radio"]),
+  .wa-form select,
+  .wa-form textarea {
+    width: 100%;
+    min-height: 44px;
+    border-radius: var(--wa-radii-sm);
+    border: 1px solid var(--border);
+    background: color-mix(in oklab, var(--surface) 92%, white);
+    color: var(--foreground);
+    padding: 0.5rem 0.75rem;
+    transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
+  }
+
+  .wa-form textarea {
+    min-height: 96px;
+  }
+
+  .wa-form input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+  .wa-form select:focus-visible,
+  .wa-form textarea:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 22%, transparent);
+    border-color: color-mix(in oklab, var(--ring) 56%, white);
+  }
+
+  .wa-muted {
+    color: var(--muted-foreground);
+  }
+
+  .wa-danger {
+    color: var(--danger);
+  }
+
+  .wa-success {
+    color: var(--success);
   }
 }
 

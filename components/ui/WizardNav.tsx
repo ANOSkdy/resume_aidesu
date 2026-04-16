@@ -18,20 +18,20 @@ export const WizardNav = ({ currentStep, totalSteps, labels, className = '', var
         ステップ {currentStep} / {totalSteps}
       </p>
       <div className="relative flex items-start justify-between gap-2 sm:gap-3">
-        <div className="absolute left-0 right-0 top-4 -z-10 h-px bg-[color:var(--border)]"></div>
+        <div className="absolute left-0 right-0 top-4 -z-10 h-1 rounded-full bg-ai/12"></div>
 
         {Array.from({ length: totalSteps }).map((_, i) => {
           const stepNum = i + 1;
           const isActive = stepNum <= currentStep;
           const isCurrent = stepNum === currentStep;
 
-          let circleClass = 'flex h-10 min-h-[44px] w-10 items-center justify-center rounded-full border text-sm font-bold transition-[transform,background-color,border-color,color] wa-motion-ui';
+          let circleClass = 'flex h-10 min-h-[44px] w-10 items-center justify-center rounded-full border text-sm font-bold transition-[transform,background-color,border-color,color,box-shadow] wa-motion-ui';
           circleClass += isActive
-            ? ' border-ai bg-ai text-kinari'
-            : ' border-[var(--border)] bg-white/85 text-nezumi';
+            ? ' border-ai bg-ai text-white shadow-[0_8px_18px_rgba(6,199,85,0.32)]'
+            : ' border-ai/20 bg-white text-nezumi';
 
           const labelClass = `mt-2 break-words text-center text-[0.7rem] leading-4 font-medium sm:text-[0.75rem] ${
-            isCurrent ? 'text-ai' : 'text-nezumi'
+            isCurrent ? 'text-sumi' : 'text-nezumi'
           }`;
 
           return (

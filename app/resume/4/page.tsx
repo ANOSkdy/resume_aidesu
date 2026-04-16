@@ -159,28 +159,28 @@ export default function ResumeStep4() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-6">職歴の入力</h2>
-      <div className="mb-4 rounded-md border border-ai/20 bg-ai/8 p-3 text-xs text-sumi space-y-1">
+      <div className="wa-callout mb-4 space-y-1">
         <p>最低1件の職歴があれば次へ進めます。まずは最新・関連性の高い職歴から入力しましょう。</p>
         <p>業務内容詳細は短い下書きで大丈夫です。あとで追記する前提で気軽に入力してください。</p>
       </div>
       
       {/* 登録済みリスト */}
       <div className="mb-8 space-y-4">
-        {loading && <p className="text-sm text-gray-400">職歴を読み込み中...</p>}
+        {loading && <p className="text-sm wa-muted">職歴を読み込み中...</p>}
         {!loading && works.length === 0 && (
-          <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+          <div className="rounded-md border border-dashed border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] p-4 text-sm wa-muted">
             まだ職歴が登録されていません。直近の職歴を1件追加すると次へ進めます。
           </div>
         )}
         
         {works.map((work) => (
-          <div key={work.id} className="p-4 border rounded bg-gray-50 space-y-3">
+          <div key={work.id} className="p-4 border rounded bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] space-y-3">
             <div className="min-w-0 space-y-1">
               <div className="font-bold text-lg break-words">{work.company_name}</div>
-              <div className="text-sm text-gray-600 leading-tight break-words">
+              <div className="text-sm wa-muted leading-tight break-words">
                 {work.department} / {work.position}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs wa-muted">
                 {work.start_year}年{work.start_month}月 〜 {
                   work.is_current
                     ? '現在'
@@ -191,7 +191,7 @@ export default function ResumeStep4() {
               </div>
             </div>
             {work.description && (
-              <p className="text-sm text-gray-700 bg-white p-2 rounded border border-gray-100 whitespace-pre-wrap">
+              <p className="text-sm wa-muted bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] p-2 rounded-[var(--wa-radii-sm)] border border-[var(--border)] whitespace-pre-wrap">
                 {work.description}
               </p>
             )}
@@ -199,7 +199,7 @@ export default function ResumeStep4() {
               <Button
                 variant="outline"
                 onClick={() => work.id && onDelete(work.id)}
-                className="w-auto min-h-[32px] h-auto px-2 py-1 text-xs text-red-600 border-red-200"
+                className="w-auto min-h-[32px] h-auto border-akane/25 px-2 py-1 text-xs wa-danger"
               >
                 削除
               </Button>
@@ -213,28 +213,28 @@ export default function ResumeStep4() {
       {/* 新規追加フォーム */}
       <div className="bg-kinari p-5 rounded-md mb-6 border border-[var(--border)]">
         <h3 className="font-bold text-sm mb-1 text-ai">次に、職歴を1件追加しましょう</h3>
-        <p className="text-xs text-gray-500 mb-4">最初は簡潔でOKです。企業名・期間・業務概要だけでも十分です。</p>
+        <p className="text-xs wa-muted mb-4">最初は簡潔でOKです。企業名・期間・業務概要だけでも十分です。</p>
         <form onSubmit={handleSubmit(onAdd)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1">企業名</label>
+              <label className="block text-xs font-bold wa-muted mb-1">企業名</label>
               <input {...register('company_name', { required: true })} className="w-full p-2 border rounded text-sm" placeholder="株式会社〇〇" />
-              {errors.company_name && <span className="text-red-500 text-xs">必須です</span>}
+              {errors.company_name && <span className="wa-danger text-xs">必須です</span>}
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1">部署名</label>
+              <label className="block text-xs font-bold wa-muted mb-1">部署名</label>
               <input {...register('department')} className="w-full p-2 border rounded text-sm" placeholder="営業部" />
             </div>
           </div>
 
           <div>
-             <label className="block text-xs font-bold text-gray-600 mb-1">役職</label>
+             <label className="block text-xs font-bold wa-muted mb-1">役職</label>
              <input {...register('position')} className="w-full p-2 border rounded text-sm" placeholder="メンバー" />
           </div>
           
           <div className="flex flex-wrap gap-4 items-end">
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1">入社</label>
+              <label className="block text-xs font-bold wa-muted mb-1">入社</label>
               <div className="flex gap-1">
                 <input type="number" {...register('start_year', { valueAsNumber: true })} className="w-16 p-2 border rounded text-sm" />
                 <span className="self-center text-xs">年</span>
@@ -244,7 +244,7 @@ export default function ResumeStep4() {
             </div>
             <span className="mb-3">〜</span>
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1">退社</label>
+              <label className="block text-xs font-bold wa-muted mb-1">退社</label>
               <div className="flex gap-1 items-center">
                  {!isCurrent ? (
                    <>
@@ -268,7 +268,7 @@ export default function ResumeStep4() {
 
           <div>
               <div className="flex items-center gap-2 mb-1">
-                <label className="text-xs font-bold text-gray-600">業務内容詳細（短くてOK）</label>
+                <label className="text-xs font-bold wa-muted">業務内容詳細（短くてOK）</label>
                 <div className="relative flex-shrink-0">
                   <button
                     type="button"
@@ -284,20 +284,20 @@ export default function ResumeStep4() {
                     onClick={() => setShowHint(false)}
                   >
                     <div
-                      className="relative w-full max-w-[min(24rem,92vw)] max-h-[80vh] overflow-y-auto rounded-lg border border-gray-200 bg-white p-4 text-xs text-gray-800 shadow-xl wa-enter"
+                      className="relative w-full max-w-[min(24rem,92vw)] max-h-[80vh] overflow-y-auto rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] p-4 text-xs text-sumi shadow-xl wa-enter"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <button
                         type="button"
                         aria-label="ヒントを閉じる"
-                        className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500 shadow-sm transition-colors wa-motion-ui hover:bg-gray-200"
+                        className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] wa-muted shadow-sm transition-colors wa-motion-ui hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_75%,white)]"
                         onClick={() => setShowHint(false)}
                       >
                         ×
                       </button>
                       <div className="space-y-4 pr-1">
                         <div>
-                          <p className="font-semibold text-gray-700">【営業】</p>
+                          <p className="font-semibold wa-muted">【営業】</p>
                           <p className="mt-1">前職では法人営業として以下の業務を担当していました。</p>
                           <ul className="list-disc list-inside space-y-1 mt-1">
                             <li>新規開拓（架電・訪問・メール）</li>
@@ -310,7 +310,7 @@ export default function ResumeStep4() {
                           <p className="mt-1">顧客課題を把握し、最適な提案につなげる営業活動を行っていました。</p>
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-700">【事務】</p>
+                          <p className="font-semibold wa-muted">【事務】</p>
                           <p className="mt-1">前職では一般事務として以下の業務を担当していました。</p>
                           <ul className="list-disc list-inside space-y-1 mt-1">
                             <li>データ入力、管理</li>
@@ -323,7 +323,7 @@ export default function ResumeStep4() {
                           <p className="mt-1">正確性とスピードを意識し、サポート全般を担当していました。</p>
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-700">【接客】</p>
+                          <p className="font-semibold wa-muted">【接客】</p>
                           <p className="mt-1">前職では接客販売として以下の業務を担当していました。</p>
                           <ul className="list-disc list-inside space-y-1 mt-1">
                             <li>お客様への商品案内・販売</li>
@@ -336,7 +336,7 @@ export default function ResumeStep4() {
                           <p className="mt-1">常にお客様視点を意識し、満足度の高い接客を心がけていました。</p>
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-700">【工場（製造）】</p>
+                          <p className="font-semibold wa-muted">【工場（製造）】</p>
                           <p className="mt-1">前職では製造オペレーターとして以下の業務を担当しました。</p>
                           <ul className="list-disc list-inside space-y-1 mt-1">
                             <li>製造ラインの機械操作</li>
@@ -354,7 +354,7 @@ export default function ResumeStep4() {
                 )}
               </div>
             </div>
-            <p className="text-xs text-gray-500 mb-2">「担当業務を1〜2文」で十分です。下のテンプレートを選んで編集もできます。</p>
+            <p className="text-xs wa-muted mb-2">「担当業務を1〜2文」で十分です。下のテンプレートを選んで編集もできます。</p>
             <div className="flex flex-wrap gap-2 mb-2">
               {Object.keys(descriptionTemplates).map((roleType) => (
                 <button
@@ -364,7 +364,7 @@ export default function ResumeStep4() {
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                     selectedTemplate === roleType
                       ? 'border-ai/60 bg-ai/10 text-ai'
-                      : 'border-[var(--border)] bg-white text-nezumi hover:border-ai/45 hover:text-ai'
+                      : 'border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] text-nezumi hover:border-ai/45 hover:text-ai'
                   }`}
                 >
                   {roleType}テンプレ

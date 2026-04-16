@@ -100,11 +100,11 @@ export default function CVStep1() {
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">自己PR作成のためのヒアリング</h2>
-      <div className="mb-4 rounded border border-ai/20 bg-ai/8 p-3 text-xs text-sumi">
+      <div className="mb-4 rounded-[var(--wa-radii-sm)] border border-ai/20 bg-ai/8 p-3 text-xs text-sumi">
         <p className="font-semibold">この回答をもとに次の画面で自己PRをAI生成します。</p>
         <p className="mt-1">箇条書きや短い文章でも大丈夫です。生成後に編集して整えられます。</p>
       </div>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm wa-muted mb-6">
         まずは思いつく範囲で入力してください。<br/>
         完成度よりも「あなたらしさ」が伝わる材料を集めるステップです。
       </p>
@@ -114,7 +114,7 @@ export default function CVStep1() {
         {/* Q1 */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <label className="block text-sm font-bold text-gray-700">
+            <label className="block text-sm font-bold wa-muted">
               1. 自己の強みやPRしたいことを教えてください
             </label>
             <button
@@ -137,7 +137,7 @@ export default function CVStep1() {
                 key={`pr_summary-${role}`}
                 type="button"
                 onClick={() => onQuickFillHint('pr_summary', role)}
-                className="rounded-full border border-ai/35 bg-white px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
+                className="rounded-full border border-ai/35 bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
               >
                 {role}の例文を入力
               </button>
@@ -148,7 +148,7 @@ export default function CVStep1() {
         {/* Q2 */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <label className="block text-sm font-bold text-gray-700">
+            <label className="block text-sm font-bold wa-muted">
               2. 強みが生かされた具体的なエピソードを教えてください
             </label>
             <button
@@ -171,7 +171,7 @@ export default function CVStep1() {
                 key={`episode-${role}`}
                 type="button"
                 onClick={() => onQuickFillHint('episode', role)}
-                className="rounded-full border border-ai/35 bg-white px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
+                className="rounded-full border border-ai/35 bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
               >
                 {role}の例文を入力
               </button>
@@ -182,7 +182,7 @@ export default function CVStep1() {
         {/* Q3 */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <label className="block text-sm font-bold text-gray-700">
+            <label className="block text-sm font-bold wa-muted">
               3. 仕事をする上で大切にしていることを、理由を含めて教えてください
             </label>
             <button
@@ -205,7 +205,7 @@ export default function CVStep1() {
                 key={`policy-${role}`}
                 type="button"
                 onClick={() => onQuickFillHint('policy', role)}
-                className="rounded-full border border-ai/35 bg-white px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
+                className="rounded-full border border-ai/35 bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] px-3 py-1 text-xs text-ai transition-colors hover:bg-ai/8"
               >
                 {role}の例文を入力
               </button>
@@ -215,7 +215,7 @@ export default function CVStep1() {
 
         {/* Q4 */}
         <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">
+          <label className="block text-sm font-bold wa-muted mb-2">
             4. 希望している職種を教えてください
           </label>
           <input 
@@ -234,13 +234,13 @@ export default function CVStep1() {
           onClick={() => setOpenHint(null)}
         >
           <div
-            className="relative w-full max-w-[min(28rem,92vw)] max-h-[80vh] overflow-y-auto rounded-lg border border-gray-200 bg-white p-4 text-xs text-gray-800 shadow-xl wa-enter"
+            className="relative w-full max-w-[min(28rem,92vw)] max-h-[80vh] overflow-y-auto rounded-lg border border-[var(--border)] bg-[color:color-mix(in_oklab,var(--surface)_92%,white)] p-4 text-xs text-sumi shadow-xl wa-enter"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               aria-label="ヒントを閉じる"
-              className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-500 shadow-sm transition-colors wa-motion-ui hover:bg-gray-200"
+              className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:color-mix(in_oklab,var(--surface-muted)_88%,white)] wa-muted shadow-sm transition-colors wa-motion-ui hover:bg-[color:color-mix(in_oklab,var(--surface-muted)_75%,white)]"
               onClick={() => setOpenHint(null)}
             >
               ×
@@ -249,19 +249,19 @@ export default function CVStep1() {
               {openHint === 'pr_summary' && (
                 <>
                   <div>
-                    <p className="font-semibold text-gray-700">【営業】</p>
+                    <p className="font-semibold wa-muted">【営業】</p>
                     <p className="mt-1">私の強みは「ヒアリング力と課題解決型の提案力」です。顧客の本質的な課題をつかみ、最適な解決策に導けます。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【事務】</p>
+                    <p className="font-semibold wa-muted">【事務】</p>
                     <p className="mt-1">私の強みは「正確でミスの少ない事務処理能力」と「サポート力」です。周囲を支えながら効率的に業務を進められます。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【接客】</p>
+                    <p className="font-semibold wa-muted">【接客】</p>
                     <p className="mt-1">私の強みは「相手の気持ちをくみ取るコミュニケーション能力」です。お客様に信頼される接客ができます。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【工場（製造）】</p>
+                    <p className="font-semibold wa-muted">【工場（製造）】</p>
                     <p className="mt-1">私の強みは「集中力と丁寧さ」です。ミスを防ぎながらコツコツ作業を続けることが得意です。</p>
                   </div>
                 </>
@@ -269,25 +269,25 @@ export default function CVStep1() {
               {openHint === 'episode' && (
                 <>
                   <div>
-                    <p className="font-semibold text-gray-700">【営業職】</p>
+                    <p className="font-semibold wa-muted">【営業職】</p>
                     <p className="mt-1">私は、顧客の課題を深く理解した上で最適な提案ができる点に強みがあります。課題を正しく捉えた提案は、顧客満足と売上の双方に直結すると考えているためです。</p>
                     <p className="mt-1">実際に、既存顧客の売上が伸び悩んでいた際、業務フローを詳細にヒアリングし「非効率な作業工程」が課題であることを発見しました。そこで、既存プランの改善と新しいサービスの組み合わせを提案したところ、年間売上が〇〇万円増加し、部署表彰をいただきました。</p>
                     <p className="mt-1">この経験から、顧客の状況を的確に捉え提案につなげる力が私の強みだと自信を持っています。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【事務職】</p>
+                    <p className="font-semibold wa-muted">【事務職】</p>
                     <p className="mt-1">私は、正確性を保ちながら業務改善につなげる力が強みです。事務は正確な処理だけでなく、全体の効率を上げる工夫が求められると考えているからです。</p>
                     <p className="mt-1">繁忙期に大量のデータ入力が発生した際、入力ルールがバラバラなことでミスや時間ロスが多い状況でした。そこで私は、入力ルールを統一したフォーマットを作成しチームに共有。結果、処理速度が20％向上し、ミスも大幅に減少しました。</p>
                     <p className="mt-1">業務の正確性を守りながら改善を進められる点が、私の強みであり価値だと考えています。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【接客職】</p>
+                    <p className="font-semibold wa-muted">【接客職】</p>
                     <p className="mt-1">私は、お客様のニーズを正確に把握し、満足度の高い接客につなげる力があります。接客において、お客様が本当に求めていることを理解することが、信頼につながるためです。</p>
                     <p className="mt-1">購入を迷っていたお客様に対し、使用シーンを丁寧にヒアリングした上で複数の商品を比較しながら説明したところ、「丁寧で安心できた」と評価いただき、その場で購入につながりました。その後、指名をいただくことも増えました。</p>
                     <p className="mt-1">お客様の気持ちを汲み取った接客ができることが私の大きな強みです。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【工場（製造職）】</p>
+                    <p className="font-semibold wa-muted">【工場（製造職）】</p>
                     <p className="mt-1">私は、正確な作業と改善提案により品質向上に貢献できる点が強みです。製造現場では、小さな改善が大きな生産性向上につながると理解しているためです。</p>
                     <p className="mt-1">不良品が増えていたラインで、作業工程ごとの手順を洗い出し、問題箇所を可視化しました。そこで改善案を提案し実施した結果、不良率が〇〇％削減され、班長から表彰をいただきました。</p>
                     <p className="mt-1">確実な作業に加えて改善に取り組める点が、現場で発揮できる私の強みです。</p>
@@ -297,25 +297,25 @@ export default function CVStep1() {
               {openHint === 'policy' && (
                 <>
                   <div>
-                    <p className="font-semibold text-gray-700">【営業職】</p>
+                    <p className="font-semibold wa-muted">【営業職】</p>
                     <p className="mt-1">私が最も大切にしているのは「信頼関係の構築」です。営業は単なる商品説明ではなく、信頼があるからこそ価値で選ばれる仕事だと考えているためです。</p>
                     <p className="mt-1">実際に、顧客と定期的にコミュニケーションを取りながら課題を聞き出し、丁寧に改善提案を行ったことで「あなたから買いたい」という言葉をいただき、継続契約にもつながりました。</p>
                     <p className="mt-1">だからこそ、私は信頼を積み重ねる営業スタイルを最も大切にしています。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【事務職】</p>
+                    <p className="font-semibold wa-muted">【事務職】</p>
                     <p className="mt-1">私は「正確性と期日遵守」を最も大切にしています。事務のミスは会社全体の信用や業務に影響するため、最も重要だと考えているからです。</p>
                     <p className="mt-1">提出期限が重なった繁忙期でも、優先順位を整理し、全業務を期限内にミスなく完了させたことで部署全体の進行がスムーズになり、上司から評価をいただきました。</p>
                     <p className="mt-1">この経験から、正確で期限を守る姿勢を今後も徹底していきます。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【接客職】</p>
+                    <p className="font-semibold wa-muted">【接客職】</p>
                     <p className="mt-1">私が大切にしているのは「相手目線で行動すること」です。お客様が快適に過ごせるかどうかは、相手の立場を理解できるかに左右されるためです。</p>
                     <p className="mt-1">混雑時にもお客様一人ひとりの状況を確認し、声がけや案内を工夫したことで、クレームが減少し、店舗評価が向上しました。</p>
                     <p className="mt-1">相手目線で考え続ける姿勢が、質の高い接客につながると確信しています。</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">【工場（製造職）】</p>
+                    <p className="font-semibold wa-muted">【工場（製造職）】</p>
                     <p className="mt-1">私は「安全第一」を最も大切にしています。安全が守られてこそ、高品質な製品づくりや効率向上につながるためです。</p>
                     <p className="mt-1">作業手順が複雑な工程で危険が潜んでいたため、危険箇所の見える化や手順改善を提案し、事故ゼロを維持できました。上司からも「現場の安全意識が高まった」と評価されました。</p>
                     <p className="mt-1">安全意識を高く持ち続けることが、安定した生産に欠かせないと考えています。</p>
